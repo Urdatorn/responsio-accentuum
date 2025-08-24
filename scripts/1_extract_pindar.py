@@ -17,7 +17,7 @@ def transform_tei(input_file, output_file):
     def extract_line_text(line):
         """Return the line text excluding seg[@rend='Marginalia'],
         turning <space/> into a literal space, ignoring <pb/> but
-        always keeping element tails. Collapses whitespace."""
+        always keeping element tails. Cleans ⸐ and collapses whitespace."""
         parts = []
 
         # Text before the first child
@@ -28,36 +28,33 @@ def transform_tei(input_file, output_file):
             if node is line:
                 continue
 
-            # Namespace-agnostic localname
             tag = etree.QName(node).localname if isinstance(node.tag, str) else None
 
-            # Drop marginalia glyph but keep its tail (the real line text)
             if tag == "seg" and node.get("rend") == "Marginalia":
                 if node.tail:
                     parts.append(node.tail)
                 continue
 
-            # Explicit space marker
             if tag == "space":
                 parts.append(" ")
                 if node.tail:
                     parts.append(node.tail)
                 continue
 
-            # Page break: ignore element but keep following text
             if tag == "pb":
                 if node.tail:
                     parts.append(node.tail)
                 continue
 
-            # Generic element: keep its text and tail
             if node.text:
                 parts.append(node.text)
             if node.tail:
                 parts.append(node.tail)
 
         text = "".join(parts)
-        # normalize whitespace (indentation/newlines from pretty XML)
+        # remove ⸐ chars
+        text = text.replace("⸐", "")
+        # normalize whitespace
         text = re.sub(r"\s+", " ", text).strip()
         return text
 
@@ -78,7 +75,7 @@ def transform_tei(input_file, output_file):
     new_text = etree.SubElement(new_root, "text")
     new_body = etree.SubElement(new_text, "body")
 
-    # All odes -> one canticum each, responsion fixed per canticum
+    # All odes -> one canticum each
     odes = root.xpath("//tei:div[@type='Ode']", namespaces=ns)
     for canticum_index, ode in enumerate(odes, start=1):
         canticum = etree.SubElement(new_body, "canticum")
@@ -86,7 +83,6 @@ def transform_tei(input_file, output_file):
 
         strophe = None
         for line in ode.xpath(".//tei:l", namespaces=ns):
-            # Start a new strophe when we see a marginalia marker
             has_marginalia = line.xpath(".//tei:seg[@rend='Marginalia']", namespaces=ns)
             if has_marginalia:
                 strophe = etree.SubElement(
@@ -96,12 +92,11 @@ def transform_tei(input_file, output_file):
                     responsion=responsion_id,
                 )
 
-            # Append lines to the current strophe
             if strophe is not None:
                 l = etree.SubElement(strophe, "l", n=line.get("n"), metre="")
                 l.text = extract_line_text(line)
 
-        # If no marginalia found at all, wrap the whole ode in one strophe
+        # If no marginalia at all
         if not canticum.findall("strophe"):
             strophe = etree.SubElement(
                 canticum, "strophe", type="strophe", responsion=responsion_id
@@ -109,6 +104,13 @@ def transform_tei(input_file, output_file):
             for line in ode.xpath(".//tei:l", namespaces=ns):
                 l = etree.SubElement(strophe, "l", n=line.get("n"), metre="")
                 l.text = extract_line_text(line)
+
+        # --- Sanity check ---
+        lengths = [len(s.findall("l")) for s in canticum.findall("strophe")]
+        if lengths and len(set(lengths)) > 1:
+            print(
+                f"[WARNING] Canticum {canticum_index} has inconsistent strophe lengths: {lengths}"
+            )
 
     # Write output
     out_tree = etree.ElementTree(new_root)

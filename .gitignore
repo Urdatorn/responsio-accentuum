@@ -2,3 +2,6 @@
 .vscode/
 
 data/source/
+diagnostics/
+
+bench_clean.py
