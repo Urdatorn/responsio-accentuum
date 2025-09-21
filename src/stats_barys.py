@@ -540,6 +540,58 @@ def barys_oxys_metric_corpus(folder="data/compiled/", exclude_substr="baseline")
 # MAIN
 # ------------------------------------------------------------------------
 
+def barys_detailed_print(input_file):
+
+    tree = etree.parse(input_file)
+
+    canticum_ids = ["py04"]
+
+    for responsion in canticum_ids:
+        print(f"\nCanticum: {responsion}")
+            
+        all_barys_oxys_canticum_dict = count_all_barys_oxys_canticum(tree, responsion)
+        print(all_barys_oxys_canticum_dict)
+        sum_barys = all_barys_oxys_canticum_dict['barys']
+        sum_oxys = all_barys_oxys_canticum_dict['oxys']
+        sum_barys_oxys = sum_barys + sum_oxys
+
+        strophes = tree.xpath(f'//strophe[@responsion="{responsion}"] | //antistrophe[@responsion="{responsion}"]') # bug fix (was only strophe)
+        n = len(strophes)
+
+        barys_oxys_results = barys_accentually_responding_syllables_of_strophes_polystrophic(*strophes)
+
+        if not barys_oxys_results:
+            print("No valid barys/oxys matches found.\n")
+            continue  # Skip to next responsion if no results
+
+        barys_list, oxys_list = barys_oxys_results
+
+        print(f"Barys matches: {len(barys_list)}")
+        print(f"Oxys matches:  {len(oxys_list)}\n")
+
+        barys_metric = (n * len(barys_list)) / sum_barys if sum_barys > 0 else 0
+        oxys_metric = (n * len(oxys_list)) / sum_oxys if sum_oxys > 0 else 0
+        barys_oxys_metric = (n * (len(barys_list) + len(oxys_list))) / sum_barys_oxys if sum_barys_oxys > 0 else 0
+
+        print(f"Barys metric: {barys_metric:.3f}")
+        print(f"Oxys metric:  {oxys_metric:.3f}")
+        print(f"Barys + Oxys metric: {barys_oxys_metric:.3f}\n")
+
+        if barys_list:
+            print("--- BARYS MATCHES ---")
+            for match_idx, match_set in enumerate(barys_list, start=1):
+                print(f"  Match #{match_idx}:")
+                for (line_id, unit_ord), text in match_set.items():
+                    print(f"    (line {line_id}, ord={unit_ord}) => \"{text}\"")
+                print()
+
+        if oxys_list:
+            print("--- OXYS MATCHES ---")
+            for match_idx, match_set in enumerate(oxys_list, start=1):
+                print(f"  Match #{match_idx}:")
+                for (line_id, unit_ord), text in match_set.items():
+                    print(f"    (line {line_id}, ord={unit_ord}) => \"{text}\"")
+                print()
 
 if __name__ == "__main__":
 
