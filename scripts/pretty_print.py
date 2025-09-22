@@ -1,7 +1,7 @@
 from lxml import etree
 
-input_file = "data/scan/fourth_pythian.xml"
-output_file = "data/scan/fourth_pythian_pretty.xml"
+input_file = "data/macronized/fourth_pythian_macronized.xml"
+output_file = "data/macronized/fourth_pythian_pretty.xml"
 
 # Parse the XML
 parser = etree.XMLParser(remove_blank_text=True)

@@ -5,3 +5,12 @@ data/source/
 diagnostics/
 
 bench_clean.py
+
+logs/
+
+data/macronized/*
+data/raw/*
+
+data/compiled/test/*
+
+*test.py
