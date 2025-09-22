@@ -527,7 +527,7 @@ def barys_oxys_metric_corpus(folder="data/compiled/", exclude_substr="baseline")
     oxys_metric = oxys_matches / sum_oxys if sum_oxys > 0 else 0
     barys_oxys_metric = (barys_matches + oxys_matches) / sum_barys_oxys if sum_barys_oxys > 0 else 0
 
-    print(f"Total barys matches in corpus: {barys_matches}, Oxys matches: {oxys_matches}")
+    print(f"Total barys match groups in corpus: {len(barys_list)}")
 
     results = {
         'barys_metric': barys_metric,
@@ -566,8 +566,8 @@ def barys_detailed_print(input_file):
 
         barys_list, oxys_list = barys_oxys_results
 
-        print(f"Barys matches: {len(barys_list)}")
-        print(f"Oxys matches:  {len(oxys_list)}\n")
+        print(f"Barys match groups: {len(barys_list)}")
+        #print(f"Oxys match groups:  {len(oxys_list)}\n")
 
         barys_metric = (n * len(barys_list)) / sum_barys if sum_barys > 0 else 0
         oxys_metric = (n * len(oxys_list)) / sum_oxys if sum_oxys > 0 else 0

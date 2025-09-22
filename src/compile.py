@@ -202,6 +202,7 @@ def assert_responsion(xml_text):
         strophe_lines = [strophe.findall('.//l') for strophe in strophes]
         
         # Compare corresponding lines
+        buggy_lines = 0
         for line_index, lines in enumerate(zip(*strophe_lines)):
             line_numbers = [l.get('n', 'unknown') for l in lines]
             
@@ -222,12 +223,21 @@ def assert_responsion(xml_text):
             last_strophe_highlighted = "".join([f"\033[31m{syll.text}\033[0m" if idx in diff_indices else syll.text for idx, syll in enumerate(last_strophe_sylls)])
             last_strophe_metre = " ".join([f"\033[31m{syll}\033[0m" if idx in diff_indices else syll for idx, syll in enumerate(last_strophe_metre.split())]) # pythonic :)
 
-            assert metrically_responding_lines_polystrophic(*lines), \
-                f"\nLines {', '.join(line_numbers)} in responsion group '{responsion_id}' do not respond metrically.\n" \
-                f"Str 1:\t {first_strophe_metre}\n" \
-                f"Str -1:\t {last_strophe_metre}\n" \
-                f"Text:\t {last_strophe_highlighted}\n" \
-                f"{len(diff_indices)} diffs at positions: {human_readable_diff_indices}."
+            if not metrically_responding_lines_polystrophic(*lines):
+                buggy_lines += 1
+                print(
+                    f"\nLines {', '.join(line_numbers)} in responsion group '{responsion_id}' do not respond metrically.\n"
+                    f"Str 1:\t {first_strophe_metre}\n" \
+                    f"Str -1:\t {last_strophe_metre}\n" \
+                    f"Text:\t {last_strophe_highlighted}\n" \
+                    f"{len(diff_indices)} diffs at positions: {human_readable_diff_indices}."
+                )
+        if buggy_lines > 0:
+            print(f"\nBuggy lines: \033[31m{buggy_lines}\033[0m out of {len(strophe_lines[0])} lines in responsion group '{responsion_id}'.\n")
+        else:
+            print(f"\033[32mNo bugs in responsion group '{responsion_id}'. Good!\033[0m\n")
+
+    return buggy_lines == 0
 
 def process_file(input_file, output_file):
     """Process the XML file and save the output."""
@@ -242,9 +252,10 @@ def process_file(input_file, output_file):
     xml_content = order_l_attributes(xml_content)
     xml_content = remove_empty_cantica(xml_content)
     validator(xml_content) # validate XML syntax
-    assert_responsion(xml_content) # validate scansion
+    perfect_responsion = assert_responsion(xml_content) # validate scansion
 
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(xml_content)
+    if perfect_responsion:
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write(xml_content)
 
-    print(f"Processed XML saved to {output_file}")
+        print(f"Processed XML saved to {output_file}")
