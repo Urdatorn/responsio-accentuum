@@ -40,12 +40,13 @@ def rule_scansion(input):
     line = ""
 
     for idx, syll in enumerate(sylls):
-
-        syll_clean = re.sub(to_clean, "", syll.strip())
         next_syll = sylls[idx + 1] if idx + 1 < len(sylls) else ""
 
+        syll_clean = re.sub(to_clean, "", syll.strip())
+        next_syll_clean = re.sub(to_clean, "", next_syll.strip())
+
         # preempt vowel hiatus and correption
-        if vowel(syll[-1]) and next_syll.startswith(" ") and vowel(next_syll[1]):
+        if vowel(syll_clean[-1]) and vowel(next_syll_clean[0]) and (syll.endswith(" ") or next_syll.startswith(" ")):
             line = line + "{" + f"{syll}" + "}"
 
         elif any("_" in char for char in syll):
