@@ -27,6 +27,7 @@ Sections:
 
 import argparse
 from collections import defaultdict
+from itertools import combinations
 from lxml import etree
 import os
 from pathlib import Path
@@ -268,6 +269,16 @@ def barys_accentually_responding_syllables_of_lines(*lines):
 
     Returns:
     list: [barys_list, oxys_list], or False if mismatch.
+
+    where barys_list contains one dict (of length = number of strophes) per barys match, 
+    with the key being a tuple of n attribute of the l element, 
+    and the ordinal (counting from 1) of the second (or only) syll of the barys accent that is the value.
+
+    E.g [{('2', 5): 'ίππου ', ('25', 5): 'νάντω', ('48', 5): 'κείνα^ν '}] is interpreted as
+    Match #1 (out of 1):
+     (line 2, 5th syll) => "ίππου "
+     (line 25, 5th syll) => "νάντω"
+     (line 48, 5th syll) => "κείνα^ν "
     """
     if not metrically_responding_lines_polystrophic(*lines):
         print(f"Lines {[line.get('n') for line in lines]} do not metrically respond.")
@@ -326,7 +337,6 @@ def barys_accentually_responding_syllables_of_lines(*lines):
             })
 
     return [barys_list, oxys_list]
-
 
 # ------------------------------------------------------------------------
 # PER-STROPHE RESPONSION
@@ -540,11 +550,12 @@ def barys_oxys_metric_corpus(folder="data/compiled/", exclude_substr="baseline")
 # MAIN
 # ------------------------------------------------------------------------
 
-def barys_detailed_print(input_file):
+def barys_detailed_print(input_file, canticum_ids):
+    '''
+    canticum_ids is a list like ["py03", "py04"]
+    '''
 
     tree = etree.parse(input_file)
-
-    canticum_ids = ["py04"]
 
     for responsion in canticum_ids:
         print(f"\nCanticum: {responsion}")
