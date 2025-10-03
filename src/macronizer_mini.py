@@ -3,7 +3,7 @@ from transformers import AutoTokenizer, AutoModelForTokenClassification
 from syllagreek_utils import preprocess_greek_line, syllabify_joined
 from torch.nn.functional import softmax
 
-from grc_utils import is_vowel, short_vowel, is_diphthong, short_set
+from grc_utils import vowel, short_vowel, is_diphthong
 
 model_path = "Ericu950/macronizer_mini"
 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=True)
@@ -160,7 +160,7 @@ def macronize_mini(line):
     def heavy_syll(syll):
         """Check if a syllable is heavy (either ends on a consonant or contains a long vowel/diphthong)."""
         
-        closed = not is_vowel(syll[-1])
+        closed = not vowel(syll[-1])
         
         substrings = [syll[i:i+2] for i in range(len(syll) - 1)]
         has_diphthong = any(is_diphthong(substring) for substring in substrings)
@@ -182,6 +182,3 @@ def macronize_mini(line):
             macronized_line = macronized_line + "{" + f"{syll}{label_map[label]}" + "}"
 
     return macronized_line
-
-input = "Σάμερον μὲν χρή σε παρ' ἀνδρὶ φίλῳ"
-print(macronize_mini(input))

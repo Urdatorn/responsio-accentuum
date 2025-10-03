@@ -24,11 +24,13 @@ def heavy_syll(syll):
     
     return closed or has_diphthong or has_long
 
-def rule_scansion(input):
+def rule_scansion(input, correption=True):
     '''
     Scans vowel-length annotated text (^ and _), putting [] around heavy and {} around light sylls.
     '''
     sylls = syllabifier(input)
+    # remove empty sylls
+    sylls = [syll for syll in sylls if syll]
 
     # iterate through sylls and next_sylls: if syll 1) does not contain U+02C8 (ˈ), MODIFIER LETTER VERTICAL LINE, and 2) syll[-1] in muta and 3) next_syll[1] in liquida too, then move syll[-1] to the beginning of next_syll.
     for idx, syll in enumerate(sylls):
@@ -46,17 +48,27 @@ def rule_scansion(input):
         next_syll_clean = re.sub(to_clean, "", next_syll.strip())
 
         # preempt vowel hiatus and correption
-        if vowel(syll_clean[-1]) and vowel(next_syll_clean[0]) and (syll.endswith(" ") or next_syll.startswith(" ")):
-            line = line + "{" + f"{syll}" + "}"
+        if correption:
+            if next_syll and (vowel(syll_clean[-1]) and vowel(next_syll_clean[0]) and (syll.endswith(" ") or next_syll.startswith(" "))):
+                    line = line + "{" + f"{syll}" + "}"
 
-        elif any("_" in char for char in syll):
-            line = line + "[" + f"{syll}" + "]"
-        elif syll_clean[-1] == "^":
-            line = line + "{" + f"{syll}" + "}"
-        elif heavy_syll(syll):
-            line = line + "[" + f"{syll}" + "]"
+            elif any("_" in char for char in syll):
+                line = line + "[" + f"{syll}" + "]"
+            elif syll_clean[-1] == "^":
+                line = line + "{" + f"{syll}" + "}"
+            elif heavy_syll(syll):
+                line = line + "[" + f"{syll}" + "]"
+            else:
+                line = line + "{" + f"{syll}" + "}"
         else:
-            line = line + "{" + f"{syll}" + "}"
+            if any("_" in char for char in syll):
+                line = line + "[" + f"{syll}" + "]"
+            elif syll_clean[-1] == "^":
+                line = line + "{" + f"{syll}" + "}"
+            elif heavy_syll(syll):
+                line = line + "[" + f"{syll}" + "]"
+            else:
+                line = line + "{" + f"{syll}" + "}"
 
     return line
 

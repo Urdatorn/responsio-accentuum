@@ -1,12 +1,9 @@
 # a_extract.py
 '''
-First step of the XML processing pipeline for the accentual responsion project, Urdatorn/aristophanis-cantica.
+First step of the XML processing pipeline for the accentual responsion project, Urdatorn/responsio-accentuum.
 
 Takes a TEI XML file and extracts manually chosen responding strophes, formatting them as <canticum> elements with <strophe> and <antistrophe> children.
 '''
-
-input_file = "data/source/02_pythia.xml"
-output_file = "data/raw/02_pythia_raw.xml"
 
 import re
 from lxml import etree
@@ -121,8 +118,6 @@ def transform_tei(input_file, output_file):
         pretty_print=True
     )
 
-if __name__ == "__main__":
-    transform_tei(input_file, output_file)
 
 
 
