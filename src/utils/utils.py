@@ -1,7 +1,6 @@
 '''
 I include here some functionality generally useful for the inference scripts and notebooks.
 ''' 
-from src.utils.baselines import baseline_dict
 
 from collections import Counter
 from lxml import etree
@@ -40,19 +39,6 @@ three_strophe_cantica = [
     "ra04"
 ]
 
-def baseline(metric="comp", one_of_the_six_baseline_types="trimeter_2_strophic", accent=None):
-    '''
-    args:
-        - metric in ["acc", "barys", "comp"]
-        - one_of_the_six_baseline_types in ["tetrameter_4_strophes", "trimeter_2_strophic", "trimeter_3_strophes", "trimeter_4_strophes", "tetrameter_2_strophes", "tetrameter_3_strophes"]
-        - "comp" takes no accent.
-            - for "acc", accent in ["acute", "acute_circumflex", "circumflex", "grave"]
-            - for "barys", accent in ["barys_metric", "barys_oxys_metric", "oxys_metric"]
-    '''
-    if metric == "comp":
-        return baseline_dict[metric][one_of_the_six_baseline_types]
-    else:
-        return baseline_dict[metric][one_of_the_six_baseline_types][accent]
 
 
 def get_canticum_ids(abbreviations):
@@ -99,5 +85,50 @@ def get_strophicity(abbreviations):
 
     return more_than_two, exactly_two
 
+from lxml import etree
 
+def get_text_matrix(xml_filepath):
+    '''
+    Get a 2D list (matrix) representing the syllable structure 
+    of the text of the first strophe in the given XML file,
+    so it can be superpositioned over a heatmap.
+    '''
+    # Load XML
+    tree = etree.parse(xml_filepath)
+    root = tree.getroot()
+
+    # Get first <strophe>, because the all have the same shape
+    first_strophe = root.find(".//strophe[1]")
+
+    text_matrix = []
+
+    # Iterate over <l> children
+    for l in first_strophe.findall("l"):
+        line_sylls = []
+        buffer = ""
+        prev_resolved = False
+        
+        for syll in l.findall("syll"):
+            resolved = syll.get("resolution") == "True"
+            content = syll.text or ""
+            
+            if prev_resolved and resolved:
+                # join with previous
+                buffer += content
+            else:
+                # flush previous buffer if any
+                if buffer:
+                    line_sylls.append(buffer)
+                buffer = content
+            
+            prev_resolved = resolved
+        
+        # Append any remaining buffer
+        if buffer:
+            line_sylls.append(buffer)
+        
+        text_matrix.append(line_sylls)
+
+    row_lengths = [len(row) for row in text_matrix]
+    return text_matrix, row_lengths
 
