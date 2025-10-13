@@ -210,6 +210,36 @@ def assert_responsion(xml_text):
             first_strophe_metre = ["u" if syll == "light" else "–" for syll in first_strophe_metre]
             first_strophe_metre = " ".join(first_strophe_metre)
 
+            if len(lines) > 4:
+                fourth_strophe_metre = canonical_sylls(lines[3])
+                fourth_strophe_metre = ["u" if syll == "light" else "–" for syll in fourth_strophe_metre]
+                fourth_strophe_metre = " ".join(fourth_strophe_metre)
+                third_strophe_metre = canonical_sylls(lines[2])
+                third_strophe_metre = ["u" if syll == "light" else "–" for syll in third_strophe_metre]
+                third_strophe_metre = " ".join(third_strophe_metre)
+                second_strophe_metre = canonical_sylls(lines[1])
+                second_strophe_metre = ["u" if syll == "light" else "–" for syll in second_strophe_metre]
+                second_strophe_metre = " ".join(second_strophe_metre)
+            elif len(lines) > 3:
+                fourth_strophe_metre = ""
+                third_strophe_metre = canonical_sylls(lines[2])
+                third_strophe_metre = ["u" if syll == "light" else "–" for syll in third_strophe_metre]
+                third_strophe_metre = " ".join(third_strophe_metre)
+                second_strophe_metre = canonical_sylls(lines[1])
+                second_strophe_metre = ["u" if syll == "light" else "–" for syll in second_strophe_metre]
+                second_strophe_metre = " ".join(second_strophe_metre)
+            elif len(lines) > 2:
+                fourth_strophe_metre = ""
+                third_strophe_metre = ""
+                second_strophe_metre = canonical_sylls(lines[1])
+                second_strophe_metre = ["u" if syll == "light" else "–" for syll in second_strophe_metre]
+                second_strophe_metre = " ".join(second_strophe_metre)
+            else:
+                fourth_strophe_metre = ""
+                third_strophe_metre = ""
+                second_strophe_metre = ""
+
+
             last_strophe_metre = canonical_sylls(lines[-1])
             last_strophe_metre = ["u" if syll == "light" else "–" for syll in last_strophe_metre]
             last_strophe_metre = " ".join(last_strophe_metre)
@@ -228,6 +258,9 @@ def assert_responsion(xml_text):
                 print(
                     f"\nLines {', '.join(line_numbers)} in responsion group '{responsion_id}' do not respond metrically.\n"
                     f"Str 1:\t {first_strophe_metre}\n" \
+                    f"Str 2:\t {second_strophe_metre}\n" \
+                    f"Str 3:\t {third_strophe_metre}\n" \
+                    f"Str 4:\t {fourth_strophe_metre}\n" \
                     f"Str -1:\t {last_strophe_metre}\n" \
                     f"Text:\t {last_strophe_highlighted}\n" \
                     f"{len(diff_indices)} diffs at positions: {human_readable_diff_indices}."
