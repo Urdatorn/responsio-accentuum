@@ -224,6 +224,21 @@ def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None
             line_num += 1
         return line_num
     
+    def add_lines_with_absolute_numbering(parent_elem, lines, start_line_num, section_type=None):
+        """Add line elements to parent with absolute line numbering"""
+        line_num = start_line_num
+        for i, line_content in enumerate(lines):
+            l_elem = ET.SubElement(parent_elem, 'l')
+            l_elem.set('n', str(line_num))
+            # Mark first line of antistrophe or epode sections
+            if i == 0 and section_type in ['antistrophe', 'epode']:
+                l_elem.set('metre', section_type)
+            else:
+                l_elem.set('metre', '')
+            l_elem.text = line_content
+            line_num += 1
+        return line_num
+    
     def prettify_xml(tei):
         """Convert to pretty-printed XML string"""
         xml_str = ET.tostring(tei, encoding='unicode')
@@ -237,7 +252,7 @@ def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None
     # VERSION 2: Epodes only
     tei_epodes, body_epodes = create_base_structure()
     
-    # VERSION 3: Strophes and antistrophes only (merged)
+    # VERSION 3: Strophes and antistrophes as separate elements (no epodes)
     tei_strophes, body_strophes = create_base_structure()
     
     for poem_num in sorted(poems_dict.keys()):
@@ -261,48 +276,61 @@ def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None
             triads[num][strophe_type] = poem_data[key]
         
         # Process each triad
-        line_num_triads = 1
-        line_num_epodes = 1
-        line_num_strophes = 1
+        line_num_global = 1  # Global line number counter for absolute numbering
         
         for triad_num in sorted(triads.keys()):
             triad = triads[triad_num]
+            
+            # Calculate line numbers for each section in this triad
+            strophe_start = line_num_global
+            strophe_lines = len(triad.get('strophe', []))
+            
+            antistrophe_start = strophe_start + strophe_lines
+            antistrophe_lines = len(triad.get('antistrophe', []))
+            
+            epode_start = antistrophe_start + antistrophe_lines
+            epode_lines = len(triad.get('epode', []))
             
             # VERSION 1: Merged triad
             strophe_elem_triads = ET.SubElement(canticum_triads, 'strophe')
             strophe_elem_triads.set('type', 'strophe')
             strophe_elem_triads.set('responsion', f'ol{poem_num:02d}')
             
+            current_line = line_num_global
             # Add strophe lines (no special marking for first line)
             if 'strophe' in triad:
-                line_num_triads = add_lines(strophe_elem_triads, triad['strophe'], line_num_triads)
+                current_line = add_lines(strophe_elem_triads, triad['strophe'], current_line)
             
             # Add antistrophe lines (mark first line)
             if 'antistrophe' in triad:
-                line_num_triads = add_lines(strophe_elem_triads, triad['antistrophe'], line_num_triads, 'antistrophe')
+                current_line = add_lines(strophe_elem_triads, triad['antistrophe'], current_line, 'antistrophe')
             
             # Add epode lines (mark first line)
             if 'epode' in triad:
-                line_num_triads = add_lines(strophe_elem_triads, triad['epode'], line_num_triads, 'epode')
+                current_line = add_lines(strophe_elem_triads, triad['epode'], current_line, 'epode')
             
-            # VERSION 2: Epodes only
+            # VERSION 2: Epodes only (with absolute line numbering)
             if 'epode' in triad:
                 strophe_elem_epodes = ET.SubElement(canticum_epodes, 'strophe')
                 strophe_elem_epodes.set('type', 'epode')
                 strophe_elem_epodes.set('responsion', f'ol{poem_num:02d}')
-                line_num_epodes = add_lines(strophe_elem_epodes, triad['epode'], line_num_epodes)
+                add_lines_with_absolute_numbering(strophe_elem_epodes, triad['epode'], epode_start)
             
-            # VERSION 3: Strophes and antistrophes merged (no epodes)
-            if 'strophe' in triad or 'antistrophe' in triad:
+            # VERSION 3: Strophes and antistrophes as separate elements (with absolute line numbering)
+            if 'strophe' in triad:
                 strophe_elem_strophes = ET.SubElement(canticum_strophes, 'strophe')
                 strophe_elem_strophes.set('type', 'strophe')
                 strophe_elem_strophes.set('responsion', f'ol{poem_num:02d}')
-                
-                if 'strophe' in triad:
-                    line_num_strophes = add_lines(strophe_elem_strophes, triad['strophe'], line_num_strophes)
-                
-                if 'antistrophe' in triad:
-                    line_num_strophes = add_lines(strophe_elem_strophes, triad['antistrophe'], line_num_strophes)
+                add_lines_with_absolute_numbering(strophe_elem_strophes, triad['strophe'], strophe_start)
+            
+            if 'antistrophe' in triad:
+                antistrophe_elem = ET.SubElement(canticum_strophes, 'strophe')
+                antistrophe_elem.set('type', 'antistrophe')
+                antistrophe_elem.set('responsion', f'ol{poem_num:02d}')
+                add_lines_with_absolute_numbering(antistrophe_elem, triad['antistrophe'], antistrophe_start)
+            
+            # Update global line counter for next triad
+            line_num_global = current_line
     
     # Prettify all versions
     xml_triads = prettify_xml(tei_triads)
@@ -314,23 +342,23 @@ def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None
         # Remove extension if present
         base_path = output_file.rsplit('.', 1)[0] if '.' in output_file else output_file
         
-        # Save merged triads (main file)
+        # Save version 1: merged triads (with starts of antistrophes and epodes marked)
         with open(f"{base_path}_triads.xml", 'w', encoding='utf-8') as f:
             f.write(xml_triads)
         if debug:
-            print(f"TEI XML (merged triads) saved to: {base_path}.xml")
+            print(f"TEI XML (merged triads) saved to: {base_path}_triads.xml")
         
-        # Save epodes only
+        # Save version 2: epodes only
         with open(f"{base_path}_epodes.xml", 'w', encoding='utf-8') as f:
             f.write(xml_epodes)
         if debug:
             print(f"TEI XML (epodes only) saved to: {base_path}_epodes.xml")
         
-        # Save strophes only
+        # Save version 3: strophes and antistrophes as separate elements
         with open(f"{base_path}_strophes.xml", 'w', encoding='utf-8') as f:
             f.write(xml_strophes)
         if debug:
-            print(f"TEI XML (strophes/antistrophes only) saved to: {base_path}_strophes.xml")
+            print(f"TEI XML (strophes/antistrophes as separate elements) saved to: {base_path}_strophes.xml")
     
     return xml_triads, xml_epodes, xml_strophes
 
