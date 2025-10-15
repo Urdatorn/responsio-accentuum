@@ -1,4 +1,6 @@
 '''
+Script to prepare both lyric and prose baselines for Pindar's odes. 
+
 baseline B(r, i, j) for strophe with r refrains, and whose shortest line has i syllables and longest j: 
 extract sample of r sentences randomly from some prose corpus, 
 select only the last n syllables and compute comp score and p value convergence after 100 random samples, 
@@ -17,6 +19,9 @@ punctuation_except_period = r'[\u0387\u037e\u00b7,!?;:\"()\[\]{}<>«»\-—…|�
 
 
 def get_shape(xml_filepath):
+    '''
+    Prepare for making a text matrix overlay on a heatmap.
+    '''
     # Load XML
     tree = etree.parse(xml_filepath)
     root = tree.getroot()

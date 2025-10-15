@@ -87,7 +87,7 @@ def get_strophicity(abbreviations):
 
 from lxml import etree
 
-def get_text_matrix(xml_filepath):
+def get_text_matrix(xml_filepath, canticum_index=1):
     '''
     Get a 2D list (matrix) representing the syllable structure 
     of the text of the first strophe in the given XML file,
@@ -97,8 +97,10 @@ def get_text_matrix(xml_filepath):
     tree = etree.parse(xml_filepath)
     root = tree.getroot()
 
-    # Get first <strophe>, because the all have the same shape
-    first_strophe = root.find(".//strophe[1]")
+    desired_canticum = root.find(f".//canticum[{canticum_index}]")
+
+    # Get first <strophe>-child of the <canticum>
+    first_strophe = desired_canticum.find(".//strophe[1]")  # XPath is 1-indexed
 
     text_matrix = []
 

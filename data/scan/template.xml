@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Pythia</title>
+        <author>Pindar</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <canticum>
+        <strophe type="strophe" responsion="ol01">
+          <l n="1" metre="">{Ἄ}[ρισ][τον ]{μὲ}{ν ὕ}[δω]{ρ, ὁ }[δὲ χˈ][ρυ]{σὸ}[ς αἰ]{θό}{με}[νον ][πῦρ]</l>
+        </strophe>
+        <strophe type="strophe" responsion="ol01">
+          <l n="30" metre="">{Χά}[ρις ][δ', ἅ]{πε}{ρ ἅ}[παν]{τα }[τεύ][χει ]{τὰ }[μεί]{λι}{χα }[θνα][τοῖς,]</l>
+        </strophe>
+      </canticum>
+    </body>
+  </text>
+</TEI>

@@ -312,7 +312,7 @@ def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None
             # VERSION 2: Epodes only (with absolute line numbering)
             if 'epode' in triad:
                 strophe_elem_epodes = ET.SubElement(canticum_epodes, 'strophe')
-                strophe_elem_epodes.set('type', 'epode')
+                strophe_elem_epodes.set('type', 'strophe')
                 strophe_elem_epodes.set('responsion', f'ol{poem_num:02d}')
                 add_lines_with_absolute_numbering(strophe_elem_epodes, triad['epode'], epode_start)
             

@@ -180,11 +180,127 @@ def validator(text):
         # Check for empty <l> elements
         if re.match(r"<l[^>]*>\s*</l>", line):
             raise ValueError(f"Empty <l> element at line {line_number}!")
+        
+################################################################
+################# Responsion checks and fixes ##################
+################################################################
+
+def autofix_responsion(xml_text, responsion_id, line_numbers, diff_indices_list, lines):
+    """
+    Attempt to automatically fix responsion issues by adding anceps="True" attribute
+    to syll elements at problematic positions.
+    
+    Returns: (success: bool, fixed_xml: str)
+    """
+    # Check if all strophes have same length
+    lengths = [len(canonical_sylls(line)) for line in lines]
+    if len(set(lengths)) > 1:
+        print(f"Cannot autofix: strophes have different lengths {lengths}")
+        return False, xml_text
+    
+    # Find ALL positions that differ in ANY comparison
+    # Use union instead of intersection to get all problematic positions
+    all_diffs = set()
+    for diff_list in diff_indices_list:
+        if diff_list:  # Only consider non-empty diff lists
+            all_diffs = all_diffs.union(set(diff_list))
+    
+    if not all_diffs:
+        print(f"Cannot autofix: no problematic positions found")
+        return False, xml_text
+    
+    problem_positions = sorted(list(all_diffs))
+    print(f"Attempting autofix at {len(problem_positions)} position(s): {[p + 1 for p in problem_positions]} (0-indexed: {problem_positions})")
+    
+    # Parse the XML and find the lines by their line numbers
+    root = etree.fromstring(xml_text.encode())
+    
+    # Get the responsion group strophes
+    group_strophes = [s for s in root.xpath('//strophe[@responsion]') if s.get('responsion') == responsion_id]
+    
+    updated_sylls = []  # For debugging
+    
+    # For each strophe in the group, find the corresponding line and fix it
+    for strophe in group_strophes:
+        strophe_lines = strophe.findall('.//l')
+        
+        # Find the line that matches one of our line numbers
+        for line in strophe_lines:
+            if line.get('n') in line_numbers:
+                sylls = line.findall('.//syll')
+                
+                # Map positions to syll elements, accounting for resolution pairs
+                position_to_syll = []
+                i = 0
+                while i < len(sylls):
+                    # Check if this is a resolution pair (two consecutive sylls with resolution="True")
+                    if (i < len(sylls) - 1 and 
+                        sylls[i].get('resolution') == 'True' and 
+                        sylls[i+1].get('resolution') == 'True'):
+                        # Two consecutive resolution sylls count as single position
+                        position_to_syll.append((sylls[i], sylls[i+1]))
+                        i += 2
+                    else:
+                        position_to_syll.append(sylls[i])
+                        i += 1
+                
+                # Fix the sylls at all problem positions
+                for problem_position in problem_positions:
+                    if problem_position < len(position_to_syll):
+                        target = position_to_syll[problem_position]
+                        
+                        if isinstance(target, tuple):
+                            # It's a resolution pair - add anceps to both
+                            for syll in target:
+                                syll.set('anceps', 'True')
+                                updated_sylls.append(f"Line {line.get('n')}, pos {problem_position + 1}: <syll {' '.join([f'{k}=\"{v}\"' for k, v in syll.attrib.items()])}>{syll.text}</syll>")
+                        else:
+                            # Single syll - add anceps
+                            target.set('anceps', 'True')
+                            updated_sylls.append(f"Line {line.get('n')}, pos {problem_position + 1}: <syll {' '.join([f'{k}=\"{v}\"' for k, v in target.attrib.items()])}>{target.text}</syll>")
+    
+    # Print updated sylls for debugging
+    if updated_sylls:
+        print(f"\n\033[36mUpdated {len(updated_sylls)} syll element(s):\033[0m")
+        for syll_info in updated_sylls:
+            print(f"  {syll_info}")
+        print()
+    
+    # Convert back to string
+    fixed_xml = etree.tostring(root, encoding='unicode')
+    return True, fixed_xml
+
+def check_line_responsion(lines):
+    """
+    Check if a set of corresponding lines from different strophes respond metrically.
+    Returns: (responds: bool, diff_indices_list: list)
+    """
+    if not lines or len(lines) < 2:
+        return True, []
+    
+    first_metre = canonical_sylls(lines[0])
+    first_metre = ["u" if syll == "light" else "–" for syll in first_metre]
+    
+    diff_indices_list = []
+    for i in range(1, len(lines)):
+        other_metre = canonical_sylls(lines[i])
+        other_metre = ["u" if syll == "light" else "–" for syll in other_metre]
+        
+        if len(first_metre) != len(other_metre):
+            diff_indices = list(range(max(len(first_metre), len(other_metre))))
+        else:
+            diff_indices = [j for j, (s1, s2) in enumerate(zip(first_metre, other_metre)) if s1 != s2]
+        
+        diff_indices_list.append(diff_indices)
+    
+    responds = metrically_responding_lines_polystrophic(*lines)
+    return responds, diff_indices_list
 
 
-def assert_responsion(xml_text):
+def assert_responsion(xml_text, attempt_autofix=True):
     """
     Assert that all corresponding lines in strophes with the same responsion attribute metrically respond.
+    Attempts to autofix simple cases where all strophes have the same length and differ at a single position.
     """
     root = etree.fromstring(xml_text.encode())
     responsion_groups = {}
@@ -196,6 +312,9 @@ def assert_responsion(xml_text):
             responsion_groups[responsion_id] = []
         responsion_groups[responsion_id].append(strophe)
     
+    # Global counter for all buggy lines
+    total_buggy_lines = 0
+    
     # For each responsion group, check corresponding lines
     for responsion_id, strophes in responsion_groups.items():
         # Get lines from each strophe
@@ -206,71 +325,101 @@ def assert_responsion(xml_text):
         for line_index, lines in enumerate(zip(*strophe_lines)):
             line_numbers = [l.get('n', 'unknown') for l in lines]
             
+            # Process first strophe
             first_strophe_metre = canonical_sylls(lines[0])
             first_strophe_metre = ["u" if syll == "light" else "–" for syll in first_strophe_metre]
-            first_strophe_metre = " ".join(first_strophe_metre)
+            first_strophe_metre_str = " ".join(first_strophe_metre)
 
-            if len(lines) > 4:
-                fourth_strophe_metre = canonical_sylls(lines[3])
-                fourth_strophe_metre = ["u" if syll == "light" else "–" for syll in fourth_strophe_metre]
-                fourth_strophe_metre = " ".join(fourth_strophe_metre)
-                third_strophe_metre = canonical_sylls(lines[2])
-                third_strophe_metre = ["u" if syll == "light" else "–" for syll in third_strophe_metre]
-                third_strophe_metre = " ".join(third_strophe_metre)
-                second_strophe_metre = canonical_sylls(lines[1])
-                second_strophe_metre = ["u" if syll == "light" else "–" for syll in second_strophe_metre]
-                second_strophe_metre = " ".join(second_strophe_metre)
-            elif len(lines) > 3:
-                fourth_strophe_metre = ""
-                third_strophe_metre = canonical_sylls(lines[2])
-                third_strophe_metre = ["u" if syll == "light" else "–" for syll in third_strophe_metre]
-                third_strophe_metre = " ".join(third_strophe_metre)
-                second_strophe_metre = canonical_sylls(lines[1])
-                second_strophe_metre = ["u" if syll == "light" else "–" for syll in second_strophe_metre]
-                second_strophe_metre = " ".join(second_strophe_metre)
-            elif len(lines) > 2:
-                fourth_strophe_metre = ""
-                third_strophe_metre = ""
-                second_strophe_metre = canonical_sylls(lines[1])
-                second_strophe_metre = ["u" if syll == "light" else "–" for syll in second_strophe_metre]
-                second_strophe_metre = " ".join(second_strophe_metre)
-            else:
-                fourth_strophe_metre = ""
-                third_strophe_metre = ""
-                second_strophe_metre = ""
+            # Process all other strophes (2-13)
+            strophe_data = []  # Store data for each strophe: (metre_str, highlighted_text, diff_indices, human_readable_diffs)
+            diff_indices_list = []  # Collect all diff indices for autofixer
 
+            for i in range(1, len(lines)):
+                strophe_metre = canonical_sylls(lines[i])
+                strophe_metre = ["u" if syll == "light" else "–" for syll in strophe_metre]
+                strophe_metre_str = " ".join(strophe_metre)
+                
+                # Calculate differences
+                diff_indices = [j for j, (s1, s2) in enumerate(zip(first_strophe_metre, strophe_metre)) if s1 != s2]
+                diff_indices_list.append(diff_indices)
+                human_readable_diffs = [j + 1 for j in diff_indices]
+                
+                # Highlight syllables
+                strophe_sylls = lines[i].findall('.//syll')
+                highlighted_text = "".join([
+                    f"\033[31m{syll.text}\033[0m" if idx in diff_indices else syll.text 
+                    for idx, syll in enumerate(strophe_sylls)
+                ])
+                
+                # Highlight metre
+                highlighted_metre = " ".join([
+                    f"\033[31m{syll}\033[0m" if idx in diff_indices else syll 
+                    for idx, syll in enumerate(strophe_metre)
+                ])
+                
+                strophe_data.append({
+                    'metre': highlighted_metre,
+                    'text': highlighted_text,
+                    'diff_indices': diff_indices,
+                    'human_readable_diffs': human_readable_diffs
+                })
 
-            last_strophe_metre = canonical_sylls(lines[-1])
-            last_strophe_metre = ["u" if syll == "light" else "–" for syll in last_strophe_metre]
-            last_strophe_metre = " ".join(last_strophe_metre)
-
-            last_strophe_content = "".join(lines[-1].itertext()).strip()
-            last_strophe_sylls = lines[-1].findall('.//syll')
-
-            diff_indices = [i for i, (s1, s2) in enumerate(zip(first_strophe_metre.split(), last_strophe_metre.split())) if s1 != s2]
-            human_readable_diff_indices = [i + 1 for i in diff_indices] # +1 to convert from 0-based to 1-based indexing
-
-            last_strophe_highlighted = "".join([f"\033[31m{syll.text}\033[0m" if idx in diff_indices else syll.text for idx, syll in enumerate(last_strophe_sylls)])
-            last_strophe_metre = " ".join([f"\033[31m{syll}\033[0m" if idx in diff_indices else syll for idx, syll in enumerate(last_strophe_metre.split())]) # pythonic :)
-
+            # Check if lines respond metrically
             if not metrically_responding_lines_polystrophic(*lines):
                 buggy_lines += 1
-                print(
-                    f"\nLines {', '.join(line_numbers)} in responsion group '{responsion_id}' do not respond metrically.\n"
-                    f"Str 1:\t {first_strophe_metre}\n" \
-                    f"Str 2:\t {second_strophe_metre}\n" \
-                    f"Str 3:\t {third_strophe_metre}\n" \
-                    f"Str 4:\t {fourth_strophe_metre}\n" \
-                    f"Str -1:\t {last_strophe_metre}\n" \
-                    f"Text:\t {last_strophe_highlighted}\n" \
-                    f"{len(diff_indices)} diffs at positions: {human_readable_diff_indices}."
-                )
+                
+                # Build output string
+                print_output = f"\n\033[33mLines {', '.join(line_numbers)} in responsion group '{responsion_id}' do not respond metrically.\033[0m\n" \
+                    f"Str 1:\t {first_strophe_metre_str}\n"
+                
+                # Add all other strophes
+                for i, data in enumerate(strophe_data, start=2):
+                    print_output += f"\nStr {i}:\t {data['metre']}\n" \
+                                   f"Text {i}:\t {data['text']}\n" \
+                                   f"Diffs {i}: {len(data['diff_indices'])} at positions: {data['human_readable_diffs']}\n"
+                
+                print(print_output)
+                
+                # Attempt autofix only if enabled
+                if attempt_autofix:
+                    print("\nAttempting autofix...")
+                    success, fixed_xml = autofix_responsion(xml_text, responsion_id, line_numbers, diff_indices_list, lines)
+                    
+                    if success:
+                        print("Autofix applied. Rechecking...")
+                        # Get the updated lines from fixed XML
+                        fixed_root = etree.fromstring(fixed_xml.encode())
+                        fixed_strophes = [s for s in fixed_root.xpath('//strophe[@responsion]') if s.get('responsion') == responsion_id]
+                        fixed_strophe_lines = [strophe.findall('.//l') for strophe in fixed_strophes]
+                        fixed_lines = list(zip(*fixed_strophe_lines))[line_index]
+                        
+                        # Check just these lines
+                        responds, _ = check_line_responsion(fixed_lines)
+                        
+                        if responds:
+                            print("\033[32m✓ Autofix successful! Responsion now works.\033[0m\n")
+                            xml_text = fixed_xml  # Update for subsequent lines
+                            buggy_lines -= 1  # Don't count this as a buggy line since it was fixed
+                        else:
+                            print("\033[31m✗ Autofix applied but responsion still fails.\033[0m\n")
+                    else:
+                        print("Autofix not applicable.\n")
+                
         if buggy_lines > 0:
             print(f"\nBuggy lines: \033[31m{buggy_lines}\033[0m out of {len(strophe_lines[0])} lines in responsion group '{responsion_id}'.\n")
-        else:
-            print(f"\033[32mNo bugs in responsion group '{responsion_id}'. Good!\033[0m\n")
+            total_buggy_lines += buggy_lines
 
-    return buggy_lines == 0
+    # Print total summary
+    if total_buggy_lines > 0:
+        print(f"\n{'='*60}")
+        print(f"TOTAL BUGGY LINES ACROSS ALL RESPONSION GROUPS: \033[31m{total_buggy_lines}\033[0m")
+        print(f"{'='*60}\n")
+    
+    return total_buggy_lines == 0
+
+################################################################
+################################################################
+################################################################
 
 def process_file(input_file, output_file):
     """Process the XML file and save the output."""

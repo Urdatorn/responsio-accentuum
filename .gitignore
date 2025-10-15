@@ -4,6 +4,7 @@
 
 data/source/
 diagnostics/
+scripts/
 
 bench_clean.py
 

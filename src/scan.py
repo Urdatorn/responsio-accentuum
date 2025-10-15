@@ -90,9 +90,11 @@ def scan_xml(input_file, output_file, debug=False):
         if scanned is None:
             continue
 
-        # Remove all children and replace with scanned text
-        l.clear()
+        # Remove all children but preserve attributes
+        for child in l:
+            l.remove(child)
         l.text = scanned
+        l.tail = None  # Clear any tail text
 
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
@@ -102,4 +104,3 @@ def scan_xml(input_file, output_file, debug=False):
         xml_declaration=True,
         pretty_print=True
     )
-
