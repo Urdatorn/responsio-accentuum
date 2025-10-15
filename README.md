@@ -2,13 +2,14 @@
 [![ORCID](media/orcid-badge.svg)](https://orcid.org/0009-0003-3731-4038)
 ![](media/baseline_prose_py04.gif)
 
-Software to measure accentual responsion and virtual constraints on melody in Greek polystrophic lyric, mainly Pindar. This project builds on and generalizes my previous work on the songs of Aristophanes, found [here](https://github.com/Urdatorn/aristophanis-cantica).
+Software to measure accentual responsion and virtual constraints on melody in Greek polystrophic archaic lyric, to begin  and above all the polystrophic 40 polystrophic victory odes of Pindar.[^1] This project builds on and generalizes my previous work on the songs of Aristophanes, found [here](https://github.com/Urdatorn/aristophanis-cantica).
 
 ## TODO 
 
 - make lyric baseline as well (make Frankenstein null baseline strophes by searching odes for lines with the same lengths (or longer, since end is most interesting, and always possible to retrograde heatmapping later) as P4, being careful not to include two lines from the same ode in the same line in diff strophes)
 - differences between ol, py, is, ne? compare equistrophic cantica2
 
+[^1]: Four of the preserved odes have no responding parts at all, i.e. no refrains.
 
 ## Copyright and citation
 

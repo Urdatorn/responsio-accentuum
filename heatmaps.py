@@ -11,6 +11,9 @@ def canticum_with_at_least_two_strophes(xml_file, canticum_idx):
     root = tree.getroot()
 
     desired_canticum = root.find(f".//canticum[{canticum_idx}]")
+    
+    if desired_canticum is None:
+        return False
 
     # Get all <strophe>-children of the <canticum>
     strophes = desired_canticum.findall(".//strophe")
@@ -25,23 +28,37 @@ def canticum_number_of_strophes(xml_file: str, canticum_idx: int) -> int:
     root = tree.getroot()
 
     desired_canticum = root.find(f".//canticum[{canticum_idx}]")
+    
+    if desired_canticum is None:
+        return 0
 
     # Get all <strophe>-children of the <canticum>
     strophes = desired_canticum.findall(".//strophe")
 
     return len(strophes)
 
-def make_all_heatmaps(xml_file: str):
-    # Create figure with subplots (3x5 grid to accommodate 14 plots)
-    fig, axes = plt.subplots(3, 5, figsize=(20, 12))
+def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
+    # First, count actual canticums in the file
+    tree = etree.parse(xml_file)
+    root = tree.getroot()
+    canticums = root.findall(".//canticum")
+    num_canticums = len(canticums)
+    
+    # Calculate grid dimensions
+    cols = 5
+    rows = (num_canticums + cols - 1) // cols  # Ceiling division
+    
+    # Create figure with subplots
+    fig, axes = plt.subplots(rows, cols, figsize=(20, 4 * rows))
     fig.patch.set_facecolor('black')
     axes = axes.flatten()  # Flatten for easier indexing
 
-    # Hide the last subplot since we only have 14 canticums
-    axes[14].set_visible(False)
+    # Hide unused subplots
+    for idx in range(num_canticums, rows * cols):
+        axes[idx].set_visible(False)
 
-    for idx in range(14):
-        canticum_id = f"ol{idx+1:02d}"  # ol01, ol02, ..., ol14
+    for idx in range(num_canticums):
+        canticum_id = f"{prefix}{idx+1:02d}"
         canticum_idx = idx + 1
         ax = axes[idx]
 
@@ -106,13 +123,14 @@ def make_all_heatmaps(xml_file: str):
             
         except Exception as e:
             # Handle cases where canticum might not exist
-            ax.text(0.5, 0.5, f"Error: {canticum_id}", 
+            ax.text(0.5, 0.5, f"Error: {canticum_id}\n{str(e)}", 
                     ha='center', va='center', transform=ax.transAxes, 
                     color='white', fontsize=10)
             ax.set_xticks([])
             ax.set_yticks([])
             ax.set_title(title_text, color="white", fontsize=12)
 
-    plt.suptitle("Melodic Compatibility Heatmaps - Olympians (ol01-ol14)", 
+    plt.suptitle(suptitle, 
                 color="white", fontsize=16, y=0.98)
+    plt.tight_layout()
     plt.show()

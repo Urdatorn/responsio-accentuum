@@ -163,7 +163,7 @@ def extract_strophic_syllables_from_html(file_path, debug=False):
     
     return result
 
-def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None, debug=False):
+def create_tei_xml(poems_dict, title, prefix, output_file, author="Pindar", debug=False):
     """
     Create TEI XML from the poems dictionary in three versions.
     
@@ -294,7 +294,7 @@ def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None
             # VERSION 1: Merged triad
             strophe_elem_triads = ET.SubElement(canticum_triads, 'strophe')
             strophe_elem_triads.set('type', 'strophe')
-            strophe_elem_triads.set('responsion', f'ol{poem_num:02d}')
+            strophe_elem_triads.set('responsion', f'{prefix}{poem_num:02d}')
             
             current_line = line_num_global
             # Add strophe lines (no special marking for first line)
@@ -313,20 +313,20 @@ def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None
             if 'epode' in triad:
                 strophe_elem_epodes = ET.SubElement(canticum_epodes, 'strophe')
                 strophe_elem_epodes.set('type', 'strophe')
-                strophe_elem_epodes.set('responsion', f'ol{poem_num:02d}')
+                strophe_elem_epodes.set('responsion', f'{prefix}{poem_num:02d}')
                 add_lines_with_absolute_numbering(strophe_elem_epodes, triad['epode'], epode_start)
             
             # VERSION 3: Strophes and antistrophes as separate elements (with absolute line numbering)
             if 'strophe' in triad:
                 strophe_elem_strophes = ET.SubElement(canticum_strophes, 'strophe')
                 strophe_elem_strophes.set('type', 'strophe')
-                strophe_elem_strophes.set('responsion', f'ol{poem_num:02d}')
+                strophe_elem_strophes.set('responsion', f'{prefix}{poem_num:02d}')
                 add_lines_with_absolute_numbering(strophe_elem_strophes, triad['strophe'], strophe_start)
             
             if 'antistrophe' in triad:
                 antistrophe_elem = ET.SubElement(canticum_strophes, 'strophe')
                 antistrophe_elem.set('type', 'antistrophe')
-                antistrophe_elem.set('responsion', f'ol{poem_num:02d}')
+                antistrophe_elem.set('responsion', f'{prefix}{poem_num:02d}')
                 add_lines_with_absolute_numbering(antistrophe_elem, triad['antistrophe'], antistrophe_start)
             
             # Update global line counter for next triad
@@ -362,10 +362,3 @@ def create_tei_xml(poems_dict, title="Pythia", author="Pindar", output_file=None
     
     return xml_triads, xml_epodes, xml_strophes
 
-
-if __name__ == "__main__":
-    html_file = "ht/olympians.html"
-    result = extract_strophic_syllables_from_html(html_file)
-
-    # Create TEI XML
-    tei_xml = create_tei_xml(result, title="Olympian Odes", author="Pindar", output_file="ht_olympians.xml", debug=False)

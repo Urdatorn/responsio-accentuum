@@ -301,6 +301,7 @@ def assert_responsion(xml_text, attempt_autofix=True):
     """
     Assert that all corresponding lines in strophes with the same responsion attribute metrically respond.
     Attempts to autofix simple cases where all strophes have the same length and differ at a single position.
+    Returns: (perfect_responsion: bool, xml_text: str)
     """
     root = etree.fromstring(xml_text.encode())
     responsion_groups = {}
@@ -330,9 +331,9 @@ def assert_responsion(xml_text, attempt_autofix=True):
             first_strophe_metre = ["u" if syll == "light" else "–" for syll in first_strophe_metre]
             first_strophe_metre_str = " ".join(first_strophe_metre)
 
-            # Process all other strophes (2-13)
-            strophe_data = []  # Store data for each strophe: (metre_str, highlighted_text, diff_indices, human_readable_diffs)
-            diff_indices_list = []  # Collect all diff indices for autofixer
+            # Process all other strophes
+            strophe_data = []
+            diff_indices_list = []
 
             for i in range(1, len(lines)):
                 strophe_metre = canonical_sylls(lines[i])
@@ -398,7 +399,11 @@ def assert_responsion(xml_text, attempt_autofix=True):
                         
                         if responds:
                             print("\033[32m✓ Autofix successful! Responsion now works.\033[0m\n")
-                            xml_text = fixed_xml  # Update for subsequent lines
+                            xml_text = fixed_xml  # Update xml_text with the fixed version
+                            # Re-parse to update references for remaining checks
+                            root = etree.fromstring(xml_text.encode())
+                            responsion_groups[responsion_id] = [s for s in root.xpath('//strophe[@responsion]') if s.get('responsion') == responsion_id]
+                            strophe_lines = [strophe.findall('.//l') for strophe in responsion_groups[responsion_id]]
                             buggy_lines -= 1  # Don't count this as a buggy line since it was fixed
                         else:
                             print("\033[31m✗ Autofix applied but responsion still fails.\033[0m\n")
@@ -415,7 +420,7 @@ def assert_responsion(xml_text, attempt_autofix=True):
         print(f"TOTAL BUGGY LINES ACROSS ALL RESPONSION GROUPS: \033[31m{total_buggy_lines}\033[0m")
         print(f"{'='*60}\n")
     
-    return total_buggy_lines == 0
+    return total_buggy_lines == 0, xml_text
 
 ################################################################
 ################################################################
@@ -433,8 +438,10 @@ def process_file(input_file, output_file):
     xml_content = apply_brevis_in_longo(xml_content)
     xml_content = order_l_attributes(xml_content)
     xml_content = remove_empty_cantica(xml_content)
-    validator(xml_content) # validate XML syntax
-    perfect_responsion = assert_responsion(xml_content) # validate scansion
+    validator(xml_content)
+    
+    # Get both return values from assert_responsion
+    perfect_responsion, xml_content = assert_responsion(xml_content)
 
     if perfect_responsion:
         with open(output_file, "w", encoding="utf-8") as f:
