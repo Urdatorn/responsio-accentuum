@@ -11,4 +11,4 @@ print("                ||----w | ")
 print("                ||     || ")
 print("\n")
 
-process_file("data/scan/ht_pythians_triads_corrected.xml", "data/compiled/ht_pythians_triads.xml")
+process_file("data/scan/ht_isthmians_strophes.xml", "data/compiled/strophes/ht_isthmians_strophes.xml")
