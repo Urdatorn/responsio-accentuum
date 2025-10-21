@@ -261,7 +261,14 @@ def create_tei_xml(poems_dict, title, prefix, output_file, author="Pindar", debu
         # Create cantica for each version
         canticum_triads = ET.SubElement(body_triads, 'canticum')
         canticum_epodes = ET.SubElement(body_epodes, 'canticum')
-        canticum_strophes = ET.SubElement(body_strophes, 'canticum')
+        
+        # Check if this poem has at least one strophe AND one antistrophe
+        has_strophe = any(key.startswith('strophe_') for key in poem_data.keys())
+        has_antistrophe = any(key.startswith('antistrophe_') for key in poem_data.keys())
+        include_in_version3 = has_strophe and has_antistrophe
+        
+        # Only create canticum for version 3 if it has both strophes and antistrophes
+        canticum_strophes = ET.SubElement(body_strophes, 'canticum') if include_in_version3 else None
         
         # Sort strophes
         strophe_keys = sort_strophes(list(poem_data.keys()))
@@ -317,17 +324,19 @@ def create_tei_xml(poems_dict, title, prefix, output_file, author="Pindar", debu
                 add_lines_with_absolute_numbering(strophe_elem_epodes, triad['epode'], epode_start)
             
             # VERSION 3: Strophes and antistrophes as separate elements (with absolute line numbering)
-            if 'strophe' in triad:
-                strophe_elem_strophes = ET.SubElement(canticum_strophes, 'strophe')
-                strophe_elem_strophes.set('type', 'strophe')
-                strophe_elem_strophes.set('responsion', f'{prefix}{poem_num:02d}')
-                add_lines_with_absolute_numbering(strophe_elem_strophes, triad['strophe'], strophe_start)
-            
-            if 'antistrophe' in triad:
-                antistrophe_elem = ET.SubElement(canticum_strophes, 'strophe')
-                antistrophe_elem.set('type', 'antistrophe')
-                antistrophe_elem.set('responsion', f'{prefix}{poem_num:02d}')
-                add_lines_with_absolute_numbering(antistrophe_elem, triad['antistrophe'], antistrophe_start)
+            # Only add if this poem qualifies for version 3
+            if include_in_version3:
+                if 'strophe' in triad:
+                    strophe_elem_strophes = ET.SubElement(canticum_strophes, 'strophe')
+                    strophe_elem_strophes.set('type', 'strophe')
+                    strophe_elem_strophes.set('responsion', f'{prefix}{poem_num:02d}')
+                    add_lines_with_absolute_numbering(strophe_elem_strophes, triad['strophe'], strophe_start)
+                
+                if 'antistrophe' in triad:
+                    antistrophe_elem = ET.SubElement(canticum_strophes, 'strophe')
+                    antistrophe_elem.set('type', 'strophe')
+                    antistrophe_elem.set('responsion', f'{prefix}{poem_num:02d}')
+                    add_lines_with_absolute_numbering(antistrophe_elem, triad['antistrophe'], antistrophe_start)
             
             # Update global line counter for next triad
             line_num_global = current_line

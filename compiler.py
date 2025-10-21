@@ -11,4 +11,6 @@ print("                ||----w | ")
 print("                ||     || ")
 print("\n")
 
-process_file("data/scan/ht_isthmians_strophes.xml", "data/compiled/strophes/ht_isthmians_strophes.xml")
+#for odes in ["olympians", "pythians", "nemeans", "isthmians"]:
+for odes in ["olympians"]:
+    process_file(f"data/scan/ht_{odes}_strophes.xml", f"data/compiled/strophes/ht_{odes}_strophes.xml")
