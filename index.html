@@ -70,6 +70,8 @@ title: Pindar Heatmap Viewer
     // Check if this heatmap is available
     if (availableHeatmaps[collection].includes(numberInt)) {
       const imagePath = baseUrl + `/media/plots/heatmaps/${collection}${number}.png`;
+      console.log('Attempting to load:', imagePath);
+      console.log('Collection:', collection, 'Number:', number, 'NumberInt:', numberInt);
       img.src = imagePath;
       img.alt = `Heatmap for ${collection.toUpperCase()} ${numberInt}`;
       img.style.display = 'block';
@@ -77,10 +79,16 @@ title: Pindar Heatmap Viewer
       
       // Check if image actually loads
       img.onerror = function() {
+        console.error('Failed to load image:', imagePath);
         img.style.display = 'none';
         errorMessage.style.display = 'block';
       };
+      
+      img.onload = function() {
+        console.log('Successfully loaded:', imagePath);
+      };
     } else {
+      console.log('Heatmap not in available list:', collection, numberInt);
       img.style.display = 'none';
       errorMessage.style.display = 'block';
     }
