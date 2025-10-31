@@ -48,6 +48,9 @@ title: Pindar Heatmap Viewer
 </div>
 
 <script>
+  // Set base URL for GitHub Pages
+  const baseUrl = "{{ site.baseurl }}";
+  
   // Available heatmaps mapping
   const availableHeatmaps = {
     'ol': [1, 2],
@@ -66,7 +69,7 @@ title: Pindar Heatmap Viewer
     
     // Check if this heatmap is available
     if (availableHeatmaps[collection].includes(numberInt)) {
-      const imagePath = `{{ site.baseurl }}/media/plots/heatmaps/${collection}${number}.png`;
+      const imagePath = baseUrl + `/media/plots/heatmaps/${collection}${number}.png`;
       img.src = imagePath;
       img.alt = `Heatmap for ${collection.toUpperCase()} ${numberInt}`;
       img.style.display = 'block';
