@@ -1,0 +1,92 @@
+---
+layout: default
+title: Pindar Heatmap Viewer
+---
+
+<div class="container">
+  <h1>Pindar Heatmap Viewer</h1>
+  <p class="subtitle">Select an ode collection and number to view its heatmap</p>
+  
+  <div class="controls">
+    <div class="control-group">
+      <label for="collection">Collection:</label>
+      <select id="collection" class="select-input">
+        <option value="ol">Olympians</option>
+        <option value="ne">Nemeans</option>
+        <option value="py">Pythians</option>
+        <option value="is">Isthmians</option>
+      </select>
+    </div>
+    
+    <div class="control-group">
+      <label for="number">Number:</label>
+      <select id="number" class="select-input">
+        <option value="01">1</option>
+        <option value="02">2</option>
+        <option value="03">3</option>
+        <option value="04">4</option>
+        <option value="05">5</option>
+        <option value="06">6</option>
+        <option value="07">7</option>
+        <option value="08">8</option>
+        <option value="09">9</option>
+        <option value="10">10</option>
+        <option value="11">11</option>
+        <option value="12">12</option>
+        <option value="13">13</option>
+        <option value="14">14</option>
+      </select>
+    </div>
+  </div>
+  
+  <div class="image-container">
+    <div id="error-message" class="error-message" style="display: none;">
+      This heatmap is not available.
+    </div>
+    <img id="heatmap" src="" alt="Heatmap" style="display: none;">
+  </div>
+</div>
+
+<script>
+  // Available heatmaps mapping
+  const availableHeatmaps = {
+    'ol': [1, 2],
+    'ne': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+    'py': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+    'is': [1, 2, 4, 5, 6, 7, 8]
+  };
+  
+  function updateHeatmap() {
+    const collection = document.getElementById('collection').value;
+    const numberSelect = document.getElementById('number');
+    const number = numberSelect.value;
+    const numberInt = parseInt(number);
+    const img = document.getElementById('heatmap');
+    const errorMessage = document.getElementById('error-message');
+    
+    // Check if this heatmap is available
+    if (availableHeatmaps[collection].includes(numberInt)) {
+      const imagePath = `{{ site.baseurl }}/media/plots/heatmaps/${collection}${number}.png`;
+      img.src = imagePath;
+      img.alt = `Heatmap for ${collection.toUpperCase()} ${numberInt}`;
+      img.style.display = 'block';
+      errorMessage.style.display = 'none';
+      
+      // Check if image actually loads
+      img.onerror = function() {
+        img.style.display = 'none';
+        errorMessage.style.display = 'block';
+      };
+    } else {
+      img.style.display = 'none';
+      errorMessage.style.display = 'block';
+    }
+  }
+  
+  // Add event listeners
+  document.getElementById('collection').addEventListener('change', updateHeatmap);
+  document.getElementById('number').addEventListener('change', updateHeatmap);
+  
+  // Load initial heatmap
+  updateHeatmap();
+</script>
