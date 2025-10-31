@@ -53,8 +53,8 @@ title: Pindar Heatmap Viewer
 </div>
 
 <script>
-  // Set base URL for GitHub Pages
-  const baseUrl = "{{ site.baseurl }}";
+  // Set base URL for GitHub Pages - get from data attribute
+  const baseUrl = document.body.getAttribute('data-baseurl') || '';
   
   function debugLog(msg) {
     const debugOutput = document.getElementById('debug-output');
@@ -63,6 +63,8 @@ title: Pindar Heatmap Viewer
   }
   
   debugLog('Base URL: "' + baseUrl + '"');
+  debugLog('Body data-baseurl attr: "' + document.body.getAttribute('data-baseurl') + '"');
+  debugLog('Window location: ' + window.location.href);
   
   // Available heatmaps mapping
   const availableHeatmaps = {

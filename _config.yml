@@ -8,6 +8,10 @@ url: "https://urdatorn.github.io" # the base hostname & protocol for your site
 markdown: kramdown
 include:
   - media
+  - media/plots
+  - media/plots/heatmaps
+keep_files:
+  - media
 exclude:
   - Gemfile
   - Gemfile.lock
