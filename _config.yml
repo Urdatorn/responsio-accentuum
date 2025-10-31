@@ -6,6 +6,8 @@ url: "https://urdatorn.github.io" # the base hostname & protocol for your site
 
 # Build settings
 markdown: kramdown
+include:
+  - media
 exclude:
   - Gemfile
   - Gemfile.lock
