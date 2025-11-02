@@ -7,17 +7,11 @@ import seaborn as sns
 from src.stats_comp import compatibility_canticum
 from src.utils.utils import get_text_matrix
 
-def canticum_with_at_least_two_strophes(xml_file, canticum_idx):
+def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
     tree = etree.parse(xml_file)
     root = tree.getroot()
 
-    desired_canticum = root.find(f".//canticum[{canticum_idx}]")
-    
-    if desired_canticum is None:
-        return False
-
-    # Get all <strophe>-children of the <canticum>
-    strophes = desired_canticum.findall(".//strophe")
+    strophes = root.findall(f".//strophe[@responsion='{responsion_attribute}']")
 
     return len(strophes) >= 2
 
@@ -70,7 +64,7 @@ def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
         num_strophes = canticum_number_of_strophes(xml_file, canticum_idx)
         title_text = f"{canticum_id} ({num_strophes})"
         
-        if not canticum_with_at_least_two_strophes(xml_file, canticum_idx):
+        if not canticum_with_at_least_two_strophes(xml_file, canticum_id):
             # Style the skipped canticum with dark background and message
             ax.text(0.5, 0.5, f"Skipped: {canticum_id}\n(< 2 strophes)", 
                     ha='center', va='center', transform=ax.transAxes, 
@@ -82,7 +76,7 @@ def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
         
         try:
             # Get text matrix
-            text_matrix, row_lengths = get_text_matrix(xml_file, canticum_index=canticum_idx)
+            text_matrix, row_lengths = get_text_matrix(xml_file, responsion_attribute=canticum_id, representative_strophe=1)
             
             # Get compatibility data
             data_matrix = compatibility_canticum(xml_file, canticum_ID=canticum_id)
@@ -134,48 +128,50 @@ def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
     plt.suptitle(suptitle, 
                 color="white", fontsize=16, y=0.98)
     plt.tight_layout()
+    plt.savefig(f"media/heatmaps/triads/tiled/{prefix}_all_heatmaps.png", dpi=600, bbox_inches="tight")
     plt.show()
 
-def make_one_heatmap(xml_file: str, responsion_attribute: str, title: str):
+def make_one_heatmap(xml_file: str, responsion_attribute: str, title: str, representative_strophe: int, save: bool, show: bool = True, dark_mode: bool = False, text_overlay: bool = True):
 
     # -----------------------------
-    # Prepare text matrix
-    # -----------------------------
-
-    # get canticum index from responsion attribute (eg. ol01 -> 1)
-    canticum_index = int(responsion_attribute[2:])
-
-    text_matrix, row_lengths = get_text_matrix(xml_file, canticum_index)
-    num_rows = len(text_matrix)
-    row_lengths = [len(row) for row in text_matrix]
-
-    print(f"Number of rows: {num_rows}")
-    print(f"Length of each row: {row_lengths}")
-
-    # -----------------------------
-    # Plot heatmap with text
+    # Compute compatibility data
     # -----------------------------
 
     data_matrix = compatibility_canticum(xml_file, responsion_attribute)
-
-    # -----------------------------
-    # Shape check
-    # -----------------------------
-    num_rows_text = len(text_matrix)
+    row_lengths_data = [len(row) for row in data_matrix]
     num_rows_data = len(data_matrix)
-
-    if num_rows_text != num_rows_data:
-        raise ValueError(f"Number of rows mismatch: text_matrix={num_rows_text}, data_matrix={num_rows_data}")
-
-    max_len_text = max(len(row) for row in text_matrix)
     max_len_data = max(len(row) for row in data_matrix)
 
-    if max_len_text != max_len_data:
-        raise ValueError(f"Row length mismatch: max text length={max_len_text}, max data length={max_len_data}")
+    print("Length of each row (data matrix):", row_lengths_data)
+
+    if text_overlay:
+
+        # -----------------------------
+        # Prepare text matrix
+        # -----------------------------
+
+        text_matrix, row_lengths = get_text_matrix(xml_file, responsion_attribute, representative_strophe)
+        num_rows_text = len(text_matrix)
+        
+        print(f"Number of rows: {num_rows_text}")
+        print(f"Length of each row (text matrix): {row_lengths}")
+
+        # -----------------------------
+        # Shape check
+        # -----------------------------
+
+        if num_rows_text != num_rows_data:
+            raise ValueError(f"Number of rows mismatch: text_matrix={num_rows_text}, data_matrix={num_rows_data}")
+
+        max_len_text = max(len(row) for row in text_matrix)
+
+        if max_len_text != max_len_data:
+            raise ValueError(f"Max row length mismatch: max text length={max_len_text}, max data length={max_len_data}")
 
     # -----------------------------
     # Pad numeric matrix for heatmap
     # -----------------------------
+
     max_len = max_len_data
     padded_data = np.full((len(data_matrix), max_len), np.nan)
     for i, row in enumerate(data_matrix):
@@ -211,22 +207,36 @@ def make_one_heatmap(xml_file: str, responsion_attribute: str, title: str):
     colorbar.set_ticklabels(tick_labels)
 
     # Overlay text
-    for i, row in enumerate(text_matrix):
-        for j, val in enumerate(row):
-            ax.text(
-                j + 0.5, i + 0.5,
-                val,
-                ha='center', va='center',
-                color='white', fontsize=10
-            )
+    if text_overlay:
+        for i, row in enumerate(text_matrix):
+            for j, val in enumerate(row):
+                ax.text(
+                    j + 0.5, i + 0.5,
+                    val,
+                    ha='center', va='center',
+                    color='white', fontsize=10
+                )
 
     plt.xlabel("Metrical position (resolutions merged)")
-    plt.ylabel("Line number (Snell-Maehler)")
+    plt.ylabel("Line")
     plt.title(title)
     plt.yticks(
         ticks=np.arange(len(data_matrix)) + 0.5,
         labels=np.arange(1, len(data_matrix) + 1)
     )
 
-    #plt.savefig("media/plots/heatmap_pythia_4_comp.png", dpi=600, bbox_inches="tight")
-    plt.show()
+    # Optional dark background + white labels
+    if dark_mode:
+        ax.set_facecolor("black")
+        ax.figure.set_facecolor("black")
+        ax.tick_params(colors="white")  # tick labels
+        ax.xaxis.label.set_color("white")
+        ax.yaxis.label.set_color("white")
+        ax.title.set_color("white")
+
+    out_file = f"media/heatmaps/triads/notext/{responsion_attribute}.png"
+
+    if save:
+        plt.savefig(out_file, dpi=600, bbox_inches="tight")
+    if show:
+        plt.show()
