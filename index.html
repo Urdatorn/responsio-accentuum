@@ -53,8 +53,15 @@ title: Pindar Heatmap Viewer
 </div>
 
 <script>
-  // Set base URL for GitHub Pages - get from data attribute
-  const baseUrl = document.body.getAttribute('data-baseurl') || '';
+  // Set base URL for GitHub Pages
+  // Extract from current URL or use hardcoded value
+  const currentPath = window.location.pathname;
+  let baseUrl = '';
+  
+  // If we're on GitHub Pages, the path will be /responsio-accentuum/...
+  if (currentPath.startsWith('/responsio-accentuum')) {
+    baseUrl = '/responsio-accentuum';
+  }
   
   function debugLog(msg) {
     const debugOutput = document.getElementById('debug-output');
@@ -63,7 +70,7 @@ title: Pindar Heatmap Viewer
   }
   
   debugLog('Base URL: "' + baseUrl + '"');
-  debugLog('Body data-baseurl attr: "' + document.body.getAttribute('data-baseurl') + '"');
+  debugLog('Current pathname: ' + currentPath);
   debugLog('Window location: ' + window.location.href);
   
   // Available heatmaps mapping
