@@ -81,6 +81,10 @@ title: Pindar Heatmap Viewer
     const computedStyle = window.getComputedStyle(container);
     const indicator = document.getElementById('css-indicator');
     
+    // Get the CSS link element to show the URL
+    const cssLink = document.querySelector('link[rel="stylesheet"]');
+    const cssUrl = cssLink ? cssLink.href : 'Not found';
+    
     // Check if the iOS-style border-radius is applied
     if (computedStyle.borderRadius === '18px') {
       indicator.style.display = 'block';
@@ -89,6 +93,8 @@ title: Pindar Heatmap Viewer
       indicator.style.display = 'block';
       indicator.style.background = '#ff3b30';
       indicator.textContent = '⚠ CSS Not Loaded';
+      debugLog('CSS URL attempted: ' + cssUrl);
+      debugLog('Container border-radius: ' + computedStyle.borderRadius);
     }
   });
   
