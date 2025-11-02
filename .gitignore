@@ -18,3 +18,5 @@ data/compiled/test/*
 *test.py
 
 create-badge.cjs
+
+compiler.py

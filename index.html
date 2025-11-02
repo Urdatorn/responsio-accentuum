@@ -3,28 +3,6 @@ layout: default
 title: Pindar Heatmap Viewer
 ---
 
-<style>
-  /* Inline critical styles to ensure visibility */
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif !important;
-  }
-  .css-loaded-indicator {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: #34c759;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 600;
-    z-index: 1000;
-    display: none;
-  }
-</style>
-
-<div class="css-loaded-indicator" id="css-indicator">✓ CSS Loaded</div>
-
 <div class="container">
   <h1>Pindar Heatmap Viewer</h1>
   <p class="subtitle">Select an ode collection and number to view its heatmap</p>
@@ -59,6 +37,22 @@ title: Pindar Heatmap Viewer
         <option value="14">14</option>
       </select>
     </div>
+    
+    <div class="control-group">
+      <label for="unit">Responding unit:</label>
+      <select id="unit" class="select-input">
+        <option value="triads">Triad</option>
+        <option value="strophes">Strophe/Antistrophe</option>
+      </select>
+    </div>
+    
+    <div class="control-group">
+      <label for="overlay">Text overlay:</label>
+      <select id="overlay" class="select-input">
+        <option value="text">Yes</option>
+        <option value="notext">No</option>
+      </select>
+    </div>
   </div>
   
   <div id="debug-info" style="background: #f0f0f0; padding: 10px; margin: 20px 0; border: 1px solid #ccc; font-family: monospace; font-size: 12px;">
@@ -75,28 +69,17 @@ title: Pindar Heatmap Viewer
 </div>
 
 <script>
-  // Check if external CSS is loaded
-  window.addEventListener('load', function() {
-    const container = document.querySelector('.container');
-    const computedStyle = window.getComputedStyle(container);
-    const indicator = document.getElementById('css-indicator');
-    
-    // Get the CSS link element to show the URL
-    const cssLink = document.querySelector('link[rel="stylesheet"]');
-    const cssUrl = cssLink ? cssLink.href : 'Not found';
-    
-    // Check if the iOS-style border-radius is applied
-    if (computedStyle.borderRadius === '18px') {
-      indicator.style.display = 'block';
-      indicator.textContent = '✓ CSS Loaded';
-    } else {
-      indicator.style.display = 'block';
-      indicator.style.background = '#ff3b30';
-      indicator.textContent = '⚠ CSS Not Loaded';
-      debugLog('CSS URL attempted: ' + cssUrl);
-      debugLog('Container border-radius: ' + computedStyle.borderRadius);
+  // Check if debug mode is enabled via URL parameter (?debug=true)
+  const urlParams = new URLSearchParams(window.location.search);
+  const debugMode = urlParams.get('debug') === 'true';
+  
+  // Show/hide debug panel based on URL parameter
+  if (!debugMode) {
+    const debugPanel = document.getElementById('debug-info');
+    if (debugPanel) {
+      debugPanel.style.display = 'none';
     }
-  });
+  }
   
   // Set base URL for GitHub Pages
   // Extract from current URL or use hardcoded value
@@ -109,6 +92,7 @@ title: Pindar Heatmap Viewer
   }
   
   function debugLog(msg) {
+    if (!debugMode) return; // Only log if debug mode is enabled
     const debugOutput = document.getElementById('debug-output');
     const currentText = debugOutput.innerHTML === 'Loading...' ? '' : debugOutput.innerHTML;
     debugOutput.innerHTML = currentText + msg + '<br>';
@@ -131,17 +115,20 @@ title: Pindar Heatmap Viewer
     const numberSelect = document.getElementById('number');
     const number = numberSelect.value;
     const numberInt = parseInt(number);
+    const unit = document.getElementById('unit').value;
+    const overlay = document.getElementById('overlay').value;
     const img = document.getElementById('heatmap');
     const errorMessage = document.getElementById('error-message');
     
     debugLog('---');
     debugLog('Collection: ' + collection + ', Number: ' + number + ', NumberInt: ' + numberInt);
+    debugLog('Unit: ' + unit + ', Overlay: ' + overlay);
     debugLog('Available for ' + collection + ': [' + availableHeatmaps[collection].join(', ') + ']');
     debugLog('Is available? ' + availableHeatmaps[collection].includes(numberInt));
     
     // Check if this heatmap is available
     if (availableHeatmaps[collection].includes(numberInt)) {
-      const imagePath = baseUrl + `/media/plots/heatmaps/${collection}${number}.png`;
+      const imagePath = baseUrl + `/media/heatmaps/${unit}/${overlay}/${collection}${number}.png`;
       debugLog('Image path: ' + imagePath);
       img.src = imagePath;
       img.alt = `Heatmap for ${collection.toUpperCase()} ${numberInt}`;
@@ -168,6 +155,8 @@ title: Pindar Heatmap Viewer
   // Add event listeners
   document.getElementById('collection').addEventListener('change', updateHeatmap);
   document.getElementById('number').addEventListener('change', updateHeatmap);
+  document.getElementById('unit').addEventListener('change', updateHeatmap);
+  document.getElementById('overlay').addEventListener('change', updateHeatmap);
   
   // Load initial heatmap
   updateHeatmap();
