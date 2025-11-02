@@ -3,6 +3,28 @@ layout: default
 title: Pindar Heatmap Viewer
 ---
 
+<style>
+  /* Inline critical styles to ensure visibility */
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif !important;
+  }
+  .css-loaded-indicator {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    background: #34c759;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    z-index: 1000;
+    display: none;
+  }
+</style>
+
+<div class="css-loaded-indicator" id="css-indicator">✓ CSS Loaded</div>
+
 <div class="container">
   <h1>Pindar Heatmap Viewer</h1>
   <p class="subtitle">Select an ode collection and number to view its heatmap</p>
@@ -53,6 +75,23 @@ title: Pindar Heatmap Viewer
 </div>
 
 <script>
+  // Check if external CSS is loaded
+  window.addEventListener('load', function() {
+    const container = document.querySelector('.container');
+    const computedStyle = window.getComputedStyle(container);
+    const indicator = document.getElementById('css-indicator');
+    
+    // Check if the iOS-style border-radius is applied
+    if (computedStyle.borderRadius === '18px') {
+      indicator.style.display = 'block';
+      indicator.textContent = '✓ CSS Loaded';
+    } else {
+      indicator.style.display = 'block';
+      indicator.style.background = '#ff3b30';
+      indicator.textContent = '⚠ CSS Not Loaded';
+    }
+  });
+  
   // Set base URL for GitHub Pages
   // Extract from current URL or use hardcoded value
   const currentPath = window.location.pathname;
