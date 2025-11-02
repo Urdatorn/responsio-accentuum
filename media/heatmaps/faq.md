@@ -10,12 +10,19 @@ Put simply, a compatibility score of 1 means that if Pindar had wanted to compos
 The lower the score, the less the melody (i.e. any melody!) would have accomodated the pitch accents. Specifically, the score gives the portion of strophes in which the melody rose as the pitch accent fell, or vice versa, so that a score of, say, 8/13 means that no matter whether Pindar decided to let the melody rise or fall while singing this syllable, his melody would contradict the prosody of at least five strophes. 
 
 Importantly, it is perfectly possible to know the above hypothetical or conditional fact about melodic constraints regardless of whether Pindar *actually* did or even would have wanted to compose such a melody, something we will never know, barring the unlikely discovery of a Pindaric musical papyrus or inscription. 
+ 
+![](media/ol01.svg)
 
-# So what?
+# Why melodic compatibility?
 
+A sizable part of the preserved Hellenistic musical fragments preserving songs set with Ancient Greek notation show marked compatibility between the direction of the musical intervals and the direction of the word pitch accents. The hypothesis is simply that at least some of pre-Hellenistic music, which is all lost[^2], showed this same tendency. 
 
+That at least some archaic lyric songs were composed with the intention of minimizing clashes with the prosody, a rather modest claim, is supported by several arguments. Avoiding to get into a complicated and vexed general debate, I will here just summarize two of them. One is that it is untypical of artists of the Hellenistic era to make inventions *ex nihilo*, but highly typical to pick up, polish and push to the extreme tendencies already tentatively or partly present in the more organic culture of the earlier eras, such as Pindar. Another is that since the sense of Greek words depend on their intonation, it would be odd if composers, at least in cases with extraordinary risk of confusion, did not sometimes resort to incorporating and emphasizing the intended prosody of his words with his music.
 
 [^1]: If the number of strophes is uneven, the lowest score is the smallest majority share, i.e. if there are 13 strophes, the lowest score is 7/13. 
+
+[^2]: There are fragments of Euripides' tragedies set to music, but the papyri are Hellenistic and there is no way of knowing whether the melody is original or recomposed.
+
 # The texts
 
-It would be vain to look at the heatmaps without reading the actual odes. If the `text overlay` option above is not enough, all Pindar's odes are available in a readable format with the metre marked at David Chamberlain's excellent website [Hypotactic](https://hypotactic.com/latin/index.html?Use_Id=olympians). For those without knowledge of Greek, parallell English translations can be found at the [Perseus website](https://scaife.perseus.org/library/urn:cts:greekLit:tlg0033/), with the caveat that the syllables of the English translations do not (of course) stand in a one-to-one relationship with the Greek syllables, and cannot help decide the meaning at a certain position in the heatmap. For that, the reader would have to consult the relevant entry in the [Liddle and Scott online dictionary](https://logeion.uchicago.edu/%E1%BC%84%CF%81%CE%B9%CF%83%CF%84%CE%BF%CF%82)
+It would be vain to look at the heatmaps without reading the actual odes. If the `text overlay` option above is not enough, all Pindar's odes are available in a readable format with the metre marked at David Chamberlain's excellent website [Hypotactic](https://hypotactic.com/latin/index.html?Use_Id=olympians). For those without knowledge of Greek, parallell English translations can be found at the [Perseus website](https://scaife.perseus.org/library/urn:cts:greekLit:tlg0033/), with the caveat that the syllables of the English translations do not (of course) stand in a one-to-one relationship with the Greek syllables, and cannot help decide the meaning at a certain position in the heatmap. For that, the reader would have to consult the relevant entry in the [Liddle and Scott online dictionary](https://logeion.uchicago.edu/%E1%BC%84%CF%81%CE%B9%CF%83%CF%84%CE%BF%CF%82).
