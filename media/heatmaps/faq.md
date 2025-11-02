@@ -12,8 +12,11 @@ The lower the score, the less the melody (i.e. any melody!) would have accomodat
 Importantly, it is perfectly possible to know the above hypothetical or conditional fact about melodic constraints regardless of whether Pindar *actually* did or even would have wanted to compose such a melody, something we will never know, barring the unlikely discovery of a Pindaric musical papyrus or inscription. 
  
 ![Example](media/ol01.svg)
-![Example](media/ol01.png)
-![Example](media/ol01.mp3)
+
+<audio controls>
+  <source src="media/ol01.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
 
 # Why melodic compatibility?
 

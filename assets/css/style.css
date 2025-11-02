@@ -203,6 +203,25 @@ label {
   padding: 0;
 }
 
+.faq-section img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 24px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
+              0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.faq-section audio {
+  width: 100%;
+  max-width: 600px;
+  display: block;
+  margin: 24px auto;
+  border-radius: 8px;
+  outline: none;
+}
+
 #heatmap {
   max-width: 100%;
   max-height: 75vh;
