@@ -5,11 +5,16 @@
   box-sizing: border-box;
 }
 
+html {
+  background: linear-gradient(180deg, #f5f5f7 0%, #ffffff 100%);
+  background-attachment: fixed;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
   line-height: 1.47;
   color: #1d1d1f;
-  background: linear-gradient(180deg, #f5f5f7 0%, #ffffff 100%);
+  background: transparent;
   padding: 20px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -27,6 +32,41 @@ body {
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06), 
               0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+/* GitHub Button */
+.github-button {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: #1d1d1f;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  letter-spacing: -0.01em;
+}
+
+.github-button:hover {
+  background-color: #0071e3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 113, 227, 0.3);
+}
+
+.github-button:active {
+  transform: translateY(0);
+}
+
+.github-icon {
+  flex-shrink: 0;
 }
 
 /* Typography */
@@ -112,6 +152,57 @@ label {
   overflow: hidden;
 }
 
+/* FAQ Section */
+.faq-section {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.faq-section h1 {
+  font-size: 1.875rem;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.faq-section p {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #424245;
+  margin-bottom: 16px;
+}
+
+.faq-section ul, .faq-section ol {
+  margin-left: 24px;
+  margin-bottom: 16px;
+}
+
+.faq-section li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.faq-section code {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+}
+
+.faq-section pre {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.faq-section pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
 #heatmap {
   max-width: 100%;
   max-height: 75vh;
@@ -180,8 +271,16 @@ label {
     border-radius: 16px;
   }
   
+  .github-button {
+    top: 16px;
+    right: 16px;
+    padding: 8px 12px;
+    font-size: 0.875rem;
+  }
+  
   h1 {
     font-size: 2rem;
+    padding-right: 80px;
   }
   
   .subtitle {
@@ -224,8 +323,22 @@ label {
     border-radius: 14px;
   }
   
+  .github-button {
+    top: 12px;
+    right: 12px;
+    padding: 7px 10px;
+    font-size: 0.8125rem;
+    gap: 6px;
+  }
+  
+  .github-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
   h1 {
     font-size: 1.75rem;
+    padding-right: 75px;
   }
   
   .subtitle {
@@ -240,8 +353,13 @@ label {
 
 /* Dark mode support (optional) */
 @media (prefers-color-scheme: dark) {
-  body {
+  html {
     background: linear-gradient(180deg, #000000 0%, #1c1c1e 100%);
+    background-attachment: fixed;
+  }
+  
+  body {
+    background: transparent;
     color: #f5f5f7;
   }
   
@@ -297,6 +415,33 @@ label {
     background: linear-gradient(135deg, #3d2500 0%, #4d3000 100%);
     border: 1px solid rgba(255, 149, 0, 0.3);
     color: #ffa940;
+  }
+  
+  .github-button {
+    background-color: #f5f5f7;
+    color: #1d1d1f;
+  }
+  
+  .github-button:hover {
+    background-color: #0a84ff;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(10, 132, 255, 0.3);
+  }
+  
+  .faq-section {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .faq-section p {
+    color: #ebebf5;
+  }
+  
+  .faq-section code {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .faq-section pre {
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }
 
