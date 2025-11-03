@@ -15,7 +15,7 @@ Importantly, it is perfectly possible to know the above hypothetical or conditio
 
 As long as one bears in mind that there can be neither pretention of restoring Pindar's original music nor of achieving any aesthetic pleasure or artistic merit, it is possible to construct simple example melodies of the maximum vivacity (number of non-repeating pitch classes) achievable while respecting the prosody of all strophes. 
 
-For the sake of the following example, which consists of the first two lines of the famous first Olympian ode, we really only need to evoke one rule: that the melody rises in preparation of a syllable with an acute accent (see fourth interval, first line, and both fourth, ninth and twelfth, second line). We also let the melody rest whenever the accents of the different strophes disagree, in other words, wherever the heatmap is less than perfectly bright yellow. (This is the trivial way out of incompatibility, but it is conceivable if not certain that the willingness to accept contradictions came in degrees, and that the two other options (either overriding the *prosody* or perverting the *melody* of at most half of the strophes, both distinguished by not treating all strophes equally) united with it to provide a flexible palette of meta-musical strategies for scoring refrains.)
+For the sake of the following example, which consists of the first two lines of the famous first Olympian ode (with four strophes), we really only need to evoke one rule: that if it can, the melody rises in preparation of and falls after a syllable with an acute accent (see fourth interval, first line, and both fourth, ninth and twelfth, second line). We also let the melody rest whenever the accents of the different strophes disagree, in other words, wherever the heatmap is less than perfectly bright yellow. This is the trivial way out of incompatibility, but it is conceivable if not certain that the willingness to accept contradictions came in degrees, and that the two other options (either overriding the *prosody* or perverting the *melody* of at most half of the strophes, both distinguished by not treating all strophes equally) united with it to provide a flexible palette of meta-musical strategies for scoring refrains. As a way of acknowledging this possibility, I have let the melody move at the sixth syllable, contradicting one of the strophes (the third). 
 
 Lastly, we let the piece begin a reckless and accent-defying large upwards leap, a conventional *incipit* we see in several Hellenistic pieces, like the epitaph of Seikilos. (Note also that the fact that the first syllable has full score is useless since there is no intervall that can rise towards it.)
 
@@ -28,7 +28,7 @@ Here's a word-for-word translation, enabling the greekless to still figure out a
 >alike, salient nightly, man-exalting outstanding wealth (i.e. outstanding like man-exalting wealth)
 
 
- ![Heatmap ol01 1-2](media/heatmaps/ol01_1-2.png)
+![Heatmap ol01 1-2](media/heatmaps/ol01_1-2.png)
 ![Notation ol01 1-2](media/ol01.svg)
 
 <audio controls>
