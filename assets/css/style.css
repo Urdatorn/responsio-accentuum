@@ -222,6 +222,24 @@ label {
   outline: none;
 }
 
+.faq-section blockquote {
+  margin: 24px 0;
+  padding: 16px 20px;
+  background-color: rgba(0, 113, 227, 0.06);
+  border-left: 4px solid #0071e3;
+  border-radius: 8px;
+  font-style: italic;
+  color: #424245;
+}
+
+.faq-section blockquote p {
+  margin-bottom: 0;
+}
+
+.faq-section blockquote p:not(:last-child) {
+  margin-bottom: 12px;
+}
+
 #heatmap {
   max-width: 100%;
   max-height: 75vh;
@@ -461,6 +479,12 @@ label {
   
   .faq-section pre {
     background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .faq-section blockquote {
+    background-color: rgba(10, 132, 255, 0.12);
+    border-left-color: #0a84ff;
+    color: #ebebf5;
   }
 }
 
