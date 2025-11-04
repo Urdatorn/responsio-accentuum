@@ -2,6 +2,7 @@ from fractions import Fraction
 from lxml import etree
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 import seaborn as sns
 
 from src.stats_comp import compatibility_canticum
@@ -131,7 +132,7 @@ def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
     plt.savefig(f"media/heatmaps/triads/tiled/{prefix}_all_heatmaps.png", dpi=600, bbox_inches="tight")
     plt.show()
 
-def make_one_heatmap(xml_file: str, responsion_attribute: str, title: str, representative_strophe: int, save: bool, show: bool = True, dark_mode: bool = False, text_overlay: bool = True):
+def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, title: str, representative_strophe: int, save: bool, show: bool = True, dark_mode: bool = False, text_overlay: bool = True):
 
     # -----------------------------
     # Compute compatibility data
@@ -234,9 +235,10 @@ def make_one_heatmap(xml_file: str, responsion_attribute: str, title: str, repre
         ax.yaxis.label.set_color("white")
         ax.title.set_color("white")
 
-    out_file = f"media/heatmaps/triads/notext/{responsion_attribute}.png"
+    out_filename = f"media/heatmaps/triads/notext/{responsion_attribute}.png"
+    out_path = os.path.join(out_folder, out_filename)
 
     if save:
-        plt.savefig(out_file, dpi=600, bbox_inches="tight")
+        plt.savefig(out_path, dpi=600, bbox_inches="tight")
     if show:
         plt.show()
