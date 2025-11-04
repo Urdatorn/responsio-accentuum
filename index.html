@@ -103,15 +103,24 @@ title: Pindar Heatmap Viewer
   
   // Available heatmaps mapping
   const availableHeatmaps = {
-    'ol': [1, 2, 3, 5, 6, 7, 8, 9, 10, 13, 14],
-    'ne': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
-    'py': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-    'is': [1, 2, 4, 5, 6, 7, 8]
+    triads: {
+      'ol': [1, 2, 3, 5, 6, 7, 8, 9, 10, 13, 14],
+      'ne': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+      'py': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      'is': [1, 2, 4, 5, 6, 7, 8]
+    },
+    strophes: {
+      'ol': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+      'ne': [1, 3, 5, 6, 7, 8, 10, 11],
+      'py': [1, 2, 3, 4, 5, 7, 8, 9, 10, 11],
+      'is': [1, 2, 3, 4, 5, 6]
+    }
   };
   
-  // Populate number dropdown based on selected collection
+  // Populate number dropdown based on selected collection and unit
   function updateNumberOptions() {
     const collection = document.getElementById('collection').value;
+    const unit = document.getElementById('unit').value;
     const numberSelect = document.getElementById('number');
     const currentValue = numberSelect.value;
     
@@ -119,7 +128,7 @@ title: Pindar Heatmap Viewer
     numberSelect.innerHTML = '';
     
     // Add options for available heatmaps
-    const availableNumbers = availableHeatmaps[collection];
+    const availableNumbers = availableHeatmaps[unit][collection];
     availableNumbers.forEach(num => {
       const option = document.createElement('option');
       const numStr = num.toString().padStart(2, '0');
@@ -149,11 +158,11 @@ title: Pindar Heatmap Viewer
     debugLog('---');
     debugLog('Collection: ' + collection + ', Number: ' + number + ', NumberInt: ' + numberInt);
     debugLog('Unit: ' + unit + ', Overlay: ' + overlay);
-    debugLog('Available for ' + collection + ': [' + availableHeatmaps[collection].join(', ') + ']');
-    debugLog('Is available? ' + availableHeatmaps[collection].includes(numberInt));
+    debugLog('Available for ' + collection + ' (' + unit + '): [' + availableHeatmaps[unit][collection].join(', ') + ']');
+    debugLog('Is available? ' + availableHeatmaps[unit][collection].includes(numberInt));
     
     // Check if this heatmap is available
-    if (availableHeatmaps[collection].includes(numberInt)) {
+    if (availableHeatmaps[unit][collection].includes(numberInt)) {
       const imagePath = baseUrl + `/media/heatmaps/${unit}/${overlay}/${collection}${number}.png`;
       debugLog('Image path: ' + imagePath);
       img.src = imagePath;
@@ -183,8 +192,11 @@ title: Pindar Heatmap Viewer
     updateNumberOptions();
     updateHeatmap();
   });
+  document.getElementById('unit').addEventListener('change', function() {
+    updateNumberOptions();
+    updateHeatmap();
+  });
   document.getElementById('number').addEventListener('change', updateHeatmap);
-  document.getElementById('unit').addEventListener('change', updateHeatmap);
   document.getElementById('overlay').addEventListener('change', updateHeatmap);
   
   // Initialize number dropdown and load initial heatmap
