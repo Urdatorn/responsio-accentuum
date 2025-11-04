@@ -28,20 +28,7 @@ title: Pindar Heatmap Viewer
     <div class="control-group">
       <label for="number">Number:</label>
       <select id="number" class="select-input">
-        <option value="01">1</option>
-        <option value="02">2</option>
-        <option value="03">3</option>
-        <option value="04">4</option>
-        <option value="05">5</option>
-        <option value="06">6</option>
-        <option value="07">7</option>
-        <option value="08">8</option>
-        <option value="09">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-        <option value="13">13</option>
-        <option value="14">14</option>
+        <!-- Options will be populated dynamically based on collection -->
       </select>
     </div>
     
@@ -116,11 +103,38 @@ title: Pindar Heatmap Viewer
   
   // Available heatmaps mapping
   const availableHeatmaps = {
-    'ol': [1, 2],
+    'ol': [1, 2, 3, 5, 6, 7, 8, 9, 10, 13, 14],
     'ne': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
     'py': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     'is': [1, 2, 4, 5, 6, 7, 8]
   };
+  
+  // Populate number dropdown based on selected collection
+  function updateNumberOptions() {
+    const collection = document.getElementById('collection').value;
+    const numberSelect = document.getElementById('number');
+    const currentValue = numberSelect.value;
+    
+    // Clear existing options
+    numberSelect.innerHTML = '';
+    
+    // Add options for available heatmaps
+    const availableNumbers = availableHeatmaps[collection];
+    availableNumbers.forEach(num => {
+      const option = document.createElement('option');
+      const numStr = num.toString().padStart(2, '0');
+      option.value = numStr;
+      option.textContent = num.toString();
+      numberSelect.appendChild(option);
+    });
+    
+    // Try to keep the same selection if it's still available, otherwise select first
+    if (currentValue && availableNumbers.includes(parseInt(currentValue))) {
+      numberSelect.value = currentValue;
+    } else {
+      numberSelect.value = availableNumbers[0].toString().padStart(2, '0');
+    }
+  }
   
   function updateHeatmap() {
     const collection = document.getElementById('collection').value;
@@ -165,11 +179,15 @@ title: Pindar Heatmap Viewer
   }
   
   // Add event listeners
-  document.getElementById('collection').addEventListener('change', updateHeatmap);
+  document.getElementById('collection').addEventListener('change', function() {
+    updateNumberOptions();
+    updateHeatmap();
+  });
   document.getElementById('number').addEventListener('change', updateHeatmap);
   document.getElementById('unit').addEventListener('change', updateHeatmap);
   document.getElementById('overlay').addEventListener('change', updateHeatmap);
   
-  // Load initial heatmap
+  // Initialize number dropdown and load initial heatmap
+  updateNumberOptions();
   updateHeatmap();
 </script>

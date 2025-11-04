@@ -235,7 +235,7 @@ def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, 
         ax.yaxis.label.set_color("white")
         ax.title.set_color("white")
 
-    out_filename = f"media/heatmaps/triads/notext/{responsion_attribute}.png"
+    out_filename = f"{responsion_attribute}.png"
     out_path = os.path.join(out_folder, out_filename)
 
     if save:
