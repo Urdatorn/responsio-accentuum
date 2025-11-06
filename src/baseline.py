@@ -137,9 +137,10 @@ def prose_end_sample(corpus: str, n_sylls: int, sample_size: int, seed=1453):
     
     if len(checked_sentences) < sample_size:
         print(f"Warning: Only {len(checked_sentences)} sentences with exactly {n_sylls} syllables found in corpus, less than requested {sample_size}.")
+        return checked_sentences  # Return all available sentences
 
-    if len(sentences) > sample_size:
-        sample = random.choices(sentences, k=sample_size)
+    if len(checked_sentences) >= sample_size:
+        sample = random.sample(checked_sentences, sample_size)  # Use sample instead of choices to avoid duplicates
         return sample
     else:
         return None
@@ -155,9 +156,16 @@ def prose_strophe_sample(corpus: str, strophe_scheme: list, sample_size: int, se
         sample_size: int, number of samples to draw
         seed: int, random seed for reproducibility
     '''
+    # Get unique syllable counts and determine how many we need of each
+    unique_sylls = set(strophe_scheme)
+    syll_counts = {n_sylls: strophe_scheme.count(n_sylls) for n_sylls in unique_sylls}
+    
+    # Generate samples for each unique syllable count
+    # We need sample_size * count for each syllable length to avoid repetition within strophes
     lines = {}
-    for n_sylls in strophe_scheme:
-        sample = prose_end_sample(corpus, n_sylls, sample_size, seed)
+    for n_sylls in unique_sylls:
+        needed_samples = sample_size * syll_counts[n_sylls]
+        sample = prose_end_sample(corpus, n_sylls, needed_samples, seed)
         if sample is not None:
             lines[n_sylls] = sample
         else:
@@ -165,11 +173,15 @@ def prose_strophe_sample(corpus: str, strophe_scheme: list, sample_size: int, se
 
     print("Assembling strophes...")
     strophes = []
+    # Keep track of how many we've used for each syllable count
+    used_indices = {n_sylls: 0 for n_sylls in unique_sylls}
+    
     for i in tqdm(range(sample_size)):
         strophe = []
         for n_sylls in strophe_scheme:
-            if n_sylls in lines and len(lines[n_sylls]) > i:
-                strophe.append(lines[n_sylls][i])
+            if n_sylls in lines and used_indices[n_sylls] < len(lines[n_sylls]):
+                strophe.append(lines[n_sylls][used_indices[n_sylls]])
+                used_indices[n_sylls] += 1
             else:
                 strophe.append("")
         strophes.append(strophe)
@@ -254,11 +266,19 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False):
 
     strophe_scheme = get_shape_canticum(xml_file, responsion_id)
 
-    sample_size = 13
+    # Count the number of strophes with the given responsion_id in the original file
+    tree = etree.parse(xml_file)
+    root = tree.getroot()
+    strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
+    sample_size = len(strophes)
+    
+    print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
+    
     seed = 1453
     strophe_sample_lists = prose_strophe_sample(anabasis, strophe_scheme, sample_size, seed)
 
     outdir = "data/scan/baselines/prose/"
+    print(f"Writing prose baseline for responsion {responsion_id} to {outdir}")
     filename = f"baseline_prose_{responsion_id}.xml"
     filepath = os.path.join(outdir, filename)
     dummy_xml_strophe(strophe_sample_lists, responsion_id, filepath, type="Prose")

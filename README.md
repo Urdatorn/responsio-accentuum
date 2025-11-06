@@ -13,7 +13,7 @@ This project builds on and generalizes my previous work on the songs of Aristoph
 - make lyric baseline as well (make Frankenstein null baseline strophes by searching odes for lines with the same lengths (or longer, since end is most interesting, and always possible to retrograde heatmapping later) as P4, being careful not to include two lines from the same ode in the same line in diff strophes)
 - differences between ol, py, is, ne? compare equistrophic cantica2
 
-[^1]: Four of the preserved odes have no responding parts at all, i.e. no refrains.
+[^1]: Four of the preserved odes have no responding parts at all, i.e. no refrains. Note that only 37 of the 40 responding songs have separate strophes and antistrophes, so if the responding unit of interest is the strophe instead of the strophe-antistrophe-epode triad, the corpus is slightly smaller. 
 
 ## Copyright and citation
 
