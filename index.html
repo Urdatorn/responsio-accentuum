@@ -174,8 +174,8 @@ title: Pindar Heatmap Viewer
     
     // Check if this heatmap is available
     if (availableHeatmaps[unit][collection].includes(numberInt)) {
-      const heatmapPath = baseUrl + `/media/heatmaps/${unit}/${overlay}/${collection}${number}.png`;
-      const baselinePath = baseUrl + `/media/heatmaps/${unit}/baselines/${collection}${numberInt}.png`;
+      const heatmapPath = `/responsio-accentuum/media/heatmaps/${unit}/${overlay}/${collection}${number}.png`;
+      const baselinePath = `/responsio-accentuum/media/heatmaps/${unit}/baselines/${collection}${number}.png`;
       
       debugLog('Heatmap path: ' + heatmapPath);
       debugLog('Baseline path: ' + baselinePath);
