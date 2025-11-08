@@ -143,10 +143,8 @@ def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, 
     num_rows_data = len(data_matrix)
     max_len_data = max(len(row) for row in data_matrix)
 
-    print("Length of each row (data matrix):", row_lengths_data)
-
     if text_overlay:
-
+        
         # -----------------------------
         # Prepare text matrix
         # -----------------------------
@@ -156,6 +154,7 @@ def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, 
         
         print(f"Number of rows: {num_rows_text}")
         print(f"Length of each row (text matrix): {row_lengths}")
+        print("Length of each row (data matrix):", row_lengths_data)
 
         # -----------------------------
         # Shape check
@@ -234,6 +233,8 @@ def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, 
         ax.xaxis.label.set_color("white")
         ax.yaxis.label.set_color("white")
         ax.title.set_color("white")
+        # Fix colorbar text color for dark mode
+        colorbar.ax.tick_params(colors="white")
 
     out_filename = f"{responsion_attribute}.png"
     out_path = os.path.join(out_folder, out_filename)

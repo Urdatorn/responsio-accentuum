@@ -144,12 +144,65 @@ label {
 .image-container {
   text-align: center;
   min-height: 400px;
-  max-height: 80vh;
+  max-height: 90vh;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
   overflow: hidden;
+}
+
+/* Heatmap Pair Layout */
+.heatmap-pair {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  max-width: 1600px;
+}
+
+.heatmap-wrapper {
+  flex: 1;
+  max-width: 700px;
+  text-align: center;
+}
+
+.heatmap-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+
+.heatmap-wrapper img {
+  max-width: 100%;
+  max-height: 70vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
+              0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.heatmap-wrapper img:hover {
+  transform: scale(1.02);
+}
+
+/* Single image fallback (if needed) */
+#heatmap {
+  max-width: 100%;
+  max-height: 75vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
+              0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* FAQ Section */
@@ -240,22 +293,6 @@ label {
   margin-bottom: 12px;
 }
 
-#heatmap {
-  max-width: 100%;
-  max-height: 75vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
-              0 2px 8px rgba(0, 0, 0, 0.04);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#heatmap:hover {
-  transform: scale(1.02);
-}
-
 .error-message {
   padding: 24px 32px;
   background: linear-gradient(135deg, #fff4e6 0%, #fff9f0 100%);
@@ -341,12 +378,17 @@ label {
   
   .image-container {
     min-height: 300px;
-    max-height: 70vh;
+    max-height: none;
     padding: 12px;
   }
   
-  #heatmap {
-    max-height: 65vh;
+  .heatmap-pair {
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .heatmap-wrapper img {
+    max-height: 50vh;
   }
 }
 

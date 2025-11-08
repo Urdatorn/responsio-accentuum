@@ -58,7 +58,16 @@ title: Pindar Heatmap Viewer
     <div id="error-message" class="error-message" style="display: none;">
       This heatmap is not available.
     </div>
-    <img id="heatmap" src="" alt="Heatmap" style="display: none;">
+    <div class="heatmap-pair" style="display: none;" id="heatmap-pair">
+      <div class="heatmap-wrapper">
+        <h3 class="heatmap-title">Pindar</h3>
+        <img id="heatmap" src="" alt="Heatmap">
+      </div>
+      <div class="heatmap-wrapper">
+        <h3 class="heatmap-title">Baseline (Prose)</h3>
+        <img id="baseline" src="" alt="Baseline Heatmap">
+      </div>
+    </div>
   </div>
   
   <div class="faq-section">
@@ -152,7 +161,9 @@ title: Pindar Heatmap Viewer
     const numberInt = parseInt(number);
     const unit = document.getElementById('unit').value;
     const overlay = document.getElementById('overlay').value;
-    const img = document.getElementById('heatmap');
+    const heatmapImg = document.getElementById('heatmap');
+    const baselineImg = document.getElementById('baseline');
+    const heatmapPair = document.getElementById('heatmap-pair');
     const errorMessage = document.getElementById('error-message');
     
     debugLog('---');
@@ -163,26 +174,63 @@ title: Pindar Heatmap Viewer
     
     // Check if this heatmap is available
     if (availableHeatmaps[unit][collection].includes(numberInt)) {
-      const imagePath = baseUrl + `/media/heatmaps/${unit}/${overlay}/${collection}${number}.png`;
-      debugLog('Image path: ' + imagePath);
-      img.src = imagePath;
-      img.alt = `Heatmap for ${collection.toUpperCase()} ${numberInt}`;
-      img.style.display = 'block';
-      errorMessage.style.display = 'none';
+      const heatmapPath = baseUrl + `/media/heatmaps/${unit}/${overlay}/${collection}${number}.png`;
+      const baselinePath = baseUrl + `/media/heatmaps/${unit}/baselines/${collection}${numberInt}.png`;
       
-      // Check if image actually loads
-      img.onerror = function() {
-        debugLog('ERROR: Failed to load image!');
-        img.style.display = 'none';
+      debugLog('Heatmap path: ' + heatmapPath);
+      debugLog('Baseline path: ' + baselinePath);
+      
+      // Set up image sources
+      heatmapImg.src = heatmapPath;
+      heatmapImg.alt = `${collection.toUpperCase()} ${numberInt} Heatmap`;
+      baselineImg.src = baselinePath;
+      baselineImg.alt = `${collection.toUpperCase()} ${numberInt} Baseline`;
+      
+      // Track loading states
+      let heatmapLoaded = false;
+      let baselineLoaded = false;
+      
+      function checkBothLoaded() {
+        if (heatmapLoaded && baselineLoaded) {
+          heatmapPair.style.display = 'flex';
+          errorMessage.style.display = 'none';
+          debugLog('SUCCESS: Both images loaded!');
+        }
+      }
+      
+      // Heatmap load handlers
+      heatmapImg.onload = function() {
+        heatmapLoaded = true;
+        debugLog('SUCCESS: Heatmap loaded!');
+        checkBothLoaded();
+      };
+      
+      heatmapImg.onerror = function() {
+        debugLog('ERROR: Failed to load heatmap!');
+        heatmapPair.style.display = 'none';
         errorMessage.style.display = 'block';
       };
       
-      img.onload = function() {
-        debugLog('SUCCESS: Image loaded!');
+      // Baseline load handlers
+      baselineImg.onload = function() {
+        baselineLoaded = true;
+        debugLog('SUCCESS: Baseline loaded!');
+        checkBothLoaded();
       };
+      
+      baselineImg.onerror = function() {
+        debugLog('ERROR: Failed to load baseline!');
+        heatmapPair.style.display = 'none';
+        errorMessage.style.display = 'block';
+      };
+      
+      // Hide initially while loading
+      heatmapPair.style.display = 'none';
+      errorMessage.style.display = 'none';
+      
     } else {
       debugLog('ERROR: Heatmap not in available list');
-      img.style.display = 'none';
+      heatmapPair.style.display = 'none';
       errorMessage.style.display = 'block';
     }
   }
