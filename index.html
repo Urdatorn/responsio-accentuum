@@ -60,17 +60,16 @@ title: Pindar Heatmap Viewer
     </div>
     <div class="heatmap-pair" style="display: none;" id="heatmap-pair">
       <div class="heatmap-wrapper">
-        <h3 class="heatmap-title">Pindar</h3>
         <img id="heatmap" src="" alt="Heatmap">
         <div class="stats-box" id="pindar-stats">
           <div class="stat-item">
             <span class="stat-label">Average comp. score:</span>
             <span class="stat-value" id="ode-score">-</span>
+            <span class="stat-emoji" id="comparison-emoji">🤔</span>
           </div>
         </div>
       </div>
       <div class="heatmap-wrapper">
-        <h3 class="heatmap-title">Baseline (Prose)</h3>
         <img id="baseline" src="" alt="Baseline Heatmap">
         <div class="stats-box" id="baseline-stats">
           <div class="stat-item">
@@ -79,6 +78,15 @@ title: Pindar Heatmap Viewer
           </div>
         </div>
       </div>
+    </div>
+  </div>
+  
+  <!-- Modal for fullscreen image -->
+  <div class="modal" id="image-modal" style="display: none;">
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close">&times;</button>
+      <img id="modal-image" src="" alt="Fullscreen Image">
     </div>
   </div>
   
@@ -235,9 +243,25 @@ title: Pindar Heatmap Viewer
       document.getElementById('ode-score').textContent = odeScore ? odeScore.toFixed(2) : 'N/A';
       document.getElementById('baseline-score').textContent = baselineScore ? baselineScore.toFixed(2) : 'N/A';
       
+      // Update emoji based on comparison
+      const emojiElement = document.getElementById('comparison-emoji');
+      if (odeScore && baselineScore) {
+        if (odeScore > baselineScore) {
+          emojiElement.textContent = '😊'; // Happy emoji - Pindar scores higher
+          emojiElement.title = 'Pindar scores higher than baseline!';
+        } else {
+          emojiElement.textContent = '😔'; // Sad emoji - Baseline scores higher
+          emojiElement.title = 'Baseline scores higher than Pindar';
+        }
+      } else {
+        emojiElement.textContent = '🤔'; // Thinking emoji - missing data
+        emojiElement.title = 'Data unavailable';
+      }
+      
       debugLog('Responsion attribute: ' + responsionAttribute);
       debugLog('Ode score: ' + (odeScore || 'N/A'));
       debugLog('Baseline score: ' + (baselineScore || 'N/A'));
+      debugLog('Emoji: ' + emojiElement.textContent);
       
       // Track loading states
       let heatmapLoaded = false;
@@ -248,6 +272,15 @@ title: Pindar Heatmap Viewer
           heatmapPair.style.display = 'flex';
           errorMessage.style.display = 'none';
           debugLog('SUCCESS: Both images loaded!');
+          
+          // Add click handlers for modal
+          heatmapImg.onclick = function() {
+            openModal(heatmapImg.src, heatmapImg.alt);
+          };
+          
+          baselineImg.onclick = function() {
+            openModal(baselineImg.src, baselineImg.alt);
+          };
         }
       }
       
@@ -287,6 +320,42 @@ title: Pindar Heatmap Viewer
       errorMessage.style.display = 'block';
     }
   }
+  
+  // Modal functionality for fullscreen images
+  function openModal(imageSrc, imageAlt) {
+    const modal = document.getElementById('image-modal');
+    const modalImage = document.getElementById('modal-image');
+    
+    modalImage.src = imageSrc;
+    modalImage.alt = imageAlt;
+    modal.style.display = 'flex';
+    
+    // Prevent body scrolling when modal is open
+    document.body.style.overflow = 'hidden';
+    
+    debugLog('Modal opened: ' + imageAlt);
+  }
+  
+  function closeModal() {
+    const modal = document.getElementById('image-modal');
+    modal.style.display = 'none';
+    
+    // Restore body scrolling
+    document.body.style.overflow = 'auto';
+    
+    debugLog('Modal closed');
+  }
+  
+  // Modal event listeners
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', closeModal);
+  
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
   
   // Add event listeners
   document.getElementById('collection').addEventListener('change', function() {
