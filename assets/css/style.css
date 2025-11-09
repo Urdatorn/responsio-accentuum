@@ -192,6 +192,37 @@ label {
   transform: scale(1.02);
 }
 
+/* Stats Boxes */
+.stats-box {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(242, 242, 247, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.stat-label {
+  color: #424245;
+  font-weight: 500;
+}
+
+.stat-value {
+  color: #1d1d1f;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  font-size: 1rem;
+}
+
 /* Single image fallback (if needed) */
 #heatmap {
   max-width: 100%;

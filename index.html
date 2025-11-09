@@ -62,10 +62,22 @@ title: Pindar Heatmap Viewer
       <div class="heatmap-wrapper">
         <h3 class="heatmap-title">Pindar</h3>
         <img id="heatmap" src="" alt="Heatmap">
+        <div class="stats-box" id="pindar-stats">
+          <div class="stat-item">
+            <span class="stat-label">Average comp. score:</span>
+            <span class="stat-value" id="ode-score">-</span>
+          </div>
+        </div>
       </div>
       <div class="heatmap-wrapper">
         <h3 class="heatmap-title">Baseline (Prose)</h3>
         <img id="baseline" src="" alt="Baseline Heatmap">
+        <div class="stats-box" id="baseline-stats">
+          <div class="stat-item">
+            <span class="stat-label">Average baseline score:</span>
+            <span class="stat-value" id="baseline-score">-</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -124,6 +136,35 @@ title: Pindar Heatmap Viewer
       'py': [1, 2, 3, 4, 5, 7, 8, 9, 10, 11],
       'is': [1, 2, 3, 4, 5, 6]
     }
+  };
+  
+  // Compatibility scores data
+  const odeCompScores = {
+    'is01': 0.75, 'is02': 0.8158295281582952, 'is04': 0.7630188679245283, 'is05': 0.7836477987421383,
+    'is06': 0.8007662835249042, 'is07': 0.8065476190476191, 'is08': 0.7235841081994928,
+    'ne01': 0.7391732283464567, 'ne02': 0.7484848484848485, 'ne03': 0.7587025316455697, 'ne04': 0.7044673539518901,
+    'ne05': 0.7774086378737541, 'ne06': 0.7880724174653887, 'ne07': 0.752411575562701, 'ne08': 0.8054567022538552,
+    'ne09': 0.6929499072356216, 'ne10': 0.7315960912052117, 'ne11': 0.7840579710144927,
+    'ol01': 0.7428385416666666, 'ol02': 0.7459259259259259, 'ol03': 0.7984496124031008, 'ol05': 0.8088578088578089,
+    'ol06': 0.7483679525222552, 'ol07': 0.7546391752577319, 'ol08': 0.7442084942084942, 'ol09': 0.7378787878787879,
+    'ol10': 0.7277777777777777, 'ol13': 0.7324324324324324, 'ol14': 0.7948717948717948,
+    'py01': 0.760806916426513, 'py02': 0.7365384615384616, 'py03': 0.7368421052631579, 'py04': 0.7088210702341137,
+    'py05': 0.7582335329341318, 'py06': 0.75, 'py08': 0.7508620689655172, 'py09': 0.739572192513369,
+    'py10': 0.7531512605042017, 'py11': 0.7593457943925234, 'py12': 0.7350427350427351
+  };
+  
+  const baselineProseCompScores = {
+    'is01': 0.7306122448979592, 'is02': 0.7929984779299848, 'is04': 0.7433962264150944, 'is05': 0.7786163522012578,
+    'is06': 0.8026819923371648, 'is07': 0.7886904761904762, 'is08': 0.7320371935756551,
+    'ne01': 0.7322834645669292, 'ne02': 0.7242424242424242, 'ne03': 0.7325949367088608, 'ne04': 0.6941580756013745,
+    'ne05': 0.7906976744186046, 'ne06': 0.7884615384615384, 'ne07': 0.7466237942122187, 'ne08': 0.7864768683274022,
+    'ne09': 0.6846011131725417, 'ne10': 0.7276872964169381, 'ne11': 0.7855072463768116,
+    'ol01': 0.7337239583333334, 'ol02': 0.7479245283018868, 'ol03': 0.7919896640826873, 'ol05': 0.7878787878787878,
+    'ol06': 0.7311572700296736, 'ol07': 0.7381443298969073, 'ol08': 0.7364864864864865, 'ol09': 0.7484848484848485,
+    'ol10': 0.7396825396825397, 'ol13': 0.75, 'ol14': 0.8173076923076923,
+    'py01': 0.7371757925072047, 'py02': 0.7301282051282051, 'py03': 0.7409356725146199, 'py04': 0.6872909698996655,
+    'py05': 0.7484984984984985, 'py06': 0.7222222222222222, 'py08': 0.7482758620689656, 'py09': 0.7374331550802139,
+    'py10': 0.7447478991596639, 'py11': 0.7394859813084113, 'py12': 0.7521367521367521
   };
   
   // Populate number dropdown based on selected collection and unit
@@ -185,6 +226,18 @@ title: Pindar Heatmap Viewer
       heatmapImg.alt = `${collection.toUpperCase()} ${numberInt} Heatmap`;
       baselineImg.src = baselinePath;
       baselineImg.alt = `${collection.toUpperCase()} ${numberInt} Baseline`;
+      
+      // Update stats
+      const responsionAttribute = collection + number;
+      const odeScore = odeCompScores[responsionAttribute];
+      const baselineScore = baselineProseCompScores[responsionAttribute];
+      
+      document.getElementById('ode-score').textContent = odeScore ? odeScore.toFixed(2) : 'N/A';
+      document.getElementById('baseline-score').textContent = baselineScore ? baselineScore.toFixed(2) : 'N/A';
+      
+      debugLog('Responsion attribute: ' + responsionAttribute);
+      debugLog('Ode score: ' + (odeScore || 'N/A'));
+      debugLog('Baseline score: ' + (baselineScore || 'N/A'));
       
       // Track loading states
       let heatmapLoaded = false;
