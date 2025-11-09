@@ -326,6 +326,10 @@ title: Pindar Heatmap Viewer
     const modal = document.getElementById('image-modal');
     const modalImage = document.getElementById('modal-image');
     
+    debugLog('Opening modal with image: ' + imageSrc);
+    debugLog('Modal element found: ' + !!modal);
+    debugLog('Modal image element found: ' + !!modalImage);
+    
     modalImage.src = imageSrc;
     modalImage.alt = imageAlt;
     modal.style.display = 'flex';
@@ -334,6 +338,16 @@ title: Pindar Heatmap Viewer
     document.body.style.overflow = 'hidden';
     
     debugLog('Modal opened: ' + imageAlt);
+    
+    // Add load event listener for debugging
+    modalImage.onload = function() {
+      debugLog('Modal image loaded successfully');
+      debugLog('Modal image dimensions: ' + modalImage.naturalWidth + 'x' + modalImage.naturalHeight);
+    };
+    
+    modalImage.onerror = function() {
+      debugLog('ERROR: Modal image failed to load!');
+    };
   }
   
   function closeModal() {
