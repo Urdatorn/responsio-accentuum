@@ -238,84 +238,21 @@ label {
   cursor: pointer;
 }
 
-/* Modal Styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 10000;
-  display: none; /* Changed from flex to none by default */
-}
-
-.modal-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  z-index: 10001;
-}
-
-.modal-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 90vw;
-  max-height: 90vh;
-  z-index: 10002;
-  padding: 20px;
-}
-
-.modal-close {
-  position: absolute;
-  top: -60px;
-  right: -20px;
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 20px;
-  font-size: 24px;
-  font-weight: 300;
-  color: #1d1d1f;
-  cursor: pointer;
-  transition: all 0.2s ease;
+/* Chi-square Statistical Analysis Section */
+.chisquare-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  z-index: 10003;
+  margin: 32px 0;
 }
 
-.modal-close:hover {
-  background: rgba(255, 255, 255, 1);
-  transform: scale(1.05);
+.chisquare-wrapper {
+  max-width: 800px;
+  text-align: center;
 }
 
-#modal-image {
-  max-width: 90vw;
-  max-height: 90vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-  display: block !important;
-  z-index: 10002;
-}
-
-/* Single image fallback (if needed) */
-#heatmap {
+.chisquare-wrapper img {
   max-width: 100%;
-  max-height: 75vh;
+  max-height: 70vh;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -323,6 +260,33 @@ label {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
               0 2px 8px rgba(0, 0, 0, 0.04);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.chisquare-wrapper img:hover {
+  transform: scale(1.02);
+}
+
+#chisquare-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+#chisquare-section p {
+  color: #86868b;
+  margin-bottom: 24px;
+  font-size: 0.95rem;
+}
+
+/* Toggle hint styling */
+.toggle-hint {
+  font-size: 0.875rem;
+  color: #86868b;
+  margin-top: 8px;
+  font-style: italic;
 }
 
 /* FAQ Section */
