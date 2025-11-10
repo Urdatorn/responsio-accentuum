@@ -222,9 +222,14 @@ def dummy_xml_single_line(string_list: list, outfile: str):
     with open(outfile, 'w', encoding='utf-8') as f:
         f.write(xml_content)
 
-def dummy_xml_strophe(strophe_sample_lists, responsion_id, outfile, type="Prose"):
+def dummy_xml_strophe(strophe_sample_lists_dict, outfile, type="Prose"):
     """
-    Generate TEI XML from a list of strophe lists of l elements.
+    Generate TEI XML from a dictionary of strophe lists.
+    
+    Args:
+        strophe_sample_lists_dict: dict with responsion_id as key and list of strophe lists as value
+        outfile: output file path
+        type: type of baseline (default "Prose")
     """
     xml_content = f'''<?xml version='1.0' encoding='UTF-8'?>
 <TEI>
@@ -238,24 +243,29 @@ def dummy_xml_strophe(strophe_sample_lists, responsion_id, outfile, type="Prose"
   </teiHeader>
   <text>
     <body>
-      <canticum>
 '''
     
-    index = 1
-    for strophe_sample_list in strophe_sample_lists:
-        xml_content += f'''        <strophe type="strophe" responsion="{responsion_id}">
+    for responsion_id, strophe_sample_lists in strophe_sample_lists_dict.items():
+        xml_content += f'''      <canticum>
 '''
         
-        for line in strophe_sample_list:
-            xml_content += f'''          <l n="{index}">{line}</l>
+        index = 1
+        for strophe_sample_list in strophe_sample_lists:
+            xml_content += f'''        <strophe type="strophe" responsion="{responsion_id}">
 '''
-            index += 1
+            
+            for line in strophe_sample_list:
+                xml_content += f'''          <l n="{index}">{line}</l>
+'''
+                index += 1
 
-        xml_content += '''        </strophe>
+            xml_content += '''        </strophe>
+'''
+        
+        xml_content += '''      </canticum>
 '''
     
-    xml_content += '''      </canticum>
-    </body>
+    xml_content += '''    </body>
   </text>
 </TEI>'''
     
@@ -273,18 +283,28 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False):
     sample_size = len(strophes)
     
     print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
+    print(f"Generating 100 baseline samples...")
     
-    seed = 1453
-    strophe_sample_lists = prose_strophe_sample(anabasis, strophe_scheme, sample_size, seed)
+    # Generate 100 different baseline samples with different seeds
+    strophe_samples_dict = {}
+    
+    for i in tqdm(range(100)):
+        seed = 1453 + i  # Different seed for each sample
+        responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
+        
+        strophe_sample_lists = prose_strophe_sample(anabasis, strophe_scheme, sample_size, seed)
+        strophe_samples_dict[responsion_key] = strophe_sample_lists
 
     outdir = "data/scan/baselines/prose/"
     print(f"Writing prose baseline for responsion {responsion_id} to {outdir}")
     filename = f"baseline_prose_{responsion_id}.xml"
     filepath = os.path.join(outdir, filename)
-    dummy_xml_strophe(strophe_sample_lists, responsion_id, filepath, type="Prose")
+    dummy_xml_strophe(strophe_samples_dict, filepath, type="Prose")
 
     if debug:
-        for sentence in strophe_sample_lists[0]:
+        # Debug first sample only
+        first_key = list(strophe_samples_dict.keys())[0]
+        for sentence in strophe_samples_dict[first_key][0]:
             sylls = re.split(r'[\[\]{}]', sentence)
             sylls = [s for s in sylls if s and not s.isspace()]
             print(len(sylls))
