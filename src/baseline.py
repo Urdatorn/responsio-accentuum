@@ -282,8 +282,8 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False):
     strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
     sample_size = len(strophes)
     
-    print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
-    print(f"Generating 100 baseline samples...")
+    #print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
+    #print(f"Generating 100 baseline samples...")
     
     # Generate 100 different baseline samples with different seeds
     strophe_samples_dict = {}
