@@ -67,7 +67,6 @@ title: Pindar Heatmap Viewer
           <div class="stat-item">
             <span class="stat-label" id="current-label">Average comp. score:</span>
             <span class="stat-value" id="current-score">-</span>
-            <span class="stat-emoji" id="comparison-emoji">🤔</span>
           </div>
         </div>
       </div>
@@ -228,6 +227,21 @@ title: Pindar Heatmap Viewer
     'py12': [1.553904, 2, 4.60e-01, [0.5, 0.75, 1.0], [38, 48, 31], 117, [32.0, 52.0, 33.0]]
   };
   
+  // Function to get significance emoji based on p-value
+  function getSignificanceEmoji(pValue) {
+    if (pValue < 0.001) {
+      return '🔥'; // Highly significant
+    } else if (pValue < 0.01) {
+      return '⭐'; // Very significant
+    } else if (pValue < 0.05) {
+      return '✅'; // Significant
+    } else if (pValue < 0.10) {
+      return '🤏'; // Marginally significant
+    } else {
+      return '❌'; // Not significant
+    }
+  }
+
   // Populate number dropdown based on selected collection and unit
   function updateNumberOptions() {
     const collection = document.getElementById('collection').value;
@@ -243,8 +257,17 @@ title: Pindar Heatmap Viewer
     availableNumbers.forEach(num => {
       const option = document.createElement('option');
       const numStr = num.toString().padStart(2, '0');
+      const responsionAttribute = collection + numStr;
+      
+      // Get significance emoji if chi-square data exists
+      let emoji = '';
+      if (chisquareData[responsionAttribute]) {
+        const [chi2Stat, dof, pValue] = chisquareData[responsionAttribute];
+        emoji = ' ' + getSignificanceEmoji(pValue);
+      }
+      
       option.value = numStr;
-      option.textContent = num.toString();
+      option.textContent = num.toString() + emoji;
       numberSelect.appendChild(option);
     });
     
@@ -355,7 +378,6 @@ title: Pindar Heatmap Viewer
     const imageTitle = document.getElementById('image-title');
     const currentLabel = document.getElementById('current-label');
     const currentScore = document.getElementById('current-score');
-    const emojiElement = document.getElementById('comparison-emoji');
     
     if (window.showingHeatmap) {
       imageTitle.textContent = 'Pindar Heatmap';
@@ -365,20 +387,6 @@ title: Pindar Heatmap Viewer
       imageTitle.textContent = 'Baseline Heatmap';
       currentLabel.textContent = 'Average baseline score:';
       currentScore.textContent = window.currentBaselineScore ? window.currentBaselineScore.toFixed(2) : 'N/A';
-    }
-    
-    // Update emoji based on comparison (always shows comparison regardless of current view)
-    if (window.currentOdeScore && window.currentBaselineScore) {
-      if (window.currentOdeScore > window.currentBaselineScore) {
-        emojiElement.textContent = '😊'; // Happy emoji - Pindar scores higher
-        emojiElement.title = 'Pindar scores higher than baseline!';
-      } else {
-        emojiElement.textContent = '😔'; // Sad emoji - Baseline scores higher
-        emojiElement.title = 'Baseline scores higher than Pindar';
-      }
-    } else {
-      emojiElement.textContent = '🤔'; // Thinking emoji - missing data
-      emojiElement.title = 'Data unavailable';
     }
   }
   

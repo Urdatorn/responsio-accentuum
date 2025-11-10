@@ -294,9 +294,11 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False):
         
         strophe_sample_lists = prose_strophe_sample(anabasis, strophe_scheme, sample_size, seed)
         strophe_samples_dict[responsion_key] = strophe_sample_lists
-
-    outdir = "data/scan/baselines/prose/"
+    
+    outdir = "data/scan/baselines/triads/prose/"
+    os.makedirs(outdir, exist_ok=True)
     print(f"Writing prose baseline for responsion {responsion_id} to {outdir}")
+
     filename = f"baseline_prose_{responsion_id}.xml"
     filepath = os.path.join(outdir, filename)
     dummy_xml_strophe(strophe_samples_dict, filepath, type="Prose")
