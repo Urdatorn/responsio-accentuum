@@ -10,7 +10,6 @@ This project builds on and generalizes my previous work on the songs of Aristoph
 
 ## TODO 
 
-- heatmaps with nr of refrains in title 
 - make lyric baseline as well (make Frankenstein null baseline strophes by searching odes for lines with the same lengths (or longer, since end is most interesting, and always possible to retrograde heatmapping later) as P4, being careful not to include two lines from the same ode in the same line in diff strophes)
 - differences between ol, py, is, ne? compare equistrophic cantica2
 

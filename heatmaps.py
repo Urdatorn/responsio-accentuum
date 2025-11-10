@@ -16,22 +16,33 @@ def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
 
     return len(strophes) >= 2
 
-def canticum_number_of_strophes(xml_file: str, canticum_idx: int) -> int:
+def canticum_number_of_strophes(xml_file, responsion_attribute: str):
     '''
-    canticum_idx: 1-based index of the canticum in the XML file
+    responsion_attribute: e.g. 'ol01', 'py05', etc.
     '''
     tree = etree.parse(xml_file)
     root = tree.getroot()
 
-    desired_canticum = root.find(f".//canticum[{canticum_idx}]")
-    
-    if desired_canticum is None:
-        return 0
-
-    # Get all <strophe>-children of the <canticum>
-    strophes = desired_canticum.findall(".//strophe")
+    strophes = root.findall(f".//*[self::strophe or self::antistrophe][@responsion='{responsion_attribute}']")
 
     return len(strophes)
+
+# def canticum_number_of_strophes(xml_file: str, canticum_idx: int) -> int:
+#     '''
+#     canticum_idx: 1-based index of the canticum in the XML file
+#     '''
+#     tree = etree.parse(xml_file)
+#     root = tree.getroot()
+
+#     desired_canticum = root.find(f".//canticum[{canticum_idx}]")
+    
+#     if desired_canticum is None:
+#         return 0
+
+#     # Get all <strophe>-children of the <canticum>
+#     strophes = desired_canticum.findall(".//strophe")
+
+#     return len(strophes)
 
 def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
     # First, count actual canticums in the file
@@ -62,7 +73,7 @@ def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
         ax.set_facecolor("black")
         
         # Get number of strophes for the title
-        num_strophes = canticum_number_of_strophes(xml_file, canticum_idx)
+        num_strophes = canticum_number_of_strophes(xml_file, canticum_id)
         title_text = f"{canticum_id} ({num_strophes})"
         
         if not canticum_with_at_least_two_strophes(xml_file, canticum_id):
@@ -217,9 +228,14 @@ def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, 
                     color='white', fontsize=10
                 )
 
-    plt.xlabel("Metrical position (resolutions merged)")
-    plt.ylabel("Line")
     plt.title(title)
+
+    plt.xlabel("Metrical position (resolutions merged)")
+    plt.xticks(
+        ticks=np.arange(max_len) + 0.5,
+        labels=np.arange(1, max_len + 1)
+    )
+    plt.ylabel("Line")
     plt.yticks(
         ticks=np.arange(len(data_matrix)) + 0.5,
         labels=np.arange(1, len(data_matrix) + 1)

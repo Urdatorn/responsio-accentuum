@@ -1,6 +1,8 @@
 '''
 I include here some functionality generally useful for the inference scripts and notebooks.
 ''' 
+import numpy as np
+from scipy.stats import chisquare
 
 from collections import Counter
 from lxml import etree
@@ -52,8 +54,6 @@ def get_strophicity(abbreviations):
 
     return more_than_two, exactly_two
 
-from lxml import etree
-
 def get_text_matrix(xml_filepath: str, responsion_attribute: str, representative_strophe: int):
     '''
     Get a 2D list (matrix) representing the syllable structure 
@@ -104,9 +104,90 @@ def get_text_matrix(xml_filepath: str, responsion_attribute: str, representative
     row_lengths = [len(row) for row in text_matrix]
     return text_matrix, row_lengths
 
+def count_nested_values(nested_data):
+    """
+    Recursively flattens a nested data structure and counts all values.
+    
+    Args:
+        nested_data: A nested list/iterable structure of arbitrary depth
+        
+    Returns:
+        Counter: Dictionary with value counts
+    """
+    from collections import Counter
+    
+    def flatten_recursive(data):
+        """Recursively flatten nested structure"""
+        for item in data:
+            if hasattr(item, '__iter__') and not isinstance(item, (str, bytes)):
+                yield from flatten_recursive(item)
+            else:
+                yield item
+    
+    values = list(flatten_recursive(nested_data))
+    count_dict = Counter(values)
+    
+    return count_dict
+
 #################################
-### Particular to Aristphanes ###
+### Stats utility functions   ###
 #################################
+
+def make_chisquare_test(list_comp_scores, list_comp_baseline_scores):
+    '''
+    list_comp_scores and list_comp_baseline_scores: Handle any nestedness, from compatibility_corpus to compatibility_canticum
+    '''
+
+    count_dict = count_nested_values(list_comp_scores)
+    count_dict_baselines = count_nested_values(list_comp_baseline_scores)
+
+    # ------------------------------ #
+    # Synchronize dictionaries       #
+    # ------------------------------ #
+
+    # Get union of all keys from both dictionaries
+    all_keys = set(count_dict.keys()) | set(count_dict_baselines.keys())
+
+    # Create aligned dictionaries with zeros for missing keys
+    aligned_count_dict = {key: count_dict.get(key, 0) for key in all_keys}
+    aligned_count_dict_baselines = {key: count_dict_baselines.get(key, 0) for key in all_keys}
+
+    # Convert to lists with consistent ordering
+    sorted_keys = sorted(all_keys)
+    count_list = [aligned_count_dict[key] for key in sorted_keys]
+    count_list_baselines = [aligned_count_dict_baselines[key] for key in sorted_keys]
+
+    # ------------------------------ #
+    # Calculate expected counts      #
+    # ------------------------------ #
+
+    # 1) Observed counts
+    obs_counts = np.array(count_list)
+    obs_total = obs_counts.sum()
+
+    # 2) Null counts
+    null_counts = np.array(count_list_baselines)
+    null_total = null_counts.sum()
+
+    # 3) Null probabilities
+    null_probs = null_counts / null_total
+
+    # Expected counts
+    exp_counts = null_probs * obs_total
+
+    # ------------------------------ #
+    # Chi-square test                #
+    # ------------------------------ #
+
+    chi2_stat, p_value = chisquare(f_obs=obs_counts, f_exp=exp_counts)
+
+    degrees_of_freedom = len(obs_counts) - 1
+
+    return chi2_stat, degrees_of_freedom, p_value, sorted_keys, obs_counts, obs_total, exp_counts
+
+##################################
+### Particular to Aristophanes ###
+##################################
 
 abbreviations = [
     'ach',
