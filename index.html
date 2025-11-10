@@ -332,17 +332,19 @@ title: Pindar Heatmap Viewer
     
     modalImage.src = imageSrc;
     modalImage.alt = imageAlt;
-    modal.style.display = 'flex';
+    modal.style.display = 'block';
     
     // Prevent body scrolling when modal is open
     document.body.style.overflow = 'hidden';
     
     debugLog('Modal opened: ' + imageAlt);
+    debugLog('Modal display style: ' + modal.style.display);
     
     // Add load event listener for debugging
     modalImage.onload = function() {
       debugLog('Modal image loaded successfully');
       debugLog('Modal image dimensions: ' + modalImage.naturalWidth + 'x' + modalImage.naturalHeight);
+      debugLog('Modal image visible: ' + (modalImage.offsetWidth > 0 && modalImage.offsetHeight > 0));
     };
     
     modalImage.onerror = function() {
