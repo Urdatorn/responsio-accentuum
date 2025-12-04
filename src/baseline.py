@@ -369,7 +369,24 @@ def dummy_xml_strophe(strophe_sample_lists_dict, outfile, type="Prose"):
 '''
             
             for line in strophe_sample_list:
-                xml_content += f'''          <l n="{index}">{line}</l>
+                # Parse the line to extract syllable content and source attribute
+                try:
+                    line_element = etree.fromstring(line)
+                    # Extract source attribute if present
+                    source_attr = line_element.get('source', '')
+                    source_part = f' source="{source_attr}"' if source_attr else ''
+                    
+                    # Extract all syllable elements as strings
+                    syll_content = ""
+                    for syll in line_element.xpath(".//syll"):
+                        syll_str = etree.tostring(syll, encoding='unicode', method='xml')
+                        syll_content += syll_str
+                    
+                    xml_content += f'''          <l n="{index}"{source_part}>{syll_content}</l>
+'''
+                except etree.XMLSyntaxError:
+                    # Fallback for malformed XML - just use the content as-is
+                    xml_content += f'''          <l n="{index}">{line}</l>
 '''
                 index += 1
 
@@ -965,8 +982,9 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
             
             selected_xml = selected_item['xml']
             line_element = etree.fromstring(selected_xml)
-            # Add source attribute to show contamination prevention
-            line_element.set('source', selected_item['responsion_id'])
+            # Add enhanced source attribute to show contamination prevention
+            source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}"
+            line_element.set('source', source_info)
             return line_element
     
     if debug:
@@ -993,10 +1011,15 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
             sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
             trimmed_sylls = sylls[:-1]  # remove last syllable
             
-            # Create new <l> element
+            # Create new <l> element and copy attributes from original
             new_line = etree.Element("l")
-            # Add source attribute to show contamination prevention
-            new_line.set('source', selected_item['responsion_id'])
+            # Copy attributes from original line
+            for attr, value in line.attrib.items():
+                if attr != 'source':  # Don't copy source if it exists
+                    new_line.set(attr, value)
+            # Add enhanced source attribute to show contamination prevention
+            source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}"
+            new_line.set('source', source_info)
             for syll in trimmed_sylls:
                 new_line.append(syll)
             
@@ -1024,10 +1047,15 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
             if len(sylls) >= 5:
                 trimmed_sylls = sylls[:-5]  # remove last five syllables
                 
-                # Create new <l> element
+                # Create new <l> element and copy attributes from original
                 new_line = etree.Element("l")
-                # Add source attribute to show contamination prevention
-                new_line.set('source', selected_item['responsion_id'])
+                # Copy attributes from original line
+                for attr, value in line.attrib.items():
+                    if attr != 'source':  # Don't copy source if it exists
+                        new_line.set(attr, value)
+                # Add enhanced source attribute to show contamination prevention
+                source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}"
+                new_line.set('source', source_info)
                 for syll in trimmed_sylls:
                     new_line.append(syll)
                 
@@ -1065,10 +1093,15 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
                 random_syllable = etree.fromstring(random_syllable_xml)
                 sylls.append(random_syllable)
             
-            # Create new <l> element
+            # Create new <l> element and copy attributes from original
             new_line = etree.Element("l")
-            # Add source attribute to show contamination prevention
-            new_line.set('source', selected_item['responsion_id'])
+            # Copy attributes from original line
+            for attr, value in line.attrib.items():
+                if attr != 'source':  # Don't copy source if it exists
+                    new_line.set(attr, value)
+            # Add enhanced source attribute to show contamination prevention
+            source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}"
+            new_line.set('source', source_info)
             for syll in sylls:
                 new_line.append(syll)
             
@@ -1111,10 +1144,15 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
                 random_syllable2 = etree.fromstring(random_syllable2_xml)
                 sylls.append(random_syllable2)
             
-            # Create new <l> element
+            # Create new <l> element and copy attributes from original
             new_line = etree.Element("l")
-            # Add source attribute to show contamination prevention
-            new_line.set('source', selected_item['responsion_id'])
+            # Copy attributes from original line
+            for attr, value in line.attrib.items():
+                if attr != 'source':  # Don't copy source if it exists
+                    new_line.set(attr, value)
+            # Add enhanced source attribute to show contamination prevention
+            source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}"
+            new_line.set('source', source_info)
             for syll in sylls:
                 new_line.append(syll)
             
