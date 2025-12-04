@@ -11,6 +11,9 @@ from lxml import etree
 import os
 import random
 import re
+import json
+import pickle
+from collections import defaultdict
 from tqdm import tqdm
 
 from grc_utils import lower_grc, syllabifier
@@ -21,6 +24,86 @@ from src.stats import canonical_sylls
 
 punctuation_except_period = r'[\u0387\u037e\u00b7,!?;:\"()\[\]{}<>«»\-—…|⏑⏓†×]'
 
+def preprocess_and_cache_prose_corpus(corpus: str, cache_file: str = "data/cached_prose_corpus.pkl"):
+    """
+    Preprocess the entire prose corpus once and cache results by syllable length.
+    
+    Args:
+        corpus: the prose text to preprocess
+        cache_file: path to save the cached results
+        
+    Returns:
+        dict: syllable_length -> list of processed sentences
+    """
+    print("Preprocessing prose corpus...")
+    
+    # Initial corpus processing (done once)
+    corpus = re.sub(punctuation_except_period, '', corpus)
+    corpus = lower_grc(corpus)
+    sentences = corpus.split(".")
+    
+    # Group processed sentences by syllable count
+    sentences_by_length = defaultdict(list)
+    
+    for sentence in tqdm(sentences, desc="Processing sentences"):
+        if not sentence:
+            continue
+            
+        # Get syllables once
+        sentence_sylls = syllabifier(sentence)
+        if len(sentence_sylls) < 1:  # Skip empty sentences
+            continue
+            
+        # Process for different n_sylls values (we'll cache up to reasonable max length)
+        max_length = min(len(sentence_sylls), 50)  # Cache up to 50 syllables
+        
+        for n_sylls in range(1, max_length + 1):
+            if len(sentence_sylls) >= n_sylls:
+                # Extract last n syllables
+                end_sylls = "".join(sentence_sylls[-n_sylls:])
+                
+                # Apply rule scansion
+                scanned = rule_scansion(end_sylls, correption=False)
+                if not scanned:
+                    continue
+                    
+                # Add # after opening brackets
+                processed = re.sub(r'([\[{])', r'\1#', scanned)
+                
+                # Check syllable count matches
+                sylls = re.split(r'[\[\]{}]', processed)
+                sylls = [syll for syll in sylls if syll]
+                
+                if len(sylls) == n_sylls:
+                    sentences_by_length[n_sylls].append(processed)
+    
+    # Save cache
+    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+    with open(cache_file, 'wb') as f:
+        pickle.dump(dict(sentences_by_length), f)
+    
+    print(f"Cached {sum(len(v) for v in sentences_by_length.values())} processed sentences")
+    print(f"Syllable lengths available: {sorted(sentences_by_length.keys())}")
+    print(f"Cache saved to: {cache_file}")
+    
+    return dict(sentences_by_length)
+
+def load_cached_prose_corpus(cache_file: str = "data/cached_prose_corpus.pkl"):
+    """
+    Load cached prose corpus data.
+    
+    Args:
+        cache_file: path to the cached results
+        
+    Returns:
+        dict: syllable_length -> list of processed sentences
+    """
+    if not os.path.exists(cache_file):
+        print(f"Cache file {cache_file} not found. Preprocessing corpus...")
+        return preprocess_and_cache_prose_corpus(anabasis, cache_file)
+    
+    with open(cache_file, 'rb') as f:
+        return pickle.load(f)
 
 def get_shape(xml_filepath):
     '''
@@ -141,6 +224,37 @@ def prose_end_sample(corpus: str, n_sylls: int, sample_size: int, seed=1453):
 
     if len(checked_sentences) >= sample_size:
         sample = random.sample(checked_sentences, sample_size)  # Use sample instead of choices to avoid duplicates
+        return sample
+    else:
+        return None
+
+def prose_end_sample_cached(cached_corpus: dict, n_sylls: int, sample_size: int, seed=1453):
+    """
+    Fast version of prose_end_sample using cached preprocessed corpus.
+    
+    Args:
+        cached_corpus: dict from load_cached_prose_corpus()
+        n_sylls: number of syllables to sample
+        sample_size: how many samples to return
+        seed: random seed for reproducibility
+        
+    Returns:
+        list of processed sentence strings or None if insufficient data
+    """
+    random.seed(seed)
+    
+    if n_sylls not in cached_corpus:
+        print(f"Warning: No sentences with exactly {n_sylls} syllables found in cached corpus.")
+        return []
+    
+    available_sentences = cached_corpus[n_sylls]
+    
+    if len(available_sentences) < sample_size:
+        print(f"Warning: Only {len(available_sentences)} sentences with exactly {n_sylls} syllables found in corpus, less than requested {sample_size}.")
+        return available_sentences  # Return all available sentences
+    
+    if len(available_sentences) >= sample_size:
+        sample = random.sample(available_sentences, sample_size)  # Use sample instead of choices to avoid duplicates
         return sample
     else:
         return None
@@ -282,8 +396,10 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False):
     strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
     sample_size = len(strophes)
     
-    #print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
-    #print(f"Generating 100 baseline samples...")
+    if debug:
+        print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
+        print(f"Strophe scheme: {strophe_scheme}")
+        print(f"Generating 100 baseline samples...")
     
     # Generate 100 different baseline samples with different seeds
     strophe_samples_dict = {}
@@ -292,7 +408,48 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False):
         seed = 1453 + i  # Different seed for each sample
         responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
         
-        strophe_sample_lists = prose_strophe_sample(anabasis, strophe_scheme, sample_size, seed)
+        # Generate lines for each position first, ensuring uniqueness within each position
+        lines_by_position = []
+        
+        for line_idx, line_length in enumerate(strophe_scheme):
+            position_lines = []
+            used_lines = set()  # Track used lines for this position
+            
+            attempts = 0
+            max_attempts = sample_size * 10  # Allow multiple attempts to find unique lines
+            
+            while len(position_lines) < sample_size and attempts < max_attempts:
+                # Use different seed for each attempt
+                line_seed = seed + line_idx * 10000 + attempts
+                sample_lines = prose_end_sample(anabasis, line_length, 1, line_seed)
+                
+                if sample_lines and len(sample_lines) > 0:
+                    line_text = sample_lines[0]
+                    
+                    # Check if this line is already used in this position
+                    if line_text not in used_lines:
+                        position_lines.append(line_text)
+                        used_lines.add(line_text)
+                    
+                attempts += 1
+            
+            # If we couldn't find enough unique lines, raise an error
+            if len(position_lines) < sample_size:
+                raise RuntimeError(f"Could not find {sample_size} unique prose lines for position {line_idx+1} (length {line_length}). Only found {len(position_lines)} unique lines after {max_attempts} attempts.")
+            
+            lines_by_position.append(position_lines)
+        
+        # Now assemble strophes from the position-specific lines
+        strophe_sample_lists = []
+        
+        for strophe_idx in range(sample_size):
+            strophe_lines = []
+            
+            for line_idx in range(len(strophe_scheme)):
+                strophe_lines.append(lines_by_position[line_idx][strophe_idx])
+            
+            strophe_sample_lists.append(strophe_lines)
+        
         strophe_samples_dict[responsion_key] = strophe_sample_lists
     
     outdir = "data/scan/baselines/triads/prose/"
@@ -306,25 +463,230 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False):
     if debug:
         # Debug first sample only
         first_key = list(strophe_samples_dict.keys())[0]
-        for sentence in strophe_samples_dict[first_key][0]:
-            sylls = re.split(r'[\[\]{}]', sentence)
-            sylls = [s for s in sylls if s and not s.isspace()]
-            print(len(sylls))
+        print(f"Debug: First strophe sample for {first_key}:")
+        for i, line in enumerate(strophe_samples_dict[first_key][0]):
+            print(f"  Line {i+1} (length {strophe_scheme[i]}): {line}")
 
-def lyric_line_sample(length: int, corpus_folder: str, seed=1453, debug=False)-> str:
+def make_prose_baseline_fast(xml_file: str, responsion_id: str, debug: bool = False, cache_file: str = "data/cached_prose_corpus.pkl"):
+    """
+    Fast version of make_prose_baseline using cached preprocessed corpus.
+    
+    Args:
+        xml_file: path to XML file containing the original strophe structure
+        responsion_id: the responsion ID to generate baseline for
+        debug: whether to print debug information
+        cache_file: path to cached corpus data
+    """
+    
+    # Load cached corpus data
+    cached_corpus = load_cached_prose_corpus(cache_file)
+
+    strophe_scheme = get_shape_canticum(xml_file, responsion_id)
+
+    # Count the number of strophes with the given responsion_id in the original file
+    tree = etree.parse(xml_file)
+    root = tree.getroot()
+    strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
+    sample_size = len(strophes)
+    
+    if debug:
+        print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
+        print(f"Strophe scheme: {strophe_scheme}")
+        print(f"Generating 100 baseline samples...")
+    
+    # Generate 100 different baseline samples with different seeds
+    strophe_samples_dict = {}
+    
+    for i in tqdm(range(100)):
+        seed = 1453 + i  # Different seed for each sample
+        responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
+        
+        # Generate lines for each position first, ensuring uniqueness within each position
+        lines_by_position = []
+        
+        for line_idx, line_length in enumerate(strophe_scheme):
+            position_lines = []
+            used_lines = set()  # Track used lines for this position
+            
+            attempts = 0
+            max_attempts = sample_size * 10  # Allow multiple attempts to find unique lines
+            
+            while len(position_lines) < sample_size and attempts < max_attempts:
+                # Use different seed for each attempt
+                line_seed = seed + line_idx * 10000 + attempts
+                sample_lines = prose_end_sample_cached(cached_corpus, line_length, 1, line_seed)
+                
+                if sample_lines and len(sample_lines) > 0:
+                    line_text = sample_lines[0]
+                    
+                    # Check if this line is already used in this position
+                    if line_text not in used_lines:
+                        position_lines.append(line_text)
+                        used_lines.add(line_text)
+                    
+                attempts += 1
+            
+            # If we couldn't find enough unique lines, raise an error
+            if len(position_lines) < sample_size:
+                raise RuntimeError(f"Could not find {sample_size} unique prose lines for position {line_idx+1} (length {line_length}). Only found {len(position_lines)} unique lines after {max_attempts} attempts.")
+            
+            lines_by_position.append(position_lines)
+        
+        # Now assemble strophes from the position-specific lines
+        strophe_sample_lists = []
+        
+        for strophe_idx in range(sample_size):
+            strophe_lines = []
+            
+            for line_idx in range(len(strophe_scheme)):
+                strophe_lines.append(lines_by_position[line_idx][strophe_idx])
+            
+            strophe_sample_lists.append(strophe_lines)
+        
+        strophe_samples_dict[responsion_key] = strophe_sample_lists
+    
+    outdir = "data/scan/baselines/triads/prose/"
+    os.makedirs(outdir, exist_ok=True)
+    print(f"Writing prose baseline for responsion {responsion_id} to {outdir}")
+
+    filename = f"baseline_prose_{responsion_id}.xml"
+    filepath = os.path.join(outdir, filename)
+    dummy_xml_strophe(strophe_samples_dict, filepath, type="Prose")
+
+    if debug:
+        # Debug first sample only
+        first_key = list(strophe_samples_dict.keys())[0]
+        print(f"Debug: First strophe sample for {first_key}:")
+        for i, line in enumerate(strophe_samples_dict[first_key][0]):
+            print(f"  Line {i+1} (length {strophe_scheme[i]}): {line}")
+
+def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = "data/compiled/triads", outfolder: str = "data/compiled/baselines/triads/lyric", debug: bool = False):
+    """
+    Generate lyric baseline using lyric_line_sample for each line length in the strophe.
+    Ensures that corresponding lines (same position) across strophes are unique.
+    Excludes the input XML file from the corpus to avoid contamination.
+    
+    Args:
+        xml_file: path to XML file containing the original strophe structure
+        responsion_id: the responsion ID to generate baseline for
+        corpus_folder: folder containing XML files for lyric line sampling
+        outfolder: folder to write the baseline XML file to
+        debug: whether to print debug information
+    """
+    
+    strophe_scheme = get_shape_canticum(xml_file, responsion_id)
+
+    # Count the number of strophes with the given responsion_id in the original file
+    tree = etree.parse(xml_file)
+    root = tree.getroot()
+    strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
+    sample_size = len(strophes)
+    
+    # Get the filename of the input XML to exclude from corpus sampling
+    input_filename = os.path.basename(xml_file)
+    
+    if debug:
+        print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
+        print(f"Strophe scheme: {strophe_scheme}")
+        print(f"Excluding {input_filename} from corpus sampling")
+        print(f"Generating 100 baseline samples...")
+    
+    # Generate 100 different baseline samples with different seeds
+    strophe_samples_dict = {}
+    
+    for i in tqdm(range(100)):
+        seed = 1453 + i  # Different seed for each sample
+        responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
+        
+        # Generate lines for each position first, ensuring uniqueness within each position
+        lines_by_position = []
+        
+        for line_idx, line_length in enumerate(strophe_scheme):
+            position_lines = []
+            used_lines = set()  # Track used lines for this position
+            
+            attempts = 0
+            max_attempts = sample_size * 10  # Allow multiple attempts to find unique lines
+            
+            while len(position_lines) < sample_size and attempts < max_attempts:
+                # Use different seed for each attempt
+                line_seed = seed + line_idx * 10000 + attempts
+                sample_line = lyric_line_sample(line_length, corpus_folder, seed=line_seed, debug=debug, exclude_file=input_filename)
+                
+                if sample_line is not None:
+                    # Convert XML element to string for comparison
+                    line_text = etree.tostring(sample_line, encoding='unicode', method='xml')
+                    
+                    # Check if this line is already used in this position
+                    if line_text not in used_lines:
+                        position_lines.append(line_text)
+                        used_lines.add(line_text)
+                    
+                attempts += 1
+            
+            # If we couldn't find enough unique lines, raise an error
+            if len(position_lines) < sample_size:
+                raise RuntimeError(f"Could not find {sample_size} unique lines for position {line_idx+1} (length {line_length}). Only found {len(position_lines)} unique lines after {max_attempts} attempts.")
+            
+            lines_by_position.append(position_lines)
+        
+        # Now assemble strophes from the position-specific lines
+        strophe_sample_lists = []
+        
+        for strophe_idx in range(sample_size):
+            strophe_lines = []
+            
+            for line_idx in range(len(strophe_scheme)):
+                strophe_lines.append(lines_by_position[line_idx][strophe_idx])
+            
+            strophe_sample_lists.append(strophe_lines)
+        
+        strophe_samples_dict[responsion_key] = strophe_sample_lists
+    
+    outdir = outfolder
+    os.makedirs(outdir, exist_ok=True)
+    print(f"Writing lyric baseline for responsion {responsion_id} to {outdir}")
+
+    filename = f"baseline_lyric_{responsion_id}.xml"
+    filepath = os.path.join(outdir, filename)
+    dummy_xml_strophe(strophe_samples_dict, filepath, type="Lyric")
+
+    if debug:
+        # Debug first sample only
+        first_key = list(strophe_samples_dict.keys())[0]
+        print(f"Debug: First strophe sample for {first_key}:")
+        for i, line in enumerate(strophe_samples_dict[first_key][0]):
+            print(f"  Line {i+1} (length {strophe_scheme[i]}): {line}")
+
+def lyric_line_sample(length: int, corpus_folder: str, seed=1453, debug=False, exclude_file=None)-> str:
     '''
     Workflow:
     1. Get the set of all lines of given canonical length from the compiled xml corpus
     2. If non-empty, return a random line from these; 
         if empty search for lines with length +1 and shave off last canonical syllable;
         if still empty search for length -1 and append a random syllable at the end, chosen from the whole corpus.
+    
+    Args:
+        length: target canonical syllable length
+        corpus_folder: folder containing XML files to sample from
+        seed: random seed for reproducibility
+        debug: whether to print debug information
+        exclude_file: filename to exclude from corpus sampling (to avoid contamination)
     '''
 
     random.seed(seed)
 
-    print(f"Searching for lines of length {length} in corpus at {corpus_folder}")
+    if debug:
+        print(f"Searching for lines of length {length} in corpus at {corpus_folder}")
+        if exclude_file:
+            print(f"Excluding {exclude_file} from sampling")
 
     xml_files = [f for f in os.listdir(corpus_folder) if f.endswith('.xml')]
+    
+    # Filter out the excluded file if specified
+    if exclude_file:
+        xml_files = [f for f in xml_files if f != exclude_file]
+    
     candidate_lines = []
     for xml_file in xml_files:
         tree = etree.parse(os.path.join(corpus_folder, xml_file))
@@ -346,7 +708,8 @@ def lyric_line_sample(length: int, corpus_folder: str, seed=1453, debug=False)->
             print(f"Found {len(candidate_lines)} candidate lines of length {length}.")
         return random.choice(candidate_lines)
     else:
-        print(f"\033[93mWarning: No lines found with length {length}. Trying length + 1.\033[0m")
+        if debug:
+            print(f"\033[93mWarning: No lines found with length {length}. Trying length + 1.\033[0m")
 
         # Try length + 1
         candidate_lines = []
@@ -360,7 +723,8 @@ def lyric_line_sample(length: int, corpus_folder: str, seed=1453, debug=False)->
                     candidate_lines.append(l)
 
         if candidate_lines:
-            print(f"\033[92mFound {len(candidate_lines)} candidate lines of length {length + 1}, trimming last syllable.\033[0m")
+            if debug:
+                print(f"\033[92mFound {len(candidate_lines)} candidate lines of length {length + 1}, trimming last syllable.\033[0m")
 
             line = random.choice(candidate_lines) # this is an etree element, not a string
             sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
@@ -386,32 +750,764 @@ def lyric_line_sample(length: int, corpus_folder: str, seed=1453, debug=False)->
                         candidate_lines.append(l)
             
             if candidate_lines:
-                print(f"\033[92mFound {len(candidate_lines)} candidate lines of length {length - 1}, appending random syllable.\033[0m")
+                if debug:
+                    print(f"\033[92mFound {len(candidate_lines)} candidate lines of length {length - 1}, appending random syllable.\033[0m")
 
                 line = random.choice(candidate_lines)
                 sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
                 
-                # Append a random syllable from the whole corpus
+                # Append a random syllable from the whole corpus (also excluding the specified file)
                 all_syllables = []
                 for xml_file in xml_files:
                     tree = etree.parse(os.path.join(corpus_folder, xml_file))
                     root = tree.getroot()
 
-                    for syll in root.findall(".//syll[not(@resolution='True') and not(@anceps='True')]"):
+                    for syll in root.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]"):
                         all_syllables.append(syll)
                 
                 random_syllable = random.choice(all_syllables)
-                extended_sylls = sylls.append(random_syllable)
+                sylls.append(random_syllable)
                 
                 # Create new <l> element
                 new_line = etree.Element("l")
-                for syll in extended_sylls:
+                for syll in sylls:
                     new_line.append(syll)
                 
                 return new_line
 
             else:
-                print(f"Warning: No lines found with lengths {length}, {length+1}, or {length-1}.")
+                if debug:
+                    print(f"Warning: No lines found with lengths {length}, {length+1}, or {length-1}.")
                 return None
 
+def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = "data/cached_lyric_corpus.pkl"):
+    """
+    Preprocess the entire lyric corpus once and cache results by canonical syllable length.
+    
+    Args:
+        corpus_folder: folder containing XML files to process
+        cache_file: path to save the cached results
+        
+    Returns:
+        dict: canonical_length -> list of XML line elements (as strings) with metadata
+    """
+    print("Preprocessing lyric corpus...")
+    
+    xml_files = [f for f in os.listdir(corpus_folder) if f.endswith('.xml')]
+    
+    # Group lines by canonical syllable count
+    lines_by_length = defaultdict(list)
+    syllables_by_file = {}  # Store all syllables by file for fallback cases
+    
+    for xml_file in tqdm(xml_files, desc="Processing XML files"):
+        file_path = os.path.join(corpus_folder, xml_file)
+        tree = etree.parse(file_path)
+        root = tree.getroot()
+        
+        # Store syllables for this file (for fallback operations)
+        file_syllables = []
+        for syll in root.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]"):
+            file_syllables.append(etree.tostring(syll, encoding='unicode', method='xml'))
+        syllables_by_file[xml_file] = file_syllables
+        
+        # Process all canticum elements in this file
+        for canticum_idx, canticum in enumerate(root.findall(".//canticum")):
+            # Process all strophes within this canticum
+            for strophe_idx, strophe in enumerate(canticum.findall(".//strophe")):
+                responsion_id = strophe.get('responsion', 'unknown')
+                
+                # Process all lines within this strophe
+                for line_idx, l in enumerate(strophe.findall("l")):
+                    try:
+                        canonical_length = len(canonical_sylls(l))
+                        
+                        # Store line as XML string with metadata for contamination checking
+                        line_xml = etree.tostring(l, encoding='unicode', method='xml')
+                        lines_by_length[canonical_length].append({
+                            'xml': line_xml,
+                            'file': xml_file,
+                            'canticum_idx': canticum_idx,
+                            'strophe_idx': strophe_idx,
+                            'line_idx': line_idx,
+                            'responsion_id': responsion_id
+                        })
+                    except:
+                        # Skip lines that cause errors in canonical_sylls
+                        continue
+    
+    # Also cache the syllables for random selection in fallback cases
+    all_syllables = []
+    for file_syllables in syllables_by_file.values():
+        all_syllables.extend(file_syllables)
+    
+    cached_data = {
+        'lines_by_length': dict(lines_by_length),
+        'all_syllables': all_syllables,
+        'syllables_by_file': syllables_by_file
+    }
+    
+    # Save cache
+    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+    with open(cache_file, 'wb') as f:
+        pickle.dump(cached_data, f)
+    
+    print(f"Cached {sum(len(v) for v in lines_by_length.values())} lines")
+    print(f"Line lengths available: {sorted(lines_by_length.keys())}")
+    print(f"Total syllables cached: {len(all_syllables)}")
+    print(f"Cache saved to: {cache_file}")
+    
+    return cached_data
+
+def load_cached_lyric_corpus(cache_file: str = "data/cached_lyric_corpus.pkl", corpus_folder: str = "data/compiled/triads"):
+    """
+    Load cached lyric corpus data.
+    
+    Args:
+        cache_file: path to the cached results
+        corpus_folder: folder containing XML files (for regenerating cache if needed)
+        
+    Returns:
+        dict: cached corpus data
+    """
+    if not os.path.exists(cache_file):
+        print(f"Cache file {cache_file} not found. Preprocessing corpus...")
+        return preprocess_and_cache_lyric_corpus(corpus_folder, cache_file)
+    
+    with open(cache_file, 'rb') as f:
+        cached_data = pickle.load(f)
+    
+    # Check if cache has the new metadata structure
+    if 'lines_by_length' in cached_data and cached_data['lines_by_length']:
+        # Get a sample line to check structure
+        first_length = next(iter(cached_data['lines_by_length']))
+        sample_lines = cached_data['lines_by_length'][first_length]
+        if sample_lines and isinstance(sample_lines[0], dict):
+            # Check if new metadata fields exist
+            if 'canticum_idx' not in sample_lines[0]:
+                print(f"Cache file {cache_file} is outdated (missing metadata). Regenerating...")
+                return preprocess_and_cache_lyric_corpus(corpus_folder, cache_file)
+        else:
+            print(f"Cache file {cache_file} has old format. Regenerating...")
+            return preprocess_and_cache_lyric_corpus(corpus_folder, cache_file)
+    
+    return cached_data
+
+def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=False, exclude_file=None, used_metrical_positions=None):
+    """
+    Fast version of lyric_line_sample using cached preprocessed corpus.
+    
+    Args:
+        length: target canonical syllable length
+        cached_corpus: dict from load_cached_lyric_corpus()
+        seed: random seed for reproducibility
+        debug: whether to print debug information
+        exclude_file: filename to exclude from corpus sampling (to avoid contamination)
+        used_metrical_positions: set of used (file, canticum_idx, strophe_idx, line_idx) tuples
+        
+    Returns:
+        XML element as string, or None if not found
+    """
+    random.seed(seed)
+    
+    lines_by_length = cached_corpus['lines_by_length']
+    all_syllables = cached_corpus['all_syllables']
+    
+    if used_metrical_positions is None:
+        used_metrical_positions = set()
+    
+    if debug:
+        print(f"Searching for lines of length {length}")
+        if exclude_file:
+            print(f"Excluding {exclude_file} from sampling")
+    
+    # Filter out lines from excluded file and ensure metrical independence
+    def filter_lines_with_independence_check(lines_data, exclude_file, used_positions, current_position_idx):
+        """
+        Filter lines ensuring:
+        1. Not from excluded file
+        2. Statistical independence (no two lines from same metrical position)
+        
+        Args:
+            lines_data: list of line dictionaries with metadata
+            exclude_file: filename to exclude
+            used_positions: set of (file, canticum_idx, strophe_idx, line_idx) tuples already used
+            current_position_idx: the current line position we're filling (for logging)
+        """
+        filtered = []
+        for item in lines_data:
+            # Skip excluded file
+            if exclude_file and item['file'] == exclude_file:
+                continue
+                
+            # Create position key for independence checking
+            position_key = (item['file'], item['canticum_idx'], item['strophe_idx'], item['line_idx'])
+            
+            # Skip if we've already used a line from this exact metrical position
+            if position_key not in used_positions:
+                filtered.append(item)
+        
+        return filtered
+    
+    # Try exact length first
+    if length in lines_by_length:
+        candidate_lines = filter_lines_with_independence_check(
+            lines_by_length[length], exclude_file, used_metrical_positions, length
+        )
+        if candidate_lines:
+            if debug:
+                print(f"Found {len(candidate_lines)} candidate lines of length {length}.")
+            selected_item = random.choice(candidate_lines)
+            
+            # Add this position to used positions
+            position_key = (selected_item['file'], selected_item['canticum_idx'], 
+                          selected_item['strophe_idx'], selected_item['line_idx'])
+            used_metrical_positions.add(position_key)
+            
+            selected_xml = selected_item['xml']
+            line_element = etree.fromstring(selected_xml)
+            # Add source attribute to show contamination prevention
+            line_element.set('source', selected_item['responsion_id'])
+            return line_element
+    
+    if debug:
+        print(f"\033[93mWarning: No lines found with length {length}. Trying length + 1.\033[0m")
+    
+    # Try length + 1 and trim
+    if (length + 1) in lines_by_length:
+        candidate_lines = filter_lines_with_independence_check(
+            lines_by_length[length + 1], exclude_file, used_metrical_positions, length
+        )
+        if candidate_lines:
+            if debug:
+                print(f"\033[92mFound {len(candidate_lines)} candidate lines of length {length + 1}, trimming last syllable.\033[0m")
+            
+            selected_item = random.choice(candidate_lines)
+            
+            # Add this position to used positions
+            position_key = (selected_item['file'], selected_item['canticum_idx'], 
+                          selected_item['strophe_idx'], selected_item['line_idx'])
+            used_metrical_positions.add(position_key)
+            
+            selected_xml = selected_item['xml']
+            line = etree.fromstring(selected_xml)
+            sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+            trimmed_sylls = sylls[:-1]  # remove last syllable
+            
+            # Create new <l> element
+            new_line = etree.Element("l")
+            # Add source attribute to show contamination prevention
+            new_line.set('source', selected_item['responsion_id'])
+            for syll in trimmed_sylls:
+                new_line.append(syll)
+            
+            return new_line
+    
+    # Try length + 5 and trim five syllables
+    if (length + 5) in lines_by_length:
+        candidate_lines = filter_lines_with_independence_check(
+            lines_by_length[length + 5], exclude_file, used_metrical_positions, length
+        )
+        if candidate_lines:
+            if debug:
+                print(f"\033[92mFound {len(candidate_lines)} candidate lines of length {length + 5}, trimming five syllables.\033[0m")
+            
+            selected_item = random.choice(candidate_lines)
+            
+            # Add this position to used positions
+            position_key = (selected_item['file'], selected_item['canticum_idx'], 
+                          selected_item['strophe_idx'], selected_item['line_idx'])
+            used_metrical_positions.add(position_key)
+            
+            selected_xml = selected_item['xml']
+            line = etree.fromstring(selected_xml)
+            sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+            if len(sylls) >= 5:
+                trimmed_sylls = sylls[:-5]  # remove last five syllables
+                
+                # Create new <l> element
+                new_line = etree.Element("l")
+                # Add source attribute to show contamination prevention
+                new_line.set('source', selected_item['responsion_id'])
+                for syll in trimmed_sylls:
+                    new_line.append(syll)
+                
+                return new_line
+    
+    # Try length - 1 and append random syllable
+    if (length - 1) in lines_by_length:
+        candidate_lines = filter_lines_with_independence_check(
+            lines_by_length[length - 1], exclude_file, used_metrical_positions, length
+        )
+        if candidate_lines:
+            if debug:
+                print(f"\033[92mFound {len(candidate_lines)} candidate lines of length {length - 1}, appending random syllable.\033[0m")
+            
+            selected_item = random.choice(candidate_lines)
+            
+            # Add this position to used positions
+            position_key = (selected_item['file'], selected_item['canticum_idx'], 
+                          selected_item['strophe_idx'], selected_item['line_idx'])
+            used_metrical_positions.add(position_key)
+            
+            selected_xml = selected_item['xml']
+            line = etree.fromstring(selected_xml)
+            sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+            
+            # Filter syllables to exclude those from the excluded file
+            available_syllables = all_syllables
+            if exclude_file:
+                syllables_by_file = cached_corpus['syllables_by_file']
+                excluded_syllables = set(syllables_by_file.get(exclude_file, []))
+                available_syllables = [s for s in all_syllables if s not in excluded_syllables]
+            
+            if available_syllables:
+                random_syllable_xml = random.choice(available_syllables)
+                random_syllable = etree.fromstring(random_syllable_xml)
+                sylls.append(random_syllable)
+            
+            # Create new <l> element
+            new_line = etree.Element("l")
+            # Add source attribute to show contamination prevention
+            new_line.set('source', selected_item['responsion_id'])
+            for syll in sylls:
+                new_line.append(syll)
+            
+            return new_line
+    
+    # Try length - 2 and append two random syllables
+    if (length - 2) in lines_by_length:
+        candidate_lines = filter_lines_with_independence_check(
+            lines_by_length[length - 2], exclude_file, used_metrical_positions, length
+        )
+        if candidate_lines:
+            if debug:
+                print(f"\033[92mFound {len(candidate_lines)} candidate lines of length {length - 2}, appending two random syllables.\033[0m")
+            
+            selected_item = random.choice(candidate_lines)
+            
+            # Add this position to used positions
+            position_key = (selected_item['file'], selected_item['canticum_idx'], 
+                          selected_item['strophe_idx'], selected_item['line_idx'])
+            used_metrical_positions.add(position_key)
+            
+            selected_xml = selected_item['xml']
+            line = etree.fromstring(selected_xml)
+            sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+            
+            # Filter syllables to exclude those from the excluded file
+            available_syllables = all_syllables
+            if exclude_file:
+                syllables_by_file = cached_corpus['syllables_by_file']
+                excluded_syllables = set(syllables_by_file.get(exclude_file, []))
+                available_syllables = [s for s in all_syllables if s not in excluded_syllables]
+            
+            if available_syllables and len(available_syllables) >= 2:
+                # Append two random syllables
+                random_syllable1_xml = random.choice(available_syllables)
+                random_syllable1 = etree.fromstring(random_syllable1_xml)
+                sylls.append(random_syllable1)
+                
+                random_syllable2_xml = random.choice(available_syllables)
+                random_syllable2 = etree.fromstring(random_syllable2_xml)
+                sylls.append(random_syllable2)
+            
+            # Create new <l> element
+            new_line = etree.Element("l")
+            # Add source attribute to show contamination prevention
+            new_line.set('source', selected_item['responsion_id'])
+            for syll in sylls:
+                new_line.append(syll)
+            
+            return new_line
+    
+    # Final fallback: search external Aristophanes corpus
+    if debug:
+        print(f"\033[93mTrying external Aristophanes corpus for length {length}...\033[0m")
+    
+    external_line = search_external_corpus_for_line(length, debug=debug)
+    if external_line is not None:
+        if debug:
+            print(f"\033[92mFound line of length {length} in external corpus.\033[0m")
+        return external_line
+    
+    if debug:
+        print(f"Warning: No lines found with lengths {length}, {length+1}, {length-1}, {length-2}, or in external corpus.")
+    return None
+
+def search_external_corpus_for_line(length: int, corpus_folder: str = "/Users/albin/git/aristophanis-cantica/data/compiled/", debug=False):
+    """
+    Search external corpus (Aristophanes) for lines of given length.
+    This is a final fallback when the main Pindar corpus doesn't have enough lines.
+    
+    Args:
+        length: target canonical syllable length
+        corpus_folder: folder containing external XML files
+        debug: whether to print debug information
+        
+    Returns:
+        XML element or None if not found
+    """
+    try:
+        if not os.path.exists(corpus_folder):
+            if debug:
+                print(f"External corpus folder {corpus_folder} not found.")
+            return None
+        
+        xml_files = [f for f in os.listdir(corpus_folder) if f.endswith('.xml')]
+        if not xml_files:
+            if debug:
+                print(f"No XML files found in external corpus folder {corpus_folder}.")
+            return None
+        
+        # Try exact length first
+        candidate_lines = []
+        for xml_file in xml_files:
+            try:
+                file_path = os.path.join(corpus_folder, xml_file)
+                tree = etree.parse(file_path)
+                root = tree.getroot()
+                l_elements = root.findall(".//l")
+                
+                for l in l_elements:
+                    try:
+                        canonical_length = len(canonical_sylls(l))
+                        if canonical_length == length:
+                            candidate_lines.append(l)
+                    except:
+                        # Skip lines that cause errors in canonical_sylls
+                        continue
+                        
+            except:
+                # Skip files that can't be parsed
+                if debug:
+                    print(f"Could not parse external file: {xml_file}")
+                continue
+        
+        if candidate_lines:
+            if debug:
+                print(f"Found {len(candidate_lines)} candidate lines of length {length} in external corpus.")
+            selected_line = random.choice(candidate_lines)
+            # Add source attribute to indicate external corpus
+            selected_line.set('source', 'external_aristophanes')
+            return selected_line
+        
+        # Try length + 1 and trim
+        candidate_lines = []
+        for xml_file in xml_files:
+            try:
+                file_path = os.path.join(corpus_folder, xml_file)
+                tree = etree.parse(file_path)
+                root = tree.getroot()
+                l_elements = root.findall(".//l")
+                
+                for l in l_elements:
+                    try:
+                        canonical_length = len(canonical_sylls(l))
+                        if canonical_length == length + 1:
+                            candidate_lines.append(l)
+                    except:
+                        continue
+                        
+            except:
+                continue
+        
+        if candidate_lines:
+            if debug:
+                print(f"Found {len(candidate_lines)} candidate lines of length {length + 1} in external corpus, trimming.")
+            
+            line = random.choice(candidate_lines)
+            sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+            if len(sylls) > 0:
+                trimmed_sylls = sylls[:-1]  # remove last syllable
+                
+                # Create new <l> element
+                new_line = etree.Element("l")
+                # Add source attribute to indicate external corpus
+                new_line.set('source', 'external_aristophanes')
+                for syll in trimmed_sylls:
+                    new_line.append(syll)
+                
+                return new_line
+        
+        # Try length - 1 and append random syllable from external corpus
+        candidate_lines = []
+        all_external_syllables = []
+        
+        for xml_file in xml_files:
+            try:
+                file_path = os.path.join(corpus_folder, xml_file)
+                tree = etree.parse(file_path)
+                root = tree.getroot()
+                
+                # Collect syllables for padding
+                for syll in root.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]"):
+                    all_external_syllables.append(syll)
+                
+                # Look for length-1 lines
+                l_elements = root.findall(".//l")
+                for l in l_elements:
+                    try:
+                        canonical_length = len(canonical_sylls(l))
+                        if canonical_length == length - 1:
+                            candidate_lines.append(l)
+                    except:
+                        continue
+                        
+            except:
+                continue
+        
+        if candidate_lines and all_external_syllables:
+            if debug:
+                print(f"Found {len(candidate_lines)} candidate lines of length {length - 1} in external corpus, appending syllable.")
+            
+            line = random.choice(candidate_lines)
+            sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+            
+            # Append random syllable from external corpus
+            random_syllable = random.choice(all_external_syllables)
+            sylls.append(random_syllable)
+            
+            # Create new <l> element
+            new_line = etree.Element("l")
+            # Add source attribute to indicate external corpus
+            new_line.set('source', 'external_aristophanes')
+            for syll in sylls:
+                new_line.append(syll)
+            
+            return new_line
+        
+        # Try length + 5 and trim five syllables from external corpus
+        candidate_lines = []
+        for xml_file in xml_files:
+            try:
+                file_path = os.path.join(corpus_folder, xml_file)
+                tree = etree.parse(file_path)
+                root = tree.getroot()
+                l_elements = root.findall(".//l")
+                
+                for l in l_elements:
+                    try:
+                        canonical_length = len(canonical_sylls(l))
+                        if canonical_length == length + 5:
+                            candidate_lines.append(l)
+                    except:
+                        continue
+                        
+            except:
+                continue
+        
+        if candidate_lines:
+            if debug:
+                print(f"Found {len(candidate_lines)} candidate lines of length {length + 5} in external corpus, trimming five syllables.")
+            
+            line = random.choice(candidate_lines)
+            sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+            if len(sylls) >= 5:
+                trimmed_sylls = sylls[:-5]  # remove last five syllables
+                
+                # Create new <l> element
+                new_line = etree.Element("l")
+                # Add source attribute to indicate external corpus
+                new_line.set('source', 'external_aristophanes')
+                for syll in trimmed_sylls:
+                    new_line.append(syll)
+                
+                return new_line
+        
+        # Try length - 2 and append two random syllables from external corpus
+        candidate_lines = []
+        if not all_external_syllables:  # Collect syllables if not done already
+            for xml_file in xml_files:
+                try:
+                    file_path = os.path.join(corpus_folder, xml_file)
+                    tree = etree.parse(file_path)
+                    root = tree.getroot()
+                    
+                    for syll in root.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]"):
+                        all_external_syllables.append(syll)
+                        
+                except:
+                    continue
+        
+        for xml_file in xml_files:
+            try:
+                file_path = os.path.join(corpus_folder, xml_file)
+                tree = etree.parse(file_path)
+                root = tree.getroot()
+                l_elements = root.findall(".//l")
+                
+                for l in l_elements:
+                    try:
+                        canonical_length = len(canonical_sylls(l))
+                        if canonical_length == length - 2:
+                            candidate_lines.append(l)
+                    except:
+                        continue
+                        
+            except:
+                continue
+        
+        if candidate_lines and len(all_external_syllables) >= 2:
+            if debug:
+                print(f"Found {len(candidate_lines)} candidate lines of length {length - 2} in external corpus, appending two syllables.")
+            
+            line = random.choice(candidate_lines)
+            sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+            
+            # Append two random syllables from external corpus
+            random_syllable1 = random.choice(all_external_syllables)
+            random_syllable2 = random.choice(all_external_syllables)
+            sylls.append(random_syllable1)
+            sylls.append(random_syllable2)
+            
+            # Create new <l> element
+            new_line = etree.Element("l")
+            # Add source attribute to indicate external corpus
+            new_line.set('source', 'external_aristophanes')
+            for syll in sylls:
+                new_line.append(syll)
+            
+            return new_line
+            
+    except Exception as e:
+        if debug:
+            print(f"Error searching external corpus: {e}")
+    
+    return None
+
+def make_lyric_baseline_fast(xml_file: str, responsion_id: str, corpus_folder: str = "data/compiled/triads", 
+                           outfolder: str = "data/compiled/baselines/triads/lyric", 
+                           cache_file: str = "data/cached_lyric_corpus.pkl", debug: bool = False):
+    """
+    Fast version of make_lyric_baseline using cached preprocessed corpus.
+    
+    Args:
+        xml_file: path to XML file containing the original strophe structure
+        responsion_id: the responsion ID to generate baseline for
+        corpus_folder: folder containing XML files for lyric line sampling
+        outfolder: folder to write the baseline XML file to
+        cache_file: path to cached corpus data
+        debug: whether to print debug information
+    """
+    
+    # Load cached corpus data
+    cached_corpus = load_cached_lyric_corpus(cache_file, corpus_folder)
+    
+    strophe_scheme = get_shape_canticum(xml_file, responsion_id)
+
+    # Count the number of strophes with the given responsion_id in the original file
+    tree = etree.parse(xml_file)
+    root = tree.getroot()
+    strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
+    sample_size = len(strophes)
+    
+    # Get the filename of the input XML to exclude from corpus sampling
+    input_filename = os.path.basename(xml_file)
+    
+    if debug:
+        print(f"Found {sample_size} strophes with responsion '{responsion_id}' in original file")
+        print(f"Strophe scheme: {strophe_scheme}")
+        print(f"Excluding {input_filename} from corpus sampling")
+        print(f"Generating 100 baseline samples...")
+    
+    # Generate 100 different baseline samples with different seeds
+    strophe_samples_dict = {}
+    
+    for i in tqdm(range(100)):
+        seed = 1453 + i  # Different seed for each sample
+        responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
+        
+        # Track used metrical positions across ALL line positions for this sample to ensure independence
+        sample_used_metrical_positions = set()
+        
+        # Generate lines for each position first, ensuring uniqueness within each position
+        lines_by_position = []
+        
+        for line_idx, line_length in enumerate(strophe_scheme):
+            position_lines = []
+            used_lines = set()  # Track used lines for this position
+            
+            attempts = 0
+            max_attempts = sample_size * 10  # Allow multiple attempts to find unique lines
+            
+            while len(position_lines) < sample_size and attempts < max_attempts:
+                # Use different seed for each attempt
+                line_seed = seed + line_idx * 10000 + attempts
+                sample_line = lyric_line_sample_cached(line_length, cached_corpus, seed=line_seed, 
+                                                     debug=debug, exclude_file=input_filename,
+                                                     used_metrical_positions=sample_used_metrical_positions)
+                
+                if sample_line is not None:
+                    # Convert XML element to string for comparison
+                    line_text = etree.tostring(sample_line, encoding='unicode', method='xml')
+                    
+                    # Check if this line is already used in this position
+                    if line_text not in used_lines:
+                        position_lines.append(line_text)
+                        used_lines.add(line_text)
+                    
+                attempts += 1
+            
+            # If we couldn't find enough unique lines with the cached method, 
+            # fall back to the original slow method which has more fallback options
+            if len(position_lines) < sample_size:
+                if debug:
+                    print(f"Only found {len(position_lines)} unique cached lines for position {line_idx+1} (length {line_length}), trying fallback methods...")
+                
+                # Try to fill remaining slots with original method
+                remaining_needed = sample_size - len(position_lines)
+                fallback_attempts = 0
+                max_fallback_attempts = remaining_needed * 20
+                
+                while len(position_lines) < sample_size and fallback_attempts < max_fallback_attempts:
+                    fallback_seed = seed + line_idx * 20000 + fallback_attempts + 10000
+                    sample_line = lyric_line_sample(line_length, corpus_folder, seed=fallback_seed, 
+                                                  debug=debug, exclude_file=input_filename)
+                    
+                    if sample_line is not None:
+                        # Convert XML element to string for comparison
+                        line_text = etree.tostring(sample_line, encoding='unicode', method='xml')
+                        
+                        # Check if this line is already used in this position
+                        if line_text not in used_lines:
+                            position_lines.append(line_text)
+                            used_lines.add(line_text)
+                            if debug:
+                                print(f"  Found fallback line #{len(position_lines)} for position {line_idx+1}")
+                    
+                    fallback_attempts += 1
+            
+            # If we still couldn't find enough unique lines, raise an error
+            if len(position_lines) < sample_size:
+                raise RuntimeError(f"Could not find {sample_size} unique lines for position {line_idx+1} (length {line_length}). Only found {len(position_lines)} unique lines after {max_attempts} cached attempts and {max_fallback_attempts} fallback attempts.")
+            
+            lines_by_position.append(position_lines)
+        
+        # Now assemble strophes from the position-specific lines
+        strophe_sample_lists = []
+        
+        for strophe_idx in range(sample_size):
+            strophe_lines = []
+            
+            for line_idx in range(len(strophe_scheme)):
+                strophe_lines.append(lines_by_position[line_idx][strophe_idx])
+            
+            strophe_sample_lists.append(strophe_lines)
+        
+        strophe_samples_dict[responsion_key] = strophe_sample_lists
+    
+    outdir = outfolder
+    os.makedirs(outdir, exist_ok=True)
+    print(f"Writing lyric baseline for responsion {responsion_id} to {outdir}")
+
+    filename = f"baseline_lyric_{responsion_id}.xml"
+    filepath = os.path.join(outdir, filename)
+    dummy_xml_strophe(strophe_samples_dict, filepath, type="Lyric")
+
+    if debug:
+        # Debug first sample only
+        first_key = list(strophe_samples_dict.keys())[0]
+        print(f"Debug: First strophe sample for {first_key}:")
+        for i, line in enumerate(strophe_samples_dict[first_key][0]):
+            print(f"  Line {i+1} (length {strophe_scheme[i]}): {line}")
 

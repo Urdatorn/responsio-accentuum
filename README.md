@@ -10,6 +10,19 @@ This project builds on and generalizes my previous work on the songs of Aristoph
 
 ## TODO 
 
+- Pindar (c. 518-438): 
+  - e.g. Battle of Salamis 480 referred to in ode
+  - 76th Olympiad in 476 has five odes
+- Chronology all songs with p < 5%
+  - ne03: 475 ?
+  - is04: 474/3 ?
+  - py01: 470
+  - is02: 470?
+  - py04: 462
+  - ne08: 459 ?
+  - ne10: 444 ?
+
+- 100 versions of every baseline
 - make lyric baseline as well (make Frankenstein null baseline strophes by searching odes for lines with the same lengths (or longer, since end is most interesting, and always possible to retrograde heatmapping later) as P4, being careful not to include two lines from the same ode in the same line in diff strophes)
 - differences between ol, py, is, ne? compare equistrophic cantica2
 

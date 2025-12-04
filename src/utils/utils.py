@@ -104,6 +104,14 @@ def get_text_matrix(xml_filepath: str, responsion_attribute: str, representative
     row_lengths = [len(row) for row in text_matrix]
     return text_matrix, row_lengths
 
+def flatten_recursive(data):
+    """Recursively flatten nested structure"""
+    for item in data:
+        if hasattr(item, '__iter__') and not isinstance(item, (str, bytes)):
+            yield from flatten_recursive(item)
+        else:
+            yield item
+
 def count_nested_values(nested_data):
     """
     Recursively flattens a nested data structure and counts all values.
@@ -115,14 +123,6 @@ def count_nested_values(nested_data):
         Counter: Dictionary with value counts
     """
     from collections import Counter
-    
-    def flatten_recursive(data):
-        """Recursively flatten nested structure"""
-        for item in data:
-            if hasattr(item, '__iter__') and not isinstance(item, (str, bytes)):
-                yield from flatten_recursive(item)
-            else:
-                yield item
     
     values = list(flatten_recursive(nested_data))
     count_dict = Counter(values)

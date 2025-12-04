@@ -1,0 +1,2 @@
+data/cached_prose_corpus.pkl filter=lfs diff=lfs merge=lfs -text
+data/cached_lyric_corpus.pkl filter=lfs diff=lfs merge=lfs -text
