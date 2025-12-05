@@ -306,7 +306,7 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
     # Generate 100 different baseline samples with different seeds
     strophe_samples_dict = {}
     
-    for i in tqdm(range(100)):
+    for i in range(100):
         seed = 1453 + i  # Different seed for each sample
         responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
         
@@ -774,7 +774,7 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
                         if attr != 'source':  # Don't copy source if it exists
                             new_line.set(attr, value)
                     # Add enhanced source attribute to show contamination prevention
-                    source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}"
+                    source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}, trimmed -{extra_length}"
                     new_line.set('source', source_info)
                     for syll in trimmed_sylls:
                         new_line.append(syll)
@@ -1030,7 +1030,7 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
                         if attr != 'source':  # Don't copy source if it exists
                             new_line.set(attr, value)
                     # Add enhanced source attribute to show contamination prevention
-                    source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}"
+                    source_info = f"{selected_item['responsion_id']}, strophe {selected_item['strophe_idx'] + 1}, line {selected_item['line_idx'] + 1}, padded +{padding_amount}"
                     new_line.set('source', source_info)
                     for syll in sylls:
                         new_line.append(syll)
