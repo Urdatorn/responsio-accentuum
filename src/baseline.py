@@ -81,11 +81,84 @@ EXTERNAL_MAX_PADDING = 4        # Max syllables to add to external corpus lines
 
 punctuation_except_period = r'[\u0387\u037e\u00b7,!?;:\"()\[\]{}<>«»\-—…|⏑⏓†×]'
 
+### MAIN FUNCTIONS ###
+
+def make_all_lyric_baselines():
+    """
+    Generate lyric baselines for all victory odes with progress tracking and summary statistics.
+    """
+    try:
+        from results import victory_odes
+    except ImportError:
+        print("Error: Could not import victory_odes from results module")
+        return
+    
+    print(f"Generating lyric baselines for {len(victory_odes)} victory odes...")
+    
+    # Initialize summary statistics
+    total_stats = {
+        'total_lines': 0,
+        'pindar_lines': 0,
+        'external_lines': 0,
+        'unaltered_lines': 0,
+        'trimmed_lines': 0,
+        'padded_lines': 0
+    }
+    
+    failed_odes = []
+    
+    for responsion_id in tqdm(victory_odes, desc="Processing odes"):
+        try:
+            # Determine the correct XML file based on the ode prefix
+            if responsion_id[0:2] == "ol":
+                xml_file = "data/compiled/triads/ht_olympians_triads.xml"
+            elif responsion_id[0:2] == "py":
+                xml_file = "data/compiled/triads/ht_pythians_triads.xml"
+            elif responsion_id[0:2] == "ne":
+                xml_file = "data/compiled/triads/ht_nemeans_triads.xml"
+            elif responsion_id[0:2] == "is":
+                xml_file = "data/compiled/triads/ht_isthmians_triads.xml"
+            else:
+                print(f"Warning: Unknown ode prefix for {responsion_id}, skipping...")
+                failed_odes.append(responsion_id)
+                continue
+            
+            # Generate baseline and collect statistics
+            stats = make_lyric_baseline(xml_file, responsion_id)
+            
+            # Add to summary statistics
+            for key in total_stats:
+                if key in stats:
+                    total_stats[key] += stats[key]
+            
+        except Exception as e:
+            print(f"Error processing {responsion_id}: {e}")
+            failed_odes.append(responsion_id)
+    
+    # Print final summary
+    print("\n" + "="*60)
+    print("LYRIC BASELINE GENERATION SUMMARY")
+    print("="*60)
+    print(f"Total odes processed: {len(victory_odes) - len(failed_odes)}/{len(victory_odes)}")
+    if failed_odes:
+        print(f"Failed odes: {', '.join(failed_odes)}")
+    print(f"\nTotal lines generated: {total_stats['total_lines']:,}")
+    print(f"\nSource breakdown:")
+    print(f"  Pindar corpus: {total_stats['pindar_lines']:,} ({total_stats['pindar_lines']/total_stats['total_lines']*100:.1f}%)")
+    print(f"  External corpus: {total_stats['external_lines']:,} ({total_stats['external_lines']/total_stats['total_lines']*100:.1f}%)")
+    print(f"\nModification breakdown:")
+    print(f"  Unaltered: {total_stats['unaltered_lines']:,} ({total_stats['unaltered_lines']/total_stats['total_lines']*100:.1f}%)")
+    print(f"  Trimmed: {total_stats['trimmed_lines']:,} ({total_stats['trimmed_lines']/total_stats['total_lines']*100:.1f}%)")
+    print(f"  Padded: {total_stats['padded_lines']:,} ({total_stats['padded_lines']/total_stats['total_lines']*100:.1f}%)")
+    print("="*60)
+    
+    return total_stats
+
 ###################
 # MAKE BASELINES  #
 ###################
 
-def make_prose_baseline_fast(xml_file: str, responsion_id: str, debug: bool = False, cache_file: str = "data/cached_prose_corpus.pkl"):
+def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False, cache_file: str = "data/cached_prose_corpus.pkl"):
     """
     Fast version of make_prose_baseline using cached preprocessed corpus.
     
@@ -178,7 +251,7 @@ def make_prose_baseline_fast(xml_file: str, responsion_id: str, debug: bool = Fa
         for i, line in enumerate(strophe_samples_dict[first_key][0]):
             print(f"  Line {i+1} (length {strophe_scheme[i]}): {line}")
 
-def make_lyric_baseline_fast(xml_file: str, responsion_id: str, corpus_folder: str = "data/compiled/triads", 
+def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = "data/compiled/triads", 
                            outfolder: str = "data/compiled/baselines/triads/lyric", 
                            cache_file: str = "data/cached_lyric_corpus.pkl", debug: bool = False):
     """
@@ -191,6 +264,15 @@ def make_lyric_baseline_fast(xml_file: str, responsion_id: str, corpus_folder: s
         outfolder: folder to write the baseline XML file to
         cache_file: path to cached corpus data
         debug: whether to print debug information
+        
+    Returns:
+        dict: diagnostic statistics about the baseline generation including:
+            - total_lines: total number of lines generated
+            - pindar_lines: number of lines from Pindar corpus
+            - external_lines: number of lines from external corpus
+            - unaltered_lines: number of lines used without modification
+            - trimmed_lines: number of lines with syllables removed
+            - padded_lines: number of lines with syllables added
     """
     
     # Load cached corpus data
@@ -212,6 +294,14 @@ def make_lyric_baseline_fast(xml_file: str, responsion_id: str, corpus_folder: s
         print(f"Strophe scheme: {strophe_scheme}")
         print(f"Excluding {input_filename} from corpus sampling")
         print(f"Generating 100 baseline samples...")
+    
+    # Initialize diagnostic statistics tracking
+    total_lines = 0
+    pindar_lines = 0
+    external_lines = 0
+    unaltered_lines = 0
+    trimmed_lines = 0
+    padded_lines = 0
     
     # Generate 100 different baseline samples with different seeds
     strophe_samples_dict = {}
@@ -257,6 +347,21 @@ def make_lyric_baseline_fast(xml_file: str, responsion_id: str, corpus_folder: s
                         else:  # Handle simple format or external corpus
                             responsion_from_source = source_attr
                         
+                        # Track statistics
+                        total_lines += 1
+                        if source_attr.startswith('external'):
+                            external_lines += 1
+                        else:
+                            pindar_lines += 1
+                        
+                        # Check if line was modified
+                        if 'trimmed' in source_attr:
+                            trimmed_lines += 1
+                        elif 'padded' in source_attr:
+                            padded_lines += 1
+                        else:
+                            unaltered_lines += 1
+                        
                         # Add responsion to used set for this position
                         used_responsions_per_position[line_idx].add(responsion_from_source)
                         
@@ -286,7 +391,8 @@ def make_lyric_baseline_fast(xml_file: str, responsion_id: str, corpus_folder: s
     
     outdir = outfolder
     os.makedirs(outdir, exist_ok=True)
-    print(f"Writing lyric baseline for responsion {responsion_id} to {outdir}")
+    if debug:
+        print(f"Writing lyric baseline for responsion {responsion_id} to {outdir}")
 
     filename = f"baseline_lyric_{responsion_id}.xml"
     filepath = os.path.join(outdir, filename)
@@ -298,6 +404,17 @@ def make_lyric_baseline_fast(xml_file: str, responsion_id: str, corpus_folder: s
         print(f"Debug: First strophe sample for {first_key}:")
         for i, line in enumerate(strophe_samples_dict[first_key][0]):
             print(f"  Line {i+1} (length {strophe_scheme[i]}): {line}")
+    
+    # Return diagnostic statistics
+    return {
+        'responsion_id': responsion_id,
+        'total_lines': total_lines,
+        'pindar_lines': pindar_lines,
+        'external_lines': external_lines,
+        'unaltered_lines': unaltered_lines,
+        'trimmed_lines': trimmed_lines,
+        'padded_lines': padded_lines
+    }
 
 #####################
 # PREPROCESS CORPUS #
