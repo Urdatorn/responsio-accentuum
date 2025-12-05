@@ -65,6 +65,8 @@ from src.prose import anabasis
 from src.scan import rule_scansion
 from src.stats import canonical_sylls
 
+from results import victory_odes
+
 # =============================================================================
 # CONFIGURATION VARIABLES - Adjust these to control fallback system behavior
 # =============================================================================
@@ -87,12 +89,6 @@ def make_all_lyric_baselines():
     """
     Generate lyric baselines for all victory odes with progress tracking and summary statistics.
     """
-    try:
-        from results import victory_odes
-    except ImportError:
-        print("Error: Could not import victory_odes from results module")
-        return
-    
     print(f"Generating lyric baselines for {len(victory_odes)} victory odes...")
     
     # Initialize summary statistics
@@ -396,6 +392,27 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
 
     filename = f"baseline_lyric_{responsion_id}.xml"
     filepath = os.path.join(outdir, filename)
+    
+    # Add anceps="True" to syllables that don't have resolution or anceps attributes
+    for responsion_key, strophe_sample_lists in strophe_samples_dict.items():
+        for strophe_idx, strophe_sample_list in enumerate(strophe_sample_lists):
+            for line_idx, line in enumerate(strophe_sample_list):
+                try:
+                    line_element = etree.fromstring(line)
+                    # Find all syllable elements
+                    for syll in line_element.xpath(".//syll"):
+                        # Check if syllable already has resolution="True" or anceps="True"
+                        if syll.get("resolution") != "True" and syll.get("anceps") != "True":
+                            syll.set("anceps", "True")
+                    
+                    # Convert back to string and update the list
+                    updated_line = etree.tostring(line_element, encoding='unicode', method='xml')
+                    strophe_samples_dict[responsion_key][strophe_idx][line_idx] = updated_line
+                    
+                except etree.XMLSyntaxError:
+                    # Skip malformed XML lines
+                    continue
+    
     dummy_xml_strophe(strophe_samples_dict, filepath, type="Lyric")
 
     if debug:
@@ -763,7 +780,7 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
                 
                 selected_xml = selected_item['xml']
                 line = etree.fromstring(selected_xml)
-                sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+                sylls = line.xpath(".//syll")  # Use all syllables, not just non-anceps/non-resolution
                 if len(sylls) >= extra_length:
                     trimmed_sylls = sylls[:-extra_length]  # remove last syllables
                     
@@ -965,7 +982,7 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
                     
                     selected_metadata = random.choice(filtered_lines)
                     line = etree.fromstring(selected_metadata['xml'])
-                    sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+                    sylls = line.xpath(".//syll")  # Use all syllables, not just non-anceps/non-resolution
                     
                     if len(sylls) >= extra_length:
                         trimmed_sylls = sylls[:-extra_length]  # remove last syllables
@@ -1007,7 +1024,7 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
                     
                     selected_xml = selected_item['xml']
                     line = etree.fromstring(selected_xml)
-                    sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+                    sylls = line.xpath(".//syll")  # Use all syllables, not just non-anceps/non-resolution
                     
                     # Filter syllables to exclude those from the excluded file
                     available_syllables = all_syllables
@@ -1099,7 +1116,7 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
                     
                     selected_metadata = random.choice(filtered_lines)
                     line = etree.fromstring(selected_metadata['xml'])
-                    sylls = line.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]")
+                    sylls = line.xpath(".//syll")  # Use all syllables, not just non-anceps/non-resolution
                     
                     # Append required number of random syllables from external corpus
                     for i in range(padding_amount):

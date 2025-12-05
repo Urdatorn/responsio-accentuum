@@ -49,7 +49,7 @@ ode_comp_scores = {
 	'py12': 0.7350427350427351
 }
 
-baseline_prose_comp_scores = {
+baseline_prose_comp_scores_old = {
 	'is01': 0.7306122448979592,
 	'is02': 0.7929984779299848,
 	'is04': 0.7433962264150944,

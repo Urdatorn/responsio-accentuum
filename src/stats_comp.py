@@ -32,6 +32,7 @@ subject to the following MIT license:
 from lxml import etree
 import os
 from statistics import mean
+from tqdm import tqdm
 
 from grc_utils import is_enclitic, is_proclitic
 from .stats import accents, metrically_responding_lines_polystrophic
@@ -129,6 +130,9 @@ def all_contours_line(*xml_lines):
     """
 
     if not metrically_responding_lines_polystrophic(*xml_lines):
+        for xml_line in xml_lines:
+            text = etree.tostring(xml_line, encoding="unicode", method="xml")
+            print(text, "\n")
         raise ValueError(f"all_contours_line: Lines {[line.get('n', 'unknown') for line in xml_lines]} do not metrically respond.")
 
     contours_per_line = [get_contours_line(line) for line in xml_lines]
@@ -326,7 +330,7 @@ def compatibility_corpus(dir_path):
     xml_files = [f for f in os.listdir(dir_path) if f.endswith('.xml')]
     
     # Process each XML file
-    for xml_file in xml_files:
+    for xml_file in tqdm(xml_files, initial=1):
         file_path = os.path.join(dir_path, xml_file)
         try:
             play_results = compatibility_play(file_path)
