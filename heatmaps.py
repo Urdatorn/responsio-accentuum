@@ -5,7 +5,7 @@ import numpy as np
 import os
 import seaborn as sns
 
-from src.stats_comp import compatibility_canticum
+from src.stats_comp import compatibility_canticum, compatibility_play
 from src.utils.utils import get_text_matrix
 
 def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
@@ -45,7 +45,7 @@ def canticum_number_of_strophes(xml_file, responsion_attribute: str):
 #     return len(strophes)
 
 def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
-    # First, count actual canticums in the file
+    # First, count actual cantica in the file
     tree = etree.parse(xml_file)
     root = tree.getroot()
     canticums = root.findall(".//canticum")
@@ -253,6 +253,99 @@ def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, 
         colorbar.ax.tick_params(colors="white")
 
     out_filename = f"{responsion_attribute}.png"
+    out_path = os.path.join(out_folder, out_filename)
+
+    if save:
+        plt.savefig(out_path, dpi=600, bbox_inches="tight")
+    if show:
+        plt.show()
+
+def make_one_heatmap_per_100_baselines(xml_file: str, out_folder: str, responsion_attribute: str, title: str, save: bool, show: bool = True, dark_mode: bool = False):
+
+    # -----------------------------
+    # Compute compatibility data
+    # -----------------------------
+
+    canticum_list = compatibility_play(xml_file) # list of canticum lists of line lists of floats
+
+    data_matrix = []
+    for parallell_lines in zip(*canticum_list): 
+        line = []
+        for parallell_positions in zip(*parallell_lines):
+            mean_position = sum(parallell_positions) / len(parallell_positions)
+            line.append(mean_position)
+        data_matrix.append(line)
+    
+    for line in data_matrix:
+        print(len(line))
+    
+    if len(data_matrix) == 1:
+        data_matrix = data_matrix[0]
+    max_len_data = max(len(row) for row in data_matrix)
+
+    # -----------------------------
+    # Pad numeric matrix for heatmap
+    # -----------------------------
+
+    max_len = max_len_data
+    padded_data = np.full((len(data_matrix), max_len), np.nan)
+    for i, row in enumerate(data_matrix):
+        padded_data[i, :len(row)] = row
+
+
+    min_val = np.nanmin(padded_data)
+    min_frac = Fraction(min_val).limit_denominator()  # exact rational
+
+    # denominator b
+    den = min_frac.denominator
+    start = min_frac.numerator
+
+    # Generate fractions from a/b to b/b
+    fractions = [Fraction(n, den) for n in range(start, den + 1)]
+    tick_positions = [float(fr) for fr in fractions]
+    tick_labels = [str(fr) for fr in fractions]
+
+    # -----------------------------
+    # Plot heatmap
+    # -----------------------------
+    plt.figure(figsize=(12, 8))
+    ax = sns.heatmap(
+        padded_data,
+        cmap="viridis",
+        mask=np.isnan(padded_data),
+        cbar=True,
+        cbar_kws={'ticks': tick_positions}
+    )
+
+    # Set fraction labels
+    colorbar = ax.collections[0].colorbar
+    colorbar.set_ticklabels(tick_labels)
+
+    plt.title(title)
+
+    plt.xlabel("Metrical position (resolutions merged)")
+    plt.xticks(
+        ticks=np.arange(max_len) + 0.5,
+        labels=np.arange(1, max_len + 1)
+    )
+    plt.ylabel("Line")
+    plt.yticks(
+        ticks=np.arange(len(data_matrix)) + 0.5,
+        labels=np.arange(1, len(data_matrix) + 1)
+    )
+
+    # Optional dark background + white labels
+    if dark_mode:
+        ax.set_facecolor("black")
+        ax.figure.set_facecolor("black")
+        ax.tick_params(colors="white")  # tick labels
+        ax.xaxis.label.set_color("white")
+        ax.yaxis.label.set_color("white")
+        ax.title.set_color("white")
+        # Fix colorbar text color for dark mode
+        colorbar.ax.tick_params(colors="white")
+
+    out_filename = f"{responsion_attribute}_100.png"
     out_path = os.path.join(out_folder, out_filename)
 
     if save:
