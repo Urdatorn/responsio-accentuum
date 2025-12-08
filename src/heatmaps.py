@@ -5,8 +5,8 @@ import numpy as np
 import os
 import seaborn as sns
 
-from src.stats_comp import compatibility_canticum, compatibility_play
-from src.utils.utils import get_text_matrix
+from .stats_comp import compatibility_canticum, compatibility_play
+from .utils.utils import get_text_matrix
 
 def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
     tree = etree.parse(xml_file)
