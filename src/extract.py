@@ -8,7 +8,7 @@ Takes a TEI XML file and extracts manually chosen responding strophes, formattin
 import re
 from lxml import etree
 
-def transform_tei(input_file, output_file):
+def transform_tei(input_file, output_file, abbreviation, titletext, authortext):
     ns = {"tei": "http://www.tei-c.org/ns/1.0"}
 
     def extract_line_text(line):
@@ -65,9 +65,9 @@ def transform_tei(input_file, output_file):
     fileDesc = etree.SubElement(new_header, "fileDesc")
     titleStmt = etree.SubElement(fileDesc, "titleStmt")
     title = etree.SubElement(titleStmt, "title")
-    title.text = "Pythia"
+    title.text = titletext
     author = etree.SubElement(titleStmt, "author")
-    author.text = "Pindar"
+    author.text = authortext
 
     new_text = etree.SubElement(new_root, "text")
     new_body = etree.SubElement(new_text, "body")
@@ -76,7 +76,7 @@ def transform_tei(input_file, output_file):
     odes = root.xpath("//tei:div[@type='Ode']", namespaces=ns)
     for canticum_index, ode in enumerate(odes, start=1):
         canticum = etree.SubElement(new_body, "canticum")
-        responsion_id = f"py{canticum_index:02d}"
+        responsion_id = f"{abbreviation}{canticum_index:02d}"
 
         strophe = None
         for line in ode.xpath(".//tei:l", namespaces=ns):
