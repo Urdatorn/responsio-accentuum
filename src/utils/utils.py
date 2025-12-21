@@ -2,6 +2,7 @@
 I include here some functionality generally useful for the inference scripts and notebooks.
 ''' 
 import numpy as np
+import re
 from scipy.stats import chisquare
 
 from collections import Counter
@@ -10,6 +11,25 @@ from lxml import etree
 #################################
 ### General utility functions ###
 #################################
+
+def clean_tei_text(input_xml_file, output_xml_file):
+    '''
+    Cleans all the line text in an uncompiled TEI XML file.
+    '''
+    tree = etree.parse(input_xml_file)
+    root = tree.getroot()
+    text_elements = root.xpath("//l")
+    cleaned_texts = [clean_text(syll.text or '') for syll in text_elements]
+    
+    for elem, cleaned in zip(text_elements, cleaned_texts):
+        elem.text = cleaned
+
+    tree.write(output_xml_file, encoding="utf-8", xml_declaration=True)
+
+def clean_text(text: str) -> str:
+    to_clean = r'[\u0387\u037e\u00b7\.,!?;:\"()\[\]{}<>«»⌞⌟\-—…|⏑⏓†×]' # NOTE hyphens must be escaped
+    cleaned_text = re.sub(to_clean, '', text)
+    return cleaned_text
 
 def get_canticum_ids(file_path: str) -> list[str]:
     all_ids = []
@@ -22,18 +42,18 @@ def get_canticum_ids(file_path: str) -> list[str]:
     seen = set()
     return [x for x in all_ids if x not in seen and not seen.add(x)]
 
-def get_syll_count(canticum_ids):
-    syll_count = {}
-    for abbreviation in abbreviations:
-        file_path = f'data/compiled/responsion_{abbreviation}_compiled.xml'
-        tree = etree.parse(file_path)
-        root = tree.getroot()
-        for strophe in root.xpath("//strophe"):
-            responsion_id = strophe.get("responsion")
-            if responsion_id in canticum_ids:
-                syllables = strophe.xpath(".//syll")
-                syll_count[responsion_id] = len(syllables)
-    return syll_count
+# def get_syll_count(canticum_ids):
+#     syll_count = {}
+#     for abbreviation in abbreviations:
+#         file_path = f'data/compiled/responsion_{abbreviation}_compiled.xml'
+#         tree = etree.parse(file_path)
+#         root = tree.getroot()
+#         for strophe in root.xpath("//strophe"):
+#             responsion_id = strophe.get("responsion")
+#             if responsion_id in canticum_ids:
+#                 syllables = strophe.xpath(".//syll")
+#                 syll_count[responsion_id] = len(syllables)
+#     return syll_count
 
 def get_strophicity(abbreviations):
     responsion_counts = Counter()
@@ -128,6 +148,26 @@ def count_nested_values(nested_data):
     count_dict = Counter(values)
     
     return count_dict
+
+def cowsay(text, print_output=True):
+    length = len(text)
+
+    ascii = "\n".join(
+        [" " + "_" * (length + 2),
+         f"< {text} >",
+         " " + "-" * (length + 2),
+         r"        \   ^__^ ",
+         r"         \  (oo)\_______",
+         r"            (__)\       )\/\ ",
+         "                ||----w | ",
+         "                ||     || ",
+         "\n"]
+    )
+
+    if print_output:
+        print(ascii)
+
+    return ascii
 
 #################################
 ### Stats utility functions   ###

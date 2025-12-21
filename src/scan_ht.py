@@ -1,3 +1,10 @@
+#!/usr/bin/env python3
+
+# Copyright © Albin Ruben Johannes Thörn Cleland 2025, Lunds universitet, albin.thorn_cleland@klass.lu.se
+# https://orcid.org/0009-0003-3731-4038
+# This file is part of responsio-accentuum, licensed under the GNU General Public License v3.0.
+# See the LICENSE file in the project root for full details.
+
 '''
 Making scanned XML files from Hypotactic data, to be compiled.
 '''

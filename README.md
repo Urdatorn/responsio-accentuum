@@ -2,7 +2,7 @@
 [![ORCID](media/orcid-badge.svg)](https://orcid.org/0009-0003-3731-4038)
 ![](media/baseline_prose_py04.gif)
 
-Software to measure accentual responsion and virtual constraints on melody in Greek polystrophic archaic lyric, to begin with and above all the polystrophic 40 polystrophic victory odes of Pindar (comprising 11 379 positions, the random variables of our investigation).[^1] 
+Software to measure accentual responsion and virtual constraints on melody in Greek polystrophic archaic lyric, to begin with and above all the 40 polystrophic victory odes of Pindar (comprising 11 379 metrical positions) and the 5th victory ode of Bacchylides.[^1] 
 
 For a visualization and explanation of the results, see the companion Github Pages [website](https://urdatorn.github.io/responsio-accentuum/).
 
@@ -10,6 +10,7 @@ This project builds on and generalizes my previous work on the songs of Aristoph
 
 ## TODO 
 
+- What if we just ignore the last position of every line in the statistical tests, because they are obviously not significant? Or maybe they do not matter since they cancel out against the baseline?
 - Recalculate χ-square and beta tests against new baselines
 - Choose the most informative images to be included in the article.
 
