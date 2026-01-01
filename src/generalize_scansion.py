@@ -6,14 +6,15 @@
 # See the LICENSE file in the project root for full details.
 
 '''
-Once at least the first strophe of the rule-based scansion 
-has been manually checked and corrected, and all resolutions have been marked-up, 
+Once 
+    1) the first strophe of a scansion 
+has been manually checked and corrected, and
+    2) all resolutions have been marked-up, 
 this script applies the same scansion to all other strophes,
 given that their lines now (hopefully) have the same number of syllables.
 '''
 
 from lxml import etree
-import os
 import re
 from tqdm import tqdm
 
