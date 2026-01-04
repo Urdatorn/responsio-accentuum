@@ -15,10 +15,13 @@ given that their lines now (hopefully) have the same number of syllables.
 '''
 
 from lxml import etree
+import os
 import re
 from tqdm import tqdm
 
-from grc_utils import count_ambiguous_dichrona_in_open_syllables, is_diphthong, vowel, short_vowel, syllabifier
+from grc_utils import vowel
+
+from .scan import muta, liquida, to_clean, heavy_syll
 
 def fix_scansion(text):
     '''
@@ -26,40 +29,37 @@ def fix_scansion(text):
     and changes the weight of all dichronic syllables in other strophes to match it.
     '''
     sylls = re.split(r'(\[.+?\]|\{.+?\})', text)
-    print(sylls)
 
-    
+    # iterate through sylls and next_sylls: if syll 1) does not contain U+02C8 (ˈ), MODIFIER LETTER VERTICAL LINE, and 2) syll[-1] in muta and 3) next_syll[1] in liquida too, then move syll[-1] to the beginning of next_syll.
+    for idx, syll in enumerate(sylls):
+        next_syll = sylls[idx + 1] if idx + 1 < len(sylls) else ""
+        if "ˈ" not in syll and syll[-1] in muta and next_syll[0] in liquida:
+            sylls[idx] = syll[:-1]
+            sylls[idx + 1] = syll[-1] + next_syll
 
-    # # iterate through sylls and next_sylls: if syll 1) does not contain U+02C8 (ˈ), MODIFIER LETTER VERTICAL LINE, and 2) syll[-1] in muta and 3) next_syll[1] in liquida too, then move syll[-1] to the beginning of next_syll.
-    # for idx, syll in enumerate(sylls):
-    #     next_syll = sylls[idx + 1] if idx + 1 < len(sylls) else ""
-    #     if "ˈ" not in syll and syll[-1] in muta and next_syll[0] in liquida:
-    #         sylls[idx] = syll[:-1]
-    #         sylls[idx + 1] = syll[-1] + next_syll
+    line = ""
 
-    # line = ""
+    for idx, syll in enumerate(sylls):
 
-    # for idx, syll in enumerate(sylls):
+        syll_clean = re.sub(to_clean, "", syll.strip())
+        next_syll = sylls[idx + 1] if idx + 1 < len(sylls) else ""
 
-    #     syll_clean = re.sub(to_clean, "", syll.strip())
-    #     next_syll = sylls[idx + 1] if idx + 1 < len(sylls) else ""
+        # preempt vowel hiatus and correption
+        if vowel(syll[-1]) and next_syll.startswith(" ") and vowel(next_syll[1]):
+            line = line + "{" + f"{syll}" + "}"
 
-    #     # preempt vowel hiatus and correption
-    #     if vowel(syll[-1]) and next_syll.startswith(" ") and vowel(next_syll[1]):
-    #         line = line + "{" + f"{syll}" + "}"
+        elif any("_" in char for char in syll):
+            line = line + "[" + f"{syll}" + "]"
+        elif syll_clean[-1] == "^":
+            line = line + "{" + f"{syll}" + "}"
+        elif heavy_syll(syll):
+            line = line + "[" + f"{syll}" + "]"
+        else:
+            line = line + "{" + f"{syll}" + "}"
 
-    #     elif any("_" in char for char in syll):
-    #         line = line + "[" + f"{syll}" + "]"
-    #     elif syll_clean[-1] == "^":
-    #         line = line + "{" + f"{syll}" + "}"
-    #     elif heavy_syll(syll):
-    #         line = line + "[" + f"{syll}" + "]"
-    #     else:
-    #         line = line + "{" + f"{syll}" + "}"
+    return line
 
-    # return line
-
-def fix_xml(input_file, debug=False):
+def fix_xml(input_file, output_file, debug=False):
 
     parser = etree.XMLParser(remove_blank_text=True)
     tree = etree.parse(input_file, parser)
@@ -116,21 +116,21 @@ def fix_xml(input_file, debug=False):
             l.clear()
             l.text = new_line
 
-    #     scanned = fix_scansion(text)
+        scanned = fix_scansion(text)
 
-    #     if scanned is None:
-    #         continue
+        if scanned is None:
+            continue
 
-    #     # Remove all children and replace with scanned text
-    #     l.clear()
-    #     l.text = scanned
+        # Remove all children and replace with scanned text
+        l.clear()
+        l.text = scanned
 
-    # os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
-    # tree.write(
-    #     output_file,
-    #     encoding="UTF-8",
-    #     xml_declaration=True,
-    #     pretty_print=True
-    # )
+    tree.write(
+        output_file,
+        encoding="UTF-8",
+        xml_declaration=True,
+        pretty_print=True
+    )
 

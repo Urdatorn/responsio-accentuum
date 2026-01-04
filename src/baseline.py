@@ -67,7 +67,7 @@ from tqdm import tqdm
 
 from grc_utils import lower_grc, syllabifier
 
-from src.prose import anabasis
+from src.utils.prose import anabasis
 from src.scan import rule_scansion
 from src.stats import canonical_sylls
 
