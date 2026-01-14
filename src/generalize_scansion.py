@@ -19,7 +19,7 @@ import os
 import re
 from tqdm import tqdm
 
-from grc_utils import vowel
+from grc_utils import syllabifier, vowel
 
 from .scan import muta, liquida, to_clean, heavy_syll
 
@@ -66,7 +66,23 @@ def fix_xml(input_file, output_file, debug=False):
     root = tree.getroot()
 
     #################################################
-    # 1) Get "gold" scansion from the first strophe #
+    # 1) Collect skip information from ALL strophes #
+    #################################################
+    
+    skip_lines = set()  # Track which line positions should be skipped
+    all_strophes = root.findall(".//strophe")
+    
+    # First pass: collect all lines marked with skip="True" from any strophe
+    for strophe in all_strophes:
+        for idx, l in enumerate(strophe.findall("./l")):
+            if l.get("skip") == "True":
+                skip_lines.add(idx)
+    
+    if debug and skip_lines:
+        print(f"Lines to skip (found across all strophes): {sorted(skip_lines)}")
+    
+    #################################################
+    # 2) Get "gold" scansion from the first strophe #
     #################################################
     
     # Find the first <strophe> element
@@ -75,6 +91,13 @@ def fix_xml(input_file, output_file, debug=False):
     # Iterate over its <l> children
     gold_strophe = []
     for idx, l in enumerate(first_strophe.findall("./l")):
+        # Check if this line should be skipped
+        if idx in skip_lines:
+            gold_strophe.append(None)  # Placeholder for skipped lines
+            if debug:
+                print(f"Line {idx+1}: SKIPPED")
+            continue
+        
         gold_line = []
         text = l.xpath("string()").strip()
         if debug:
@@ -90,14 +113,50 @@ def fix_xml(input_file, output_file, debug=False):
         gold_strophe.append(gold_line)
         if debug:
             print(gold_line)
-    print(f"Gold strophe with {len(gold_strophe)} lines")
+    print(f"Gold strophe with {len(gold_strophe)} lines ({len(skip_lines)} lines marked to skip)")
 
     #################################################
-    # 2) Apply to all other strophes                #
+    # 3) Syllabify all strophes except the first    #
     #################################################
 
     for strophe in root.findall(".//strophe")[1:]:  # Skip the first strophe
         for idx, l in enumerate(strophe.findall("./l")):
+            # Skip this line if it was marked as skip
+            if idx in skip_lines:
+                if debug:
+                    print(f"Skipping syllabification for line {idx+1} in strophe")
+                continue
+            
+            # Get the raw text content without any markup
+            text = l.xpath("string()").strip()
+            # Remove brackets and braces to get clean text
+            clean_text = re.sub(r'[\[\]\{\}]', '', text)
+            
+            # Syllabify the clean text
+            syllables = syllabifier(clean_text)
+            
+            # Format as [syll1][syll2]...
+            syllabified_text = "".join(f"[{syll}]" for syll in syllables)
+            
+            if debug:
+                print(f"Line {idx+1} syllabified: {syllabified_text}")
+            
+            # Replace the line content with syllabified version
+            l.clear()
+            l.text = syllabified_text
+    
+    #################################################
+    # 4) Apply gold scansion to all other strophes  #
+    #################################################
+
+    for strophe in root.findall(".//strophe")[1:]:  # Skip the first strophe
+        for idx, l in enumerate(strophe.findall("./l")):
+            # Skip this line if it was marked as skip in the gold strophe
+            if idx in skip_lines:
+                if debug:
+                    print(f"Skipping line {idx+1} in strophe")
+                continue
+            
             text = l.xpath("string()").strip()
             if debug:
                 print(f"Line {idx+1}: {text}")
