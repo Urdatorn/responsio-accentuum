@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test</title>
+        <author>NA</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <canticum>
+        <strophe type="strophe" responsion="te01">
+          <l n="1" metre=""><syll weight="heavy">ὦ </syll><syll weight="light">φέ</syll><syll weight="heavy">ρισ</syll><syll weight="light" brevis_in_longo="True">τέ</syll></l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="2" metre=""><syll weight="heavy">ὦ </syll><syll weight="light">κά</syll><syll weight="heavy">κισ</syll><syll weight="light" brevis_in_longo="True">τε</syll></l>
+        </strophe>
+      </canticum>
+    </body>
+  </text>
+</TEI>

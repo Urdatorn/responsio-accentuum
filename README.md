@@ -12,6 +12,7 @@ For an approachable visualization and explanation of the results, see the compan
 
 This project builds on and generalizes my previous work on the songs of Aristophanes, found [here](https://github.com/Urdatorn/aristophanis-cantica), which in its turn partly uses a fork of the work of Anna Conser; see the Copyright section below. The core code is found in the source files ```stats[...].py```. To see the code in action, see the ```.ipynb``` notebooks. 
 
+<!--
 ## TODO 
 
 - What if we just ignore the last position of every line in the statistical tests, because they are obviously not significant? Or maybe they do not matter since they cancel out against the baseline?
@@ -31,8 +32,41 @@ This project builds on and generalizes my previous work on the songs of Aristoph
   - py04: 462
   - ne08: 459 ?
   - ne10: 444 ?
+-->
 
 [^1]: Four of the preserved odes have no responding parts at all, i.e. no refrains. Note that only 37 of the 40 responding songs have separate strophes and antistrophes, so if the responding unit of interest is the strophe instead of the strophe-antistrophe-epode triad, the corpus is slightly smaller. 
+
+## Format
+
+To analyze a song, the refrains first need to be scanned and presented in the format expected by the compiler. Here's a dummy example: 
+
+```
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test</title>
+        <author>NA</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <canticum>
+        <strophe type="strophe" responsion="te01">
+          <l n="1" metre="">[ὦ ]{φέ}[ρισ]{τέ}</l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="2" metre="">[ὦ ]{κά}[κισ]{τε}</l>
+        </strophe>
+      </canticum>
+    </body>
+  </text>
+</TEI>
+```
+
+The ```<canticum>``` element exists so that a file can contain more than one song. The responding refrains of a song are nested inside the ```<canticum>``` as ```<strophe>``` elements, which in their turns have their lines as ```<l>``` elements. To make the markup process less arduous, the syllable-level is first entered as human-readable pseudo-markup with square brackets enclosing long syllables and curly brackets enclosing short. Ancipitia have a hashtag (#) after the opening bracket and resolved pairs of shorts both have euro signs (€) after their opening brackets. Line-final short syllables automatically get the attribute ```brevis_in_longo="True"```. After compilation, the final xml lines will have proper ```<syll>``` elements with attributes stating anceps or resolution.
 
 ## Copyright and citation
 

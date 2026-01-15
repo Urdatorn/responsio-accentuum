@@ -24,9 +24,9 @@ subject to the following MIT license:
 '''
 #!/usr/bin/env python3
 
-# Copyright © Albin Ruben Johannes Thörn Cleland 2025, Lunds universitet, albin.thorn_cleland@klass.lu.se
+# Copyright © Albin Ruben Johannes Thörn Cleland 2026, Lunds universitet, albin.thorn_cleland@klass.lu.se
 # https://orcid.org/0009-0003-3731-4038
-# This file is part of aristophanis-cantica, licensed under the GNU General Public License v3.0.
+# This file is part of responsio-accentuum, licensed under the GNU General Public License v3.0.
 # See the LICENSE file in the project root for full details.
 
 from lxml import etree
@@ -36,8 +36,7 @@ from tqdm import tqdm
 
 from grc_utils import is_enclitic, is_proclitic
 from .stats import accents, metrically_responding_lines_polystrophic
-from .visualize import restore_text
-from .utils.words import space_after, space_before
+from .utils.utils import space_after, space_before
 
 
 def get_contours_line(l_element):
@@ -445,11 +444,4 @@ def compatibility_ratios_to_stats(list_in, binary=False) -> float:
         
     return mean(merged_list)
 
-
-if __name__ == "__main__":
-
-    stat_polystrophic = compatibility_ratios_to_stats(compatibility_strophicity('compiled', mode='polystrophic', id='ach'), binary=False)
-    #stat_antistrophic = compatibility_ratios_to_stats(compatibility_strophicity('compiled', mode='antistrophic', id='ach'), binary=False) # antistrophic song is always binary anyways
-    print(f'Polystrophic compatibility: {stat_polystrophic}')
-    #print(f'Antistrophic compatibility: {stat_antistrophic}')
     

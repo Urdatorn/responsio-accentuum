@@ -1,12 +1,21 @@
+#!/usr/bin/env python3
+
+# Copyright © Albin Ruben Johannes Thörn Cleland 2026, Lunds universitet, albin.thorn_cleland@klass.lu.se
+# https://orcid.org/0009-0003-3731-4038
+# This file is part of responsio-accentuum, licensed under the GNU General Public License v3.0.
+# See the LICENSE file in the project root for full details.
+
 '''
 I include here some functionality generally useful for the inference scripts and notebooks.
 ''' 
+from collections import Counter
+from lxml import etree
 import numpy as np
 import re
 from scipy.stats import chisquare
+import xml.etree.ElementTree as ET
 
-from collections import Counter
-from lxml import etree
+from grc_utils import vowel
 
 #################################
 ### General utility functions ###
@@ -224,3 +233,71 @@ def make_chisquare_test(list_comp_scores, list_comp_baseline_scores):
     degrees_of_freedom = len(obs_counts) - 1
 
     return chi2_stat, degrees_of_freedom, p_value, sorted_keys, obs_counts, obs_total, exp_counts
+
+######################
+### Word utilities ###
+######################
+
+def space_before(syll):
+    """Returns True if there is a space before the first vowel in the syllable's text."""
+    text = syll.text if syll.text else ""
+    for i, char in enumerate(text):
+        if vowel(char):  # Find the first vowel
+            return i > 0 and text[i - 1] == " "
+    return False
+
+
+def space_after(syll):
+    """Returns True if there is a space after the last vowel in the syllable's text."""
+    text = syll.text if syll.text else ""
+    last_vowel_index = -1
+
+    for i, char in enumerate(text):
+        if vowel(char):
+            last_vowel_index = i  # Keep track of the last vowel position
+
+    return last_vowel_index != -1 and last_vowel_index < len(text) - 1 and text[last_vowel_index + 1] == " "
+
+def get_words_xml(l_element):
+    '''
+    Doesn't support resolution yet
+    '''
+    words = []
+    current_word = []
+
+    syllables = [child for child in l_element if child.tag == "syll"]
+
+    for i, syll in enumerate(syllables):
+        syll_xml = ET.tostring(syll, encoding='unicode', method='xml')
+        current_word.append(syll_xml)
+        next_syll = syllables[i + 1] if i + 1 < len(syllables) else None
+
+        if space_after(syll):
+            #print()
+            #print(f'SPACE AFTER CASE: |{syll}|')
+            words.append("".join(current_word))  # Store current word
+            current_word = []  # Start a new word
+        elif syll.tail and " " in syll.tail:
+            #print()
+            #print(f'TAIL CASE: |{syll.tail}|')
+            words.append("".join(current_word))
+            current_word = []
+        elif next_syll is not None and space_before(next_syll):
+            #print()
+            #print(f'SPACE BEFORE NEXT CASE: |{next_syll}|')
+            words.append("".join(current_word))
+            current_word = []
+
+    if current_word:
+        words.append("".join(current_word))
+
+    cleaned_words = []
+    for word in words:
+        root = ET.fromstring(f"<wrapper>{word}</wrapper>")
+        for syll in root.iter("syll"):  
+            syll.tail = None
+
+        cleaned_words.append("".join(ET.tostring(syll, encoding="unicode", method="xml") for syll in root))
+    words = cleaned_words
+
+    return words

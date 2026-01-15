@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test</title>
+        <author>NA</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <canticum>
+        <strophe type="strophe" responsion="te01">
+          <l n="1" metre="">[ὦ ]{φέ}[ρισ]{τέ}</l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="2" metre="">[ὦ ]{κά}[κισ]{τε}</l>
+        </strophe>
+      </canticum>
+    </body>
+  </text>
+</TEI>
