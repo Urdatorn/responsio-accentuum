@@ -1,3 +1,9 @@
+#!/usr/bin/env python3
+# Copyright (parly, see below) © Albin Ruben Johannes Thörn Cleland 2026, Lunds universitet, albin.thorn_cleland@klass.lu.se
+# https://orcid.org/0009-0003-3731-4038
+# This file is part of responsio-accentuum, licensed under the GNU General Public License v3.0, but see below.
+# See the LICENSE file in the project root for full details.
+
 '''
 A substantial part of this file is adapted from the Greek-Poetry code by Anna Conser,
 subject to the following MIT license:
@@ -22,13 +28,8 @@ subject to the following MIT license:
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 '''
-#!/usr/bin/env python3
 
-# Copyright © Albin Ruben Johannes Thörn Cleland 2026, Lunds universitet, albin.thorn_cleland@klass.lu.se
-# https://orcid.org/0009-0003-3731-4038
-# This file is part of responsio-accentuum, licensed under the GNU General Public License v3.0.
-# See the LICENSE file in the project root for full details.
-
+from fractions import Fraction as F
 from lxml import etree
 import os
 from statistics import mean
@@ -39,11 +40,11 @@ from .stats import accents, metrically_responding_lines_polystrophic
 from .utils.utils import space_after, space_before
 
 
-def get_contours_line(l_element):
+def get_contours_line(l_element) -> list[str]:
         """
         Adapted from a method in class_stanza
         Iterates through an <l> of <syll> elements and creates a list of melodic contours.
-        - DN-A = βαρύς; melody falls after *main* acute or circumflex.
+        - DN-A = Melody falls after *main* acute or circumflex.
         - DN = Melody falls after non-main accent.
         - UP: Melody rises before the accent.
 
@@ -108,7 +109,7 @@ def get_contours_line(l_element):
         return contours
 
 
-def all_contours_line(*xml_lines):
+def all_contours_line(*xml_lines) -> list[list[str]]:
     """
     Intermediary between get_contours(l_element) and position-based compatibility stats of set of responding lines.
 
@@ -170,7 +171,7 @@ def all_contours_line(*xml_lines):
     return grouped_contours
 
 
-def compatibility_line(*xml_lines) -> list[float]:
+def compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
     '''
     Computes the contour of a line from a set of responding strophes,
     evaluates matches and repetitions, 
@@ -182,13 +183,9 @@ def compatibility_line(*xml_lines) -> list[float]:
     - Unambiguous matches thus yield 1. No position yields less than 1 / n, where n is the number of strophes.
     - NB resolved sylls are in sublists
     
-    Returns a list of floats, one for each position.
+    Returns a list of Fractions (or floats if fractional=False), one for each position.
     - To "re-binarize" the results later, simply interpret 1 as MATCH and everything else as REPEAT.
     '''
-    # print('Processing the following set of responding lines...')
-    # line_numbers = [line.get('n') for line in xml_lines]
-    # for line_number, line in zip(line_numbers, xml_lines):
-    #     print(f'\tLine {line_number}: \t{restore_text(line)}...')
 
     compatibility_ratios = []
 
@@ -254,28 +251,31 @@ def compatibility_line(*xml_lines) -> list[float]:
 
             elif strophe in ['UP', 'UP-G', 'N']:
                 up.append(strophe)
-                #print(f'{strophe} added to up')
+
             elif strophe in ['DN', 'DN-A', 'N']:
-                #print(f'{strophe} added to down')
+
                 down.append(strophe)
             else:
                 raise ValueError(f"Unknown contour {strophe} in compatibility_line.")
 
         max_len = max(len(up), len(down)) # for even N, N/2 <= max_len <= N, otherwise N/2 < max_len < N
-        position_compatibility_ratio = max_len / len(position)
+        if fractional:
+            position_compatibility_ratio = F(max_len, len(position))
+        else:
+            position_compatibility_ratio = max_len / len(position)
         compatibility_ratios.append(position_compatibility_ratio)
 
-    #print(f'Compatibility ratios: {compatibility_ratios}')
     return compatibility_ratios
 
 
-def compatibility_canticum(xml_file_path, canticum_ID) -> list:
+def compatibility_canticum(xml_file_path, canticum_ID, fractional=True) -> list:
     """
     Compute compatibility ratios for each line position across all strophes in a canticum.
     
     Args:
         xml_file_path: Path to XML file
         canticum_ID: ID to match against strophe[@responsion]
+        fractional: If True, return Fractions; otherwise return floats
     
     Returns:
         List of lists, where each inner list contains compatibility ratios for one line position
@@ -299,13 +299,13 @@ def compatibility_canticum(xml_file_path, canticum_ID) -> list:
                 responding_lines.append(lines[line_pos])
         
         # Get compatibility ratios for this set of responding lines
-        compatibility_ratios = compatibility_line(*responding_lines)
+        compatibility_ratios = compatibility_line(*responding_lines, fractional=fractional)
         canticum_list_of_line_compatibility_ratio_lists.append(compatibility_ratios)
     
     return canticum_list_of_line_compatibility_ratio_lists
 
 
-def compatibility_play(xml_file_path):
+def compatibility_play(xml_file_path, fractional=True):
     tree = etree.parse(xml_file_path)
     root = tree.getroot()
 
@@ -316,13 +316,13 @@ def compatibility_play(xml_file_path):
     list_of_lists_of_compatibility_per_position_lists = [] # for every canticum, compiling a list of one compatibility-per-position float list for every line
 
     for canticum in cantica:
-        result = compatibility_canticum(xml_file_path, canticum)
+        result = compatibility_canticum(xml_file_path, canticum, fractional=fractional)
         list_of_lists_of_compatibility_per_position_lists.append(result)
     
     return list_of_lists_of_compatibility_per_position_lists
 
 
-def compatibility_corpus(dir_path):
+def compatibility_corpus(dir_path, fractional=True):
     corpus_compatibility_lists = []
     
     # Get all XML files in directory
@@ -332,7 +332,7 @@ def compatibility_corpus(dir_path):
     for xml_file in tqdm(xml_files, initial=1):
         file_path = os.path.join(dir_path, xml_file)
         try:
-            play_results = compatibility_play(file_path)
+            play_results = compatibility_play(file_path, fractional=fractional)
             corpus_compatibility_lists.append(play_results)
         except Exception as e:
             print(f"Error processing {xml_file}: {e}")
@@ -341,7 +341,7 @@ def compatibility_corpus(dir_path):
     return corpus_compatibility_lists
 
 
-def compatibility_strophicity(dir_path="compiled", mode="antistrophic", id=""):
+def compatibility_strophicity(dir_path="compiled", mode="antistrophic", id="", fractional=True):
     """
     Compute compatibility ratios for all XML files in a directory,
     filtered by number of responding strophes and optional ID prefix.
@@ -351,9 +351,10 @@ def compatibility_strophicity(dir_path="compiled", mode="antistrophic", id=""):
         mode: "polystrophic" (3+ strophes), "antistrophic" (exactly 2),
               "three-strophic" (exactly 3), or "four-strophic" (exactly 4)
         id: String prefix to filter canticum IDs (e.g. "ach" for Acharnians)
+        fractional: If True, return Fractions; otherwise return floats
 
     Returns:
-        List of compatibility ratio lists from filtered cantica
+        List of compatibility ratio lists from filtered cantica (Fraction if fractional=True)
     """
     valid_modes = ["polystrophic", "antistrophic", "three-strophic", "four-strophic"]
     if mode not in valid_modes:
@@ -389,7 +390,7 @@ def compatibility_strophicity(dir_path="compiled", mode="antistrophic", id=""):
             # Process filtered cantica
             play_results = []
             for canticum_id in filtered_cantica:
-                result = compatibility_canticum(file_path, canticum_id)
+                result = compatibility_canticum(file_path, canticum_id, fractional=fractional)
                 play_results.append(result)
 
             if play_results:
@@ -402,7 +403,7 @@ def compatibility_strophicity(dir_path="compiled", mode="antistrophic", id=""):
     return corpus_compatibility_lists
 
 
-def compatibility_ratios_to_stats(list_in, binary=False) -> float:
+def compatibility_ratios_to_stats(list_in, binary=False) -> F:
     """
     Convert nested compatibility ratios to a single stat, optionally binarizing values.
     
@@ -411,7 +412,7 @@ def compatibility_ratios_to_stats(list_in, binary=False) -> float:
         binary: If True, convert all non-1 values to 0
         
     Returns:
-        float: Mean compatibility ratio
+        Fraction: Mean compatibility ratio
     """
     def get_nesting_depth(lst) -> int:
         if not isinstance(lst, list):
@@ -441,7 +442,9 @@ def compatibility_ratios_to_stats(list_in, binary=False) -> float:
     # Binarize if requested
     if binary:
         merged_list = [0 if x != 1 else 1 for x in merged_list]
-        
+
+    merged_list = [x if isinstance(x, F) else F(x) for x in merged_list]
+
     return mean(merged_list)
 
     
