@@ -185,6 +185,9 @@ def compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
     
     Returns a list of Fractions (or floats if fractional=False), one for each position.
     - To "re-binarize" the results later, simply interpret 1 as MATCH and everything else as REPEAT.
+
+    NOTE: NOT NORMALIZED, HENCE USE WITH CAUTION!
+    Normalization takes place at the canticum level.
     '''
 
     compatibility_ratios = []
@@ -278,7 +281,7 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True) -> list:
         fractional: If True, return Fractions; otherwise return floats
     
     Returns:
-        List of lists, where each inner list contains compatibility ratios for one line position
+        List of lists, where each inner list contains compatibility ratios for one line
     """
     tree = etree.parse(xml_file_path)
     root = tree.getroot()
@@ -302,7 +305,21 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True) -> list:
         compatibility_ratios = compatibility_line(*responding_lines, fractional=fractional)
         canticum_list_of_line_compatibility_ratio_lists.append(compatibility_ratios)
     
-    return canticum_list_of_line_compatibility_ratio_lists
+    def normalize(line_scores):
+        # Minimum possible ratio is the smallest majority share: ceil(n/2) / n
+        n = len(strophes)
+        min_ratio = F((n // 2) + (n % 2), n)
+
+        span = F(1, 1) - min_ratio
+        normalized = []
+        for score in line_scores:
+            score_f = score if isinstance(score, F) else F(score)
+            normalized.append((score_f - min_ratio) / span)
+        return normalized
+
+    normalized_canticum = [normalize(line) for line in canticum_list_of_line_compatibility_ratio_lists]
+
+    return normalized_canticum
 
 
 def compatibility_play(xml_file_path, fractional=True):
@@ -405,7 +422,8 @@ def compatibility_strophicity(dir_path="compiled", mode="antistrophic", id="", f
 
 def compatibility_ratios_to_stats(list_in, binary=False) -> F:
     """
-    Convert nested compatibility ratios to a single stat, optionally binarizing values.
+    Convert nested compatibility ratios to a single stat, optionally binarizing values as Conser.
+    The default is to *normalize* the fractions to [0, 1] before averaging.
     
     Args:
         list_in: Nested list of compatibility ratios
@@ -443,6 +461,7 @@ def compatibility_ratios_to_stats(list_in, binary=False) -> F:
     if binary:
         merged_list = [0 if x != 1 else 1 for x in merged_list]
 
+    # Cast early to Fraction to keep exact arithmetic during normalization
     merged_list = [x if isinstance(x, F) else F(x) for x in merged_list]
 
     return mean(merged_list)
