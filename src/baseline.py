@@ -25,6 +25,7 @@ FALLBACK SEQUENCE:
 (3+PINDAR_MAX_TRIMMING)-(2+PINDAR_MAX_TRIMMING+EXTERNAL_MAX_TRIMMING). External trimming - Remove 1 to EXTERNAL_MAX_TRIMMING syllables from external lines
 (3+PINDAR_MAX_TRIMMING+EXTERNAL_MAX_TRIMMING)-(2+PINDAR_MAX_TRIMMING+EXTERNAL_MAX_TRIMMING+PINDAR_MAX_PADDING). Pindar padding - Add 1 to PINDAR_MAX_PADDING syllables to shorter Pindar lines
 (3+PINDAR_MAX_TRIMMING+EXTERNAL_MAX_TRIMMING+PINDAR_MAX_PADDING)-(2+PINDAR_MAX_TRIMMING+EXTERNAL_MAX_TRIMMING+PINDAR_MAX_PADDING+EXTERNAL_MAX_PADDING). External padding - Add 1 to EXTERNAL_MAX_PADDING syllables to shorter external lines
+(final). Paired-line fallback - Pair two Pindar lines and trim the first to fit
 
 STATISTICAL INDEPENDENCE CONSTRAINTS:
 The system enforces three levels of statistical independence to ensure robust baselines:
@@ -63,14 +64,25 @@ import random
 import re
 import pickle
 from collections import defaultdict
+from pathlib import Path
 from tqdm import tqdm
 
 from grc_utils import lower_grc, syllabifier
 
+from compile import process_file
 from utils.prose import anabasis
-from utils.utils import victory_odes
+from utils.utils import canticum_with_at_least_two_strophes, victory_odes
 from scan import rule_scansion
 from stats import canonical_sylls
+
+ROOT = Path(__file__).resolve().parent.parent
+PROSE_CACHE_PATH = ROOT / "data/cache/cached_prose_corpus.pkl"
+LYRIC_CACHE_PATH = ROOT / "data/cache/cached_lyric_corpus.pkl"
+
+def resolve_path(path_like):
+    """Resolve relative paths against the repository root."""
+    path = Path(path_like)
+    return path if path.is_absolute() else ROOT / path
 
 # =============================================================================
 # CONFIGURATION VARIABLES - Adjust these to control fallback system behavior
@@ -88,13 +100,43 @@ EXTERNAL_MAX_PADDING = 4        # Max syllables to add to external corpus lines
 
 punctuation_except_period = r'[\u0387\u037e\u00b7,!?;:\"()\[\]{}<>«»\-—…|⏑⏓†×]'
 
+######################
 ### MAIN FUNCTIONS ###
+######################
 
-def make_all_lyric_baselines():
+def make_all_prose_baselines(responding_unit, randomizations=10_000):
+
+    for collection in ["olympians", "pythians", "nemeans", "isthmians"]:
+
+        xml_path = ROOT / f"data/compiled/{responding_unit}/ht_{collection}_{responding_unit}.xml"
+
+        for responsion_id in tqdm(victory_odes, desc=f"Preparing {collection} scanned prose baselines"):
+            if not canticum_with_at_least_two_strophes(xml_path, responsion_id):
+                #print(f"Skipping {responsion_id} in {collection} (less than 2 strophes).")
+                continue
+            make_prose_baseline(xml_path, responsion_id, randomizations=randomizations)
+
+    baseline_scan_dir = ROOT / "data/scan/baselines/triads/prose/"
+    baseline_compiled_dir = ROOT / "data/compiled/baselines/triads/prose/"
+
+    baseline_xmls = os.listdir(baseline_scan_dir)
+    for baseline_xml in tqdm(baseline_xmls, desc="Compiling prose baselines"):
+        if not baseline_xml.endswith(".xml"):
+            continue
+        infile = os.path.join(baseline_scan_dir, baseline_xml)
+        outfile = os.path.join(baseline_compiled_dir, baseline_xml)
+        process_file(infile, outfile)
+
+def make_all_lyric_baselines(randomizations=10_000, responsion_ids=None):
     """
-    Generate lyric baselines for all victory odes with progress tracking and summary statistics.
+    Generate lyric baselines for selected (or all) victory odes with progress tracking and summary statistics.
+    
+    Args:
+        randomizations: number of baseline samples per responsion
+        responsion_ids: optional iterable of responsion_ids to process; defaults to all victory_odes
     """
-    print(f"Generating lyric baselines for {len(victory_odes)} victory odes...")
+    target_ids = sorted(responsion_ids) if responsion_ids is not None else sorted(victory_odes)
+    print(f"Generating lyric baselines for {len(target_ids)} victory odes...")
     
     # Initialize summary statistics
     total_stats = {
@@ -103,29 +145,31 @@ def make_all_lyric_baselines():
         'external_lines': 0,
         'unaltered_lines': 0,
         'trimmed_lines': 0,
-        'padded_lines': 0
+        'padded_lines': 0,
+        'paired_fallbacks': 0
     }
     
     failed_odes = []
     
-    for responsion_id in tqdm(victory_odes, desc="Processing odes"):
+    for responsion_id in tqdm(target_ids, desc="Processing odes"):
         try:
             # Determine the correct XML file based on the ode prefix
             if responsion_id[0:2] == "ol":
-                xml_file = "data/compiled/triads/ht_olympians_triads.xml"
+                xml_file = resolve_path("data/compiled/triads/ht_olympians_triads.xml")
             elif responsion_id[0:2] == "py":
-                xml_file = "data/compiled/triads/ht_pythians_triads.xml"
+                xml_file = resolve_path("data/compiled/triads/ht_pythians_triads.xml")
             elif responsion_id[0:2] == "ne":
-                xml_file = "data/compiled/triads/ht_nemeans_triads.xml"
+                xml_file = resolve_path("data/compiled/triads/ht_nemeans_triads.xml")
             elif responsion_id[0:2] == "is":
-                xml_file = "data/compiled/triads/ht_isthmians_triads.xml"
+                xml_file = resolve_path("data/compiled/triads/ht_isthmians_triads.xml")
             else:
                 print(f"Warning: Unknown ode prefix for {responsion_id}, skipping...")
                 failed_odes.append(responsion_id)
                 continue
             
             # Generate baseline and collect statistics
-            stats = make_lyric_baseline(xml_file, responsion_id)
+            print(f"\nGenerating {randomizations} lyric baselines for {responsion_id}...")
+            stats = make_lyric_baseline(xml_file, responsion_id, randomizations=randomizations)
             
             # Add to summary statistics
             for key in total_stats:
@@ -140,7 +184,7 @@ def make_all_lyric_baselines():
     print("\n" + "="*60)
     print("LYRIC BASELINE GENERATION SUMMARY")
     print("="*60)
-    print(f"Total odes processed: {len(victory_odes) - len(failed_odes)}/{len(victory_odes)}")
+    print(f"Total odes processed: {len(target_ids) - len(failed_odes)}/{len(target_ids)}")
     if failed_odes:
         print(f"Failed odes: {', '.join(failed_odes)}")
     print(f"\nTotal lines generated: {total_stats['total_lines']:,}")
@@ -151,6 +195,7 @@ def make_all_lyric_baselines():
     print(f"  Unaltered: {total_stats['unaltered_lines']:,} ({total_stats['unaltered_lines']/total_stats['total_lines']*100:.1f}%)")
     print(f"  Trimmed: {total_stats['trimmed_lines']:,} ({total_stats['trimmed_lines']/total_stats['total_lines']*100:.1f}%)")
     print(f"  Padded: {total_stats['padded_lines']:,} ({total_stats['padded_lines']/total_stats['total_lines']*100:.1f}%)")
+    print(f"  Paired fallback: {total_stats['paired_fallbacks']:,} ({total_stats['paired_fallbacks']/total_stats['total_lines']*100:.1f}%)")
     print("="*60)
     
     return total_stats
@@ -159,7 +204,7 @@ def make_all_lyric_baselines():
 # MAKE BASELINES  #
 ###################
 
-def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False, cache_file: str = "data/cached_prose_corpus.pkl"):
+def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False, cache_file: str = PROSE_CACHE_PATH, randomizations: int = 10_000):
     """
     Fast version of make_prose_baseline using cached preprocessed corpus.
     
@@ -168,15 +213,19 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False, 
         responsion_id: the responsion ID to generate baseline for
         debug: whether to print debug information
         cache_file: path to cached corpus data
+        randomizations: number of baseline samples to generate
     """
     
+    xml_file = resolve_path(xml_file)
+    cache_file = resolve_path(cache_file)
+
     # Load cached corpus data
     cached_corpus = load_cached_prose_corpus(cache_file)
 
-    strophe_scheme = get_shape_canticum(xml_file, responsion_id)
+    strophe_scheme = get_shape_canticum(str(xml_file), responsion_id)
 
     # Count the number of strophes with the given responsion_id in the original file
-    tree = etree.parse(xml_file)
+    tree = etree.parse(str(xml_file))
     root = tree.getroot()
     strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
     sample_size = len(strophes)
@@ -186,12 +235,12 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False, 
         print(f"Strophe scheme: {strophe_scheme}")
         print(f"Generating 100 baseline samples...")
     
-    # Generate 100 different baseline samples with different seeds
+    # Generate baseline samples with different seeds
     strophe_samples_dict = {}
     
-    for i in tqdm(range(100)):
+    for i in tqdm(range(randomizations)):
         seed = 1453 + i  # Different seed for each sample
-        responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
+        responsion_key = f"{responsion_id}_{i:05d}"  # e.g., "is01_000", "is01_001", etc.
         
         # Generate lines for each position first, ensuring uniqueness within each position
         lines_by_position = []
@@ -237,13 +286,13 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False, 
         
         strophe_samples_dict[responsion_key] = strophe_sample_lists
     
-    outdir = "data/scan/baselines/triads/prose/"
-    os.makedirs(outdir, exist_ok=True)
+    outdir = ROOT / "data/scan/baselines/triads/prose/"
+    outdir.mkdir(parents=True, exist_ok=True)
     print(f"Writing prose baseline for responsion {responsion_id} to {outdir}")
 
     filename = f"baseline_prose_{responsion_id}.xml"
-    filepath = os.path.join(outdir, filename)
-    dummy_xml_strophe(strophe_samples_dict, filepath, type="Prose")
+    filepath = outdir / filename
+    dummy_xml_strophe(strophe_samples_dict, str(filepath), type="Prose")
 
     if debug:
         # Debug first sample only
@@ -254,7 +303,7 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False, 
 
 def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = "data/compiled/triads", 
                            outfolder: str = "data/compiled/baselines/triads/lyric", 
-                           cache_file: str = "data/cached_lyric_corpus.pkl", debug: bool = False):
+                           cache_file: str = LYRIC_CACHE_PATH, randomizations=10_000, debug: bool = False):
     """
     Fast version of make_lyric_baseline using cached preprocessed corpus.
     
@@ -274,15 +323,21 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
             - unaltered_lines: number of lines used without modification
             - trimmed_lines: number of lines with syllables removed
             - padded_lines: number of lines with syllables added
+            - paired_fallbacks: number of lines produced by paired-line fallback
     """
     
+    xml_file = resolve_path(xml_file)
+    corpus_folder = resolve_path(corpus_folder)
+    outfolder = resolve_path(outfolder)
+    cache_file = resolve_path(cache_file)
+
     # Load cached corpus data
     cached_corpus = load_cached_lyric_corpus(cache_file, corpus_folder)
     
-    strophe_scheme = get_shape_canticum(xml_file, responsion_id)
+    strophe_scheme = get_shape_canticum(str(xml_file), responsion_id)
 
     # Count the number of strophes with the given responsion_id in the original file
-    tree = etree.parse(xml_file)
+    tree = etree.parse(str(xml_file))
     root = tree.getroot()
     strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
     sample_size = len(strophes)
@@ -303,11 +358,12 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
     unaltered_lines = 0
     trimmed_lines = 0
     padded_lines = 0
+    paired_fallbacks = 0
     
-    # Generate 100 different baseline samples with different seeds
+    # Generate different baseline samples with different seeds
     strophe_samples_dict = {}
     
-    for i in range(100):
+    for i in range(randomizations):
         seed = 1453 + i  # Different seed for each sample
         responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
         
@@ -371,9 +427,97 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
                     
                 attempts += 1
             
-            # If we couldn't find enough unique lines with the cached method, raise an error
+            # If we couldn't find enough unique lines with the cached method, try paired-line fallback before erroring
             if len(position_lines) < sample_size:
-                raise RuntimeError(f"Could not find {sample_size} unique lines for position {line_idx+1} (length {line_length}). Only found {len(position_lines)} unique lines after {max_attempts} attempts.")
+                needed = sample_size - len(position_lines)
+
+                def paired_line_fallback(target_len):
+                    # Flatten all Pindar lines with metadata, respecting exclusions/independence
+                    candidates = []
+                    for length_key, lines_list in cached_corpus['lines_by_length'].items():
+                        for item in lines_list:
+                            # Skip excluded file
+                            if input_filename and item['file'] == input_filename:
+                                continue
+                            position_key = (item['file'], item['canticum_idx'], item['strophe_idx'], item['line_idx'])
+                            if position_key in sample_used_metrical_positions:
+                                continue
+                            if item['responsion_id'] in used_responsions_per_position[line_idx]:
+                                continue
+                            candidates.append((length_key, item))
+
+                    if len(candidates) < 2:
+                        return None
+
+                    max_pairs = min(500, len(candidates) ** 2)
+                    for _ in range(max_pairs):
+                        length1, item1 = random.choice(candidates)
+                        length2, item2 = random.choice(candidates)
+                        # ensure independence between the pair themselves
+                        pos1 = (item1['file'], item1['canticum_idx'], item1['strophe_idx'], item1['line_idx'])
+                        pos2 = (item2['file'], item2['canticum_idx'], item2['strophe_idx'], item2['line_idx'])
+                        if pos1 == pos2 or pos2 in sample_used_metrical_positions:
+                            continue
+                        if item2['responsion_id'] in used_responsions_per_position[line_idx]:
+                            continue
+                        if length1 + length2 < target_len:
+                            continue
+
+                        # Build combined line and trim from the beginning of the first
+                        line1 = etree.fromstring(item1['xml'])
+                        line2 = etree.fromstring(item2['xml'])
+                        sylls1 = line1.xpath(".//syll")
+                        sylls2 = line2.xpath(".//syll")
+                        total_len = len(sylls1) + len(sylls2)
+                        trim_needed = total_len - target_len
+                        if trim_needed < 0 or trim_needed > len(sylls1):
+                            continue
+
+                        trimmed_sylls1 = sylls1[trim_needed:] if trim_needed else sylls1
+                        combined_sylls = trimmed_sylls1 + sylls2
+                        if len(combined_sylls) != target_len:
+                            continue
+
+                        new_line = etree.Element("l")
+                        for attr, value in line1.attrib.items():
+                            if attr != 'source':
+                                new_line.set(attr, value)
+                        source_info = (
+                            f"paired:{item1['responsion_id']}+{item2['responsion_id']}, "
+                            f"trimmed_first -{trim_needed}"
+                        )
+                        new_line.set('source', source_info)
+                        for syll in combined_sylls:
+                            new_line.append(syll)
+
+                        # Update independence trackers
+                        sample_used_metrical_positions.add(pos1)
+                        sample_used_metrical_positions.add(pos2)
+                        used_responsions_per_position[line_idx].add(item1['responsion_id'])
+                        used_responsions_per_position[line_idx].add(item2['responsion_id'])
+                        return new_line, trim_needed
+
+                    return None
+
+                for _ in range(needed):
+                    fallback_result = paired_line_fallback(line_length)
+                    if fallback_result is not None:
+                        fallback_line, trim_needed = fallback_result
+                        line_text = etree.tostring(fallback_line, encoding='unicode', method='xml')
+                        position_lines.append(line_text)
+                        used_lines.add(line_text)
+                        total_lines += 1
+                        pindar_lines += 1
+                        if trim_needed == 0:
+                            unaltered_lines += 1
+                        else:
+                            trimmed_lines += 1
+                        paired_fallbacks += 1
+                    else:
+                        break
+
+            if len(position_lines) < sample_size:
+                raise RuntimeError(f"Could not find {sample_size} unique lines for position {line_idx+1} (length {line_length}). Only found {len(position_lines)} unique lines after {max_attempts} attempts including paired-line fallback.")
             
             lines_by_position.append(position_lines)
         
@@ -391,12 +535,12 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
         strophe_samples_dict[responsion_key] = strophe_sample_lists
     
     outdir = outfolder
-    os.makedirs(outdir, exist_ok=True)
+    outdir.mkdir(parents=True, exist_ok=True)
     if debug:
         print(f"Writing lyric baseline for responsion {responsion_id} to {outdir}")
 
     filename = f"baseline_lyric_{responsion_id}.xml"
-    filepath = os.path.join(outdir, filename)
+    filepath = outdir / filename
     
     # Add anceps="True" to syllables that don't have resolution or anceps attributes
     for responsion_key, strophe_sample_lists in strophe_samples_dict.items():
@@ -418,7 +562,7 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
                     # Skip malformed XML lines
                     continue
     
-    dummy_xml_strophe(strophe_samples_dict, filepath, type="Lyric")
+    dummy_xml_strophe(strophe_samples_dict, str(filepath), type="Lyric")
 
     if debug:
         # Debug first sample only
@@ -435,14 +579,15 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
         'external_lines': external_lines,
         'unaltered_lines': unaltered_lines,
         'trimmed_lines': trimmed_lines,
-        'padded_lines': padded_lines
+        'padded_lines': padded_lines,
+        'paired_fallbacks': paired_fallbacks
     }
 
 #####################
 # PREPROCESS CORPUS #
 #####################
 
-def preprocess_and_cache_prose_corpus(corpus: str, cache_file: str = "data/cached_prose_corpus.pkl"):
+def preprocess_and_cache_prose_corpus(corpus: str, cache_file: str = PROSE_CACHE_PATH):
     """
     Preprocess the entire prose corpus once and cache results by syllable length.
     
@@ -453,6 +598,8 @@ def preprocess_and_cache_prose_corpus(corpus: str, cache_file: str = "data/cache
     Returns:
         dict: syllable_length -> list of processed sentences
     """
+    cache_file = resolve_path(cache_file)
+
     print("Preprocessing prose corpus...")
     
     # Initial corpus processing (done once)
@@ -496,7 +643,7 @@ def preprocess_and_cache_prose_corpus(corpus: str, cache_file: str = "data/cache
                     sentences_by_length[n_sylls].append(processed)
     
     # Save cache
-    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
     with open(cache_file, 'wb') as f:
         pickle.dump(dict(sentences_by_length), f)
     
@@ -506,7 +653,7 @@ def preprocess_and_cache_prose_corpus(corpus: str, cache_file: str = "data/cache
     
     return dict(sentences_by_length)
 
-def load_cached_prose_corpus(cache_file: str = "data/cached_prose_corpus.pkl"):
+def load_cached_prose_corpus(cache_file: str = PROSE_CACHE_PATH):
     """
     Load cached prose corpus data.
     
@@ -516,14 +663,16 @@ def load_cached_prose_corpus(cache_file: str = "data/cached_prose_corpus.pkl"):
     Returns:
         dict: syllable_length -> list of processed sentences
     """
-    if not os.path.exists(cache_file):
+    cache_file = resolve_path(cache_file)
+
+    if not cache_file.exists():
         print(f"Cache file {cache_file} not found. Preprocessing corpus...")
         return preprocess_and_cache_prose_corpus(anabasis, cache_file)
     
     with open(cache_file, 'rb') as f:
         return pickle.load(f)
     
-def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = "data/cached_lyric_corpus.pkl"):
+def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = LYRIC_CACHE_PATH):
     """
     Preprocess the entire lyric corpus once and cache results by canonical syllable length.
     
@@ -534,6 +683,9 @@ def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = "dat
     Returns:
         dict: canonical_length -> list of XML line elements (as strings) with metadata
     """
+    corpus_folder = resolve_path(corpus_folder)
+    cache_file = resolve_path(cache_file)
+
     print("Preprocessing lyric corpus...")
     
     xml_files = [f for f in os.listdir(corpus_folder) if f.endswith('.xml')]
@@ -543,8 +695,8 @@ def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = "dat
     syllables_by_file = {}  # Store all syllables by file for fallback cases
     
     for xml_file in tqdm(xml_files, desc="Processing XML files"):
-        file_path = os.path.join(corpus_folder, xml_file)
-        tree = etree.parse(file_path)
+        file_path = Path(corpus_folder) / xml_file
+        tree = etree.parse(str(file_path))
         root = tree.getroot()
         
         # Store syllables for this file (for fallback operations)
@@ -590,7 +742,7 @@ def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = "dat
     }
     
     # Save cache
-    os.makedirs(os.path.dirname(cache_file), exist_ok=True)
+    cache_file.parent.mkdir(parents=True, exist_ok=True)
     with open(cache_file, 'wb') as f:
         pickle.dump(cached_data, f)
     
@@ -601,7 +753,7 @@ def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = "dat
     
     return cached_data
 
-def load_cached_lyric_corpus(cache_file: str = "data/cached_lyric_corpus.pkl", corpus_folder: str = "data/compiled/triads"):
+def load_cached_lyric_corpus(cache_file: str = LYRIC_CACHE_PATH, corpus_folder: str = "data/compiled/triads"):
     """
     Load cached lyric corpus data.
     
@@ -612,7 +764,10 @@ def load_cached_lyric_corpus(cache_file: str = "data/cached_lyric_corpus.pkl", c
     Returns:
         dict: cached corpus data
     """
-    if not os.path.exists(cache_file):
+    cache_file = resolve_path(cache_file)
+    corpus_folder = resolve_path(corpus_folder)
+
+    if not cache_file.exists():
         print(f"Cache file {cache_file} not found. Preprocessing corpus...")
         return preprocess_and_cache_lyric_corpus(corpus_folder, cache_file)
     
@@ -817,7 +972,7 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
         print(f"Warning: No lines found with lengths {length}, {length+1}, {length-1}, {length-2}, or in external corpus.")
     return None
 
-def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllables: list, exclude_file: str, used_metrical_positions: set, used_responsions_this_position: set, corpus_folder: str = "/Users/albin/git/aristophanis-cantica/data/compiled/", debug=False):
+def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllables: list, exclude_file: str, used_metrical_positions: set, used_responsions_this_position: set, corpus_folder: str = "external/aristophanis-cantica/data/compiled/", debug=False):
     """
     Search external corpus (Aristophanes) for lines of given length.
     This is a final fallback when the main Pindar corpus doesn't have enough lines.
@@ -865,7 +1020,9 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
         
         return filtered
     try:
-        if not os.path.exists(corpus_folder):
+        corpus_folder = resolve_path(corpus_folder)
+
+        if not corpus_folder.exists():
             if debug:
                 print(f"External corpus folder {corpus_folder} not found.")
             return None
@@ -880,8 +1037,8 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
         candidate_lines_with_metadata = []
         for xml_file in xml_files:
             try:
-                file_path = os.path.join(corpus_folder, xml_file)
-                tree = etree.parse(file_path)
+                file_path = corpus_folder / xml_file
+                tree = etree.parse(str(file_path))
                 root = tree.getroot()
                 
                 # Find all strophes to extract proper responsion_ids 
@@ -947,8 +1104,8 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
             
             for xml_file in xml_files:
                 try:
-                    file_path = os.path.join(corpus_folder, xml_file)
-                    tree = etree.parse(file_path)
+                    file_path = corpus_folder / xml_file
+                    tree = etree.parse(str(file_path))
                     root = tree.getroot()
                     
                     # Find all strophes to extract proper responsion_ids
@@ -1069,8 +1226,8 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
             if not all_external_syllables:
                 for xml_file in xml_files:
                     try:
-                        file_path = os.path.join(corpus_folder, xml_file)
-                        tree = etree.parse(file_path)
+                        file_path = corpus_folder / xml_file
+                        tree = etree.parse(str(file_path))
                         root = tree.getroot()
                         
                         for syll in root.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]"):
@@ -1082,8 +1239,8 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
             # Find candidate lines of target length with proper metadata
             for xml_file in xml_files:
                 try:
-                    file_path = os.path.join(corpus_folder, xml_file)
-                    tree = etree.parse(file_path)
+                    file_path = corpus_folder / xml_file
+                    tree = etree.parse(str(file_path))
                     root = tree.getroot()
                     
                     for canticum_idx, canticum in enumerate(root.findall(".//canticum")):

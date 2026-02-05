@@ -66,6 +66,14 @@ def get_canticum_ids(file_path: str) -> list[str]:
 #                 syll_count[responsion_id] = len(syllables)
 #     return syll_count
 
+def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
+    tree = etree.parse(xml_file)
+    root = tree.getroot()
+
+    strophes = root.findall(f".//strophe[@responsion='{responsion_attribute}']")
+
+    return len(strophes) >= 2
+
 def get_strophicity(abbreviations):
     responsion_counts = Counter()
 
