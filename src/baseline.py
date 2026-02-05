@@ -58,13 +58,15 @@ PERFORMANCE OPTIMIZATION:
 - Systematic length progression maximizes success probability
 '''
 
+from collections import defaultdict
+from fractions import Fraction
 from lxml import etree
 import os
+from pathlib import Path
+import pickle
 import random
 import re
-import pickle
-from collections import defaultdict
-from pathlib import Path
+from statistics import mean
 from tqdm import tqdm
 
 from grc_utils import lower_grc, syllabifier
@@ -74,6 +76,7 @@ from utils.prose import anabasis
 from utils.utils import canticum_with_at_least_two_strophes, victory_odes
 from scan import rule_scansion
 from stats import canonical_sylls
+from stats_comp import compatibility_canticum, compatibility_ratios_to_stats
 
 ROOT = Path(__file__).resolve().parent.parent
 PROSE_CACHE_PATH = ROOT / "data/cache/cached_prose_corpus.pkl"
@@ -101,8 +104,51 @@ EXTERNAL_MAX_PADDING = 4        # Max syllables to add to external corpus lines
 punctuation_except_period = r'[\u0387\u037e\u00b7,!?;:\"()\[\]{}<>«»\-—…|⏑⏓†×]'
 
 ######################
-### MAIN FUNCTIONS ###
+### TEST STATISTIC ###
 ######################
+
+def test_statistics(randomizations=10_000) -> tuple[list[Fraction], list[Fraction]]:
+    '''
+    Generates 10 000 randomizations of the prose corpus and 
+    for each calculates two test statistics without saving to disk (to save space).
+    Thus returns two lists of len 10 000.
+    Since we use seeds, the generation is replicable. 
+
+    For each of the 10 000 passes we call 
+        one_t_prose
+        one_t_lyric
+    yielding four lists.
+
+    Return: (T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list) 
+    where each is a list of 10 000 Fractions corresponding to the test statistics calculated in one_t_prose and one_t_lyric respectively.
+    '''
+    pass
+
+def one_t_prose() -> Fraction:
+    '''
+    Creates exactly one baseline for each of the odes, storing the xmls in a tmp folder.
+
+    We then calculate the Fraction mean
+        compatibility_ratios_to_stats(compatibility_canticum(ROOT / 'tmp_stats/....xml', 'responsion_id'))
+    on each of the 40 xmls and then in turn take the statistics.mean T_song_prose of these Fractions.
+
+    We then calculate the Fraction mean $T_pos_prose = \frac{1}{N} \sum_{i=1}^N$
+        compatibility_ratios_to_stats(compatibility_corpus(ROOT / 'tmp_stats'))
+    on the entire corpus folder of 40 xmls.
+
+    Then the tmp is deleted.
+
+    Return: (T_pos_prose, T_song_prose)
+    '''
+    pass
+
+def one_t_lyric() -> Fraction:
+    "Mutatis mutandis to one_t_prose, but for lyric baselines instead of prose baselines."
+    pass
+
+##########################
+### MAKE ALL (TO DISK) ###
+##########################
 
 def make_all_prose_baselines(responding_unit, randomizations=10_000):
 
