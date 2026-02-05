@@ -36,8 +36,8 @@ from statistics import mean
 from tqdm import tqdm
 
 from grc_utils import is_enclitic, is_proclitic
-from .stats import accents, metrically_responding_lines_polystrophic
-from .utils.utils import space_after, space_before
+from stats import accents, metrically_responding_lines_polystrophic
+from utils.utils import space_after, space_before
 
 
 def get_contours_line(l_element) -> list[str]:
@@ -171,7 +171,7 @@ def all_contours_line(*xml_lines) -> list[list[str]]:
     return grouped_contours
 
 
-def compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
+def _compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
     '''
     Computes the contour of a line from a set of responding strophes,
     evaluates matches and repetitions, 
@@ -216,7 +216,7 @@ def compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
                         elif resolved_syll in ['DN', 'DN-A', 'N']:
                             down.append(resolved_syll)
                         else:
-                            raise ValueError(f"Unknown contour {resolved_syll} in compatibility_line.")
+                            raise ValueError(f"Unknown contour {resolved_syll} in _compatibility_line.")
                 
                 # special logic to compare resolved and unresolved syllables
                 #
@@ -259,7 +259,7 @@ def compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
 
                 down.append(strophe)
             else:
-                raise ValueError(f"Unknown contour {strophe} in compatibility_line.")
+                raise ValueError(f"Unknown contour {strophe} in _compatibility_line.")
 
         max_len = max(len(up), len(down)) # for even N, N/2 <= max_len <= N, otherwise N/2 < max_len < N
         if fractional:
@@ -302,7 +302,7 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True) -> list:
                 responding_lines.append(lines[line_pos])
         
         # Get compatibility ratios for this set of responding lines
-        compatibility_ratios = compatibility_line(*responding_lines, fractional=fractional)
+        compatibility_ratios = _compatibility_line(*responding_lines, fractional=fractional)
         canticum_list_of_line_compatibility_ratio_lists.append(compatibility_ratios)
     
     def normalize(line_scores):

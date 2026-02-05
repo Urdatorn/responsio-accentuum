@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "responsio_accentuum"
+version = "0.1.0"
+description = "Prosody analysis utilities for responsio accentuum."
+readme = "README.md"
+authors = [{ name = "Albin Ruben Johannes Thörn Cleland" }]
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+  "lxml",
+  "tqdm",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

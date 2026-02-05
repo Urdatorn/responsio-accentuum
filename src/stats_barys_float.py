@@ -17,8 +17,8 @@ from lxml import etree
 import os
 from pathlib import Path
 
-from .stats import metrically_responding_lines_polystrophic
-from .stats_barys import barys_accentually_responding_syllables_of_lines
+from stats import metrically_responding_lines_polystrophic
+from stats_barys import barys_accentually_responding_syllables_of_lines
 
 def _float_barys_lines(*lines):
     """

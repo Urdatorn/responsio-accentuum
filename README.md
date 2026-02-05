@@ -12,28 +12,6 @@ For an approachable visualization and explanation of the results, see the compan
 
 This project builds on and generalizes my previous work on the songs of Aristophanes, found [here](https://github.com/Urdatorn/aristophanis-cantica), which in its turn partly uses a fork of the work of Anna Conser; see the Copyright section below. The core code is found in the source files ```stats[...].py```. To see the code in action, see the ```.ipynb``` notebooks. 
 
-<!--
-## TODO 
-
-- What if we just ignore the last position of every line in the statistical tests, because they are obviously not significant? Or maybe they do not matter since they cancel out against the baseline?
-- Recalculate χ-square and beta tests against new baselines
-- Choose the most informative images to be included in the article.
-
-## Chronology
-
-- Pindar (c. 518-438): 
-  - e.g. Battle of Salamis 480 referred to in ode
-  - 76th Olympiad in 476 has five odes
-- Chronology all songs with p < 5%
-  - ne03: 475 ?
-  - is04: 474/3 ?
-  - py01: 470
-  - is02: 470?
-  - py04: 462
-  - ne08: 459 ?
-  - ne10: 444 ?
--->
-
 [^1]: Four of the preserved odes have no responding parts at all, i.e. no refrains. Note that only 37 of the 40 responding songs have separate strophes and antistrophes, so if the responding unit of interest is the strophe instead of the strophe-antistrophe-epode triad, the corpus is slightly smaller. 
 
 ## Format

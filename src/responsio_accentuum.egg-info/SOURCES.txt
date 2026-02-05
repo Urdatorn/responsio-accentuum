@@ -1,0 +1,15 @@
+LICENSE
+README.md
+pyproject.toml
+src/plot/__init__.py
+src/plot/plot.py
+src/plot/plot_2d.py
+src/plot/plot_cantica.py
+src/responsio_accentuum.egg-info/PKG-INFO
+src/responsio_accentuum.egg-info/SOURCES.txt
+src/responsio_accentuum.egg-info/dependency_links.txt
+src/responsio_accentuum.egg-info/requires.txt
+src/responsio_accentuum.egg-info/top_level.txt
+src/utils/__init__.py
+src/utils/prose.py
+src/utils/utils.py

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test</title>
+        <author>NA</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <canticum>
+        <strophe type="strophe" responsion="te01">
+          <l n="1" metre=""><syll weight="light">Ἄ</syll><syll weight="heavy">ρισ</syll><syll weight="heavy">τον </syll><syll weight="light">μὲ</syll><syll weight="light">ν ὕ</syll><syll weight="heavy">δω</syll><syll weight="light">ρ, ὁ </syll><syll weight="heavy">δὲ χˈ</syll><syll weight="heavy">ρυ</syll><syll weight="light">σὸ</syll><syll weight="heavy">ς αἰ</syll><syll weight="light">θό</syll><syll weight="light">με</syll><syll weight="heavy">νον </syll><syll weight="heavy">πῦρ</syll></l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="30" metre=""><syll weight="light">Χά</syll><syll weight="heavy">ρις </syll><syll weight="heavy">δ', ἅ</syll><syll weight="light">πε</syll><syll weight="light">ρ ἅ</syll><syll weight="heavy">παν</syll><syll weight="light">τα </syll><syll weight="heavy">τεύ</syll><syll weight="heavy">χει </syll><syll weight="light">τὰ </syll><syll weight="heavy">μεί</syll><syll weight="light">λι</syll><syll weight="light">χα </syll><syll weight="heavy">θνα</syll><syll weight="heavy">τοῖς,</syll></l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="59" metre=""><syll weight="light">ἔ</syll><syll weight="heavy">χει </syll><syll weight="heavy">δ' ἀ̄</syll><syll weight="light">πά</syll><syll weight="light">λα</syll><syll weight="heavy">μον </syll><syll weight="light">βί</syll><syll weight="heavy">ον </syll><syll weight="heavy">τοῦ</syll><syll weight="light">το</syll><syll weight="heavy">ν ἐμ</syll><syll weight="light">πε</syll><syll weight="light">δό</syll><syll weight="heavy">μοχ</syll><syll weight="heavy">θον</syll></l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="88" metre=""><syll weight="light">ἕ</syll><syll weight="heavy">λεν </syll><syll weight="heavy">δ' Οἰ</syll><syll weight="light">νο</syll><syll weight="light">μά</syll><syll weight="heavy">ου </syll><syll weight="light">βί</syll><syll weight="heavy">αν </syll><syll weight="heavy">παρ</syll><syll weight="light">θέ</syll><syll weight="heavy">νον </syll><syll weight="light">τε </syll><syll weight="light">σύ</syll><syll weight="heavy">νευ</syll><syll weight="heavy">νον·</syll></l>
+        </strophe>
+      </canticum>
+    </body>
+  </text>
+</TEI>

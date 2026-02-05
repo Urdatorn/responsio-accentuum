@@ -21,7 +21,7 @@ NB: self-closing placeholder <l skip="True"/> elements are supported, but not re
 from lxml import etree
 import re
 
-from .stats import canonical_sylls, metrically_responding_lines_polystrophic
+from stats import canonical_sylls, metrically_responding_lines_polystrophic
 
 # Mapping of brackets to <syll> tags
 # ***Important: single chars must come after multi-chars!***

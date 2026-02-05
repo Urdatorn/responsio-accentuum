@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<TEI>
+  <teiHeader>
+    <fileDesc>
+      <titleStmt>
+        <title>Test</title>
+        <author>NA</author>
+      </titleStmt>
+    </fileDesc>
+  </teiHeader>
+  <text>
+    <body>
+      <canticum>
+        <strophe type="strophe" responsion="te01">
+          <l n="1" metre="">{Ἄ}[ρισ][τον ]{μὲ}{ν ὕ}[δω]{ρ, ὁ }[δὲ χˈ][ρυ]{σὸ}[ς αἰ]{θό}{με}[νον ][πῦρ]</l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="30" metre="">{Χά}[ρις ][δ', ἅ]{πε}{ρ ἅ}[παν]{τα }[τεύ][χει ]{τὰ }[μεί]{λι}{χα }[θνα][τοῖς,]</l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="59" metre="">{ἔ}[χει ][δ' ἀ̄]{πά}{λα}[μον ]{βί}[ον ][τοῦ]{το}[ν ἐμ]{πε}{δό}[μοχ][θον]</l>
+        </strophe>
+        <strophe type="strophe" responsion="te01">
+          <l n="88" metre="">{ἕ}[λεν ][δ' Οἰ]{νο}{μά}[ου ]{βί}[αν ][παρ]{θέ}[νον ]{τε }{σύ}[νευ][νον·]</l>
+        </strophe>
+      </canticum>
+    </body>
+  </text>
+</TEI>

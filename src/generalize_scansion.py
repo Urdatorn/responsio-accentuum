@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 from grc_utils import syllabifier, vowel
 
-from .scan import muta, liquida, to_clean, heavy_syll
+from scan import muta, liquida, to_clean, heavy_syll
 
 def fix_scansion(text):
     '''

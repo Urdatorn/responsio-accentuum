@@ -18,8 +18,12 @@ from grc_utils import (
     UPPER_SMOOTH_CIRCUMFLEX, UPPER_ROUGH_CIRCUMFLEX, LOWER_CIRCUMFLEX, LOWER_SMOOTH_CIRCUMFLEX, LOWER_ROUGH_CIRCUMFLEX, LOWER_DIAERESIS_CIRCUMFLEX
 )
 
+_ROOT = Path(__file__).resolve().parent.parent
+_LOG_DIR = _ROOT / "logs"
+_LOG_DIR.mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
-    filename='logs/debug.log',           # Save logs here
+    filename=_LOG_DIR / 'debug.log',      # Save logs here
     level=logging.DEBUG,            # Log all messages from DEBUG and up
     format='%(asctime)s - %(levelname)s - %(message)s',
     filemode='w'                    # Overwrite each run; use 'a' to append

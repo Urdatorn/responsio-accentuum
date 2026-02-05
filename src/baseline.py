@@ -67,11 +67,10 @@ from tqdm import tqdm
 
 from grc_utils import lower_grc, syllabifier
 
-from src.utils.prose import anabasis
-from src.scan import rule_scansion
-from src.stats import canonical_sylls
-
-from results import victory_odes
+from utils.prose import anabasis
+from utils.utils import victory_odes
+from scan import rule_scansion
+from stats import canonical_sylls
 
 # =============================================================================
 # CONFIGURATION VARIABLES - Adjust these to control fallback system behavior

@@ -12,8 +12,8 @@ import numpy as np
 import os
 import seaborn as sns
 
-from .stats_comp import compatibility_canticum, compatibility_play
-from .utils.utils import get_text_matrix
+from stats_comp import compatibility_canticum, compatibility_play
+from utils.utils import get_text_matrix
 
 def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
     tree = etree.parse(xml_file)
@@ -150,7 +150,7 @@ def make_all_heatmaps(xml_file: str, prefix: str, suptitle: str):
     plt.savefig(f"media/heatmaps/triads/tiled/{prefix}_all_heatmaps.png", dpi=600, bbox_inches="tight")
     plt.show()
 
-def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, title: str, representative_strophe: int, save: bool, show: bool = True, dark_mode: bool = False, text_overlay: bool = True):
+def make_one_heatmap(xml_file: str, out_folder: str, responsion_attribute: str, title: str, representative_strophe: int, save: bool = False, show: bool = True, dark_mode: bool = False, text_overlay: bool = False):
 
     # -----------------------------
     # Compute compatibility data
