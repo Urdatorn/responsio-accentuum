@@ -429,7 +429,7 @@ def assert_responsion(xml_text, attempt_autofix=True):
 ################################################################
 ################################################################
 
-def process_file(input_file, output_file):
+def process_file(input_file, output_file, make_print=True):
     """Process the XML file and save the output."""
     with open(input_file, "r", encoding="utf-8") as f:
         xml_content = f.read()
@@ -449,5 +449,5 @@ def process_file(input_file, output_file):
     if perfect_responsion:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(xml_content)
-
-        print(f"Processed XML saved to {output_file}")
+        if make_print:
+            print(f"Processed XML saved to {output_file}")

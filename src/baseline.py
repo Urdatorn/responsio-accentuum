@@ -59,6 +59,7 @@ PERFORMANCE OPTIMIZATION:
 '''
 
 from collections import defaultdict
+import shutil
 from fractions import Fraction
 from lxml import etree
 import os
@@ -76,7 +77,7 @@ from utils.prose import anabasis
 from utils.utils import canticum_with_at_least_two_strophes, victory_odes
 from scan import rule_scansion
 from stats import canonical_sylls
-from stats_comp import compatibility_canticum, compatibility_ratios_to_stats
+from stats_comp import compatibility_canticum, compatibility_corpus, compatibility_ratios_to_stats
 
 ROOT = Path(__file__).resolve().parent.parent
 PROSE_CACHE_PATH = ROOT / "data/cache/cached_prose_corpus.pkl"
@@ -107,25 +108,35 @@ punctuation_except_period = r'[\u0387\u037e\u00b7,!?;:\"()\[\]{}<>«»\-—…|�
 ### TEST STATISTIC ###
 ######################
 
-def test_statistics(randomizations=10_000) -> tuple[list[Fraction], list[Fraction]]:
+def test_statistics(randomizations=10_000) -> tuple[list[Fraction], list[Fraction], list[Fraction], list[Fraction]]:
     '''
-    Generates 10 000 randomizations of the prose corpus and 
-    for each calculates two test statistics without saving to disk (to save space).
-    Thus returns two lists of len 10 000.
-    Since we use seeds, the generation is replicable. 
+    Generates randomizations of prose and lyric baselines and collects test statistics without persisting to disk.
 
-    For each of the 10 000 passes we call 
+    For each pass we call
         one_t_prose
         one_t_lyric
     yielding four lists.
 
-    Return: (T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list) 
-    where each is a list of 10 000 Fractions corresponding to the test statistics calculated in one_t_prose and one_t_lyric respectively.
+    Return: (T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list)
+    where each is a list of Fractions corresponding to the test statistics calculated in one_t_prose and one_t_lyric respectively.
     '''
-    pass
+    T_pos_prose_list: list[Fraction] = []
+    T_song_prose_list: list[Fraction] = []
+    T_pos_lyric_list: list[Fraction] = []
+    T_song_lyric_list: list[Fraction] = []
 
-def one_t_prose() -> Fraction:
-    '''
+    for i in tqdm(range(randomizations), desc="Test statistics"):
+        T_pos_prose, T_song_prose = one_t_prose(seed_offset=i)
+        T_pos_lyric, T_song_lyric = one_t_lyric(seed_offset=i)
+        T_pos_prose_list.append(T_pos_prose)
+        T_song_prose_list.append(T_song_prose)
+        T_pos_lyric_list.append(T_pos_lyric)
+        T_song_lyric_list.append(T_song_lyric)
+
+    return T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list
+
+def one_t_prose(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
+    r'''
     Creates exactly one baseline for each of the odes, storing the xmls in a tmp folder.
 
     We then calculate the Fraction mean
@@ -140,11 +151,136 @@ def one_t_prose() -> Fraction:
 
     Return: (T_pos_prose, T_song_prose)
     '''
-    pass
+    temp_dir = ROOT / "tmp_stats" / "prose"
+    scan_dir = temp_dir / "scan"
+    compiled_dir = temp_dir / "compiled"
+    if temp_dir.exists():
+        shutil.rmtree(temp_dir)
+    scan_dir.mkdir(parents=True, exist_ok=True)
+    compiled_dir.mkdir(parents=True, exist_ok=True)
 
-def one_t_lyric() -> Fraction:
+    cached_corpus = load_cached_prose_corpus(PROSE_CACHE_PATH)
+
+    prefix_to_xml = {
+        "ol": resolve_path("data/compiled/triads/ht_olympians_triads.xml"),
+        "py": resolve_path("data/compiled/triads/ht_pythians_triads.xml"),
+        "ne": resolve_path("data/compiled/triads/ht_nemeans_triads.xml"),
+        "is": resolve_path("data/compiled/triads/ht_isthmians_triads.xml"),
+    }
+
+    song_stats = []
+
+    try:
+        for responsion_id in sorted(victory_odes):
+            prefix = responsion_id[:2]
+            if prefix not in prefix_to_xml:
+                continue
+            xml_file = prefix_to_xml[prefix]
+            if not canticum_with_at_least_two_strophes(xml_file, responsion_id):
+                continue
+
+            strophe_scheme = get_shape_canticum(str(xml_file), responsion_id)
+
+            tree = etree.parse(str(xml_file))
+            root = tree.getroot()
+            strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
+            sample_size = len(strophes)
+            if sample_size == 0:
+                continue
+
+            lines_by_position = []
+            for line_idx, line_length in enumerate(strophe_scheme):
+                position_lines = []
+                used_lines = set()
+                attempts = 0
+                max_attempts = sample_size * 10
+
+                while len(position_lines) < sample_size and attempts < max_attempts:
+                    line_seed = 1453 + seed_offset * 1000 + line_idx * 10000 + attempts
+                    sample_lines = prose_end_sample_cached(cached_corpus, line_length, 1, line_seed)
+                    if sample_lines:
+                        line_text = sample_lines[0]
+                        if line_text not in used_lines:
+                            position_lines.append(line_text)
+                            used_lines.add(line_text)
+                    attempts += 1
+
+                if len(position_lines) < sample_size:
+                    raise RuntimeError(f"Could not find {sample_size} unique prose lines for position {line_idx+1} (length {line_length}). Only found {len(position_lines)} unique lines after {max_attempts} attempts.")
+
+                lines_by_position.append(position_lines)
+
+            strophe_sample_lists = []
+            for strophe_idx in range(sample_size):
+                strophe_lines = []
+                for line_idx in range(len(strophe_scheme)):
+                    strophe_lines.append(lines_by_position[line_idx][strophe_idx])
+                strophe_sample_lists.append(strophe_lines)
+
+            responsion_key = f"{responsion_id}_000"
+            outfile_scan = scan_dir / f"baseline_prose_{responsion_id}.xml"
+            outfile_compiled = compiled_dir / f"baseline_prose_{responsion_id}.xml"
+
+            dummy_xml_strophe({responsion_key: strophe_sample_lists}, str(outfile_scan), type="Prose")
+            process_file(str(outfile_scan), str(outfile_compiled), make_print=False)
+
+            song_stat = compatibility_ratios_to_stats(compatibility_canticum(str(outfile_compiled), responsion_key))
+            song_stats.append(song_stat)
+
+        T_song_prose = mean(song_stats) if song_stats else Fraction(0, 1)
+        T_pos_prose = compatibility_ratios_to_stats(compatibility_corpus(str(compiled_dir))) if compiled_dir.exists() else Fraction(0, 1)
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+    return T_pos_prose, T_song_prose
+
+def one_t_lyric(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
     "Mutatis mutandis to one_t_prose, but for lyric baselines instead of prose baselines."
-    pass
+    temp_dir = ROOT / "tmp_stats" / "lyric"
+    if temp_dir.exists():
+        shutil.rmtree(temp_dir)
+    temp_dir.mkdir(parents=True, exist_ok=True)
+
+    prefix_to_xml = {
+        "ol": resolve_path("data/compiled/triads/ht_olympians_triads.xml"),
+        "py": resolve_path("data/compiled/triads/ht_pythians_triads.xml"),
+        "ne": resolve_path("data/compiled/triads/ht_nemeans_triads.xml"),
+        "is": resolve_path("data/compiled/triads/ht_isthmians_triads.xml"),
+    }
+
+    song_stats = []
+
+    try:
+        for responsion_id in sorted(victory_odes):
+            prefix = responsion_id[:2]
+            if prefix not in prefix_to_xml:
+                continue
+            xml_file = prefix_to_xml[prefix]
+            if not canticum_with_at_least_two_strophes(xml_file, responsion_id):
+                continue
+
+            make_lyric_baseline(
+                xml_file,
+                responsion_id,
+                corpus_folder=resolve_path("data/compiled/triads"),
+                outfolder=temp_dir,
+                cache_file=LYRIC_CACHE_PATH,
+                randomizations=1,
+                debug=False,
+                seed_base=1453 + seed_offset * 1000,
+            )
+
+            outfile = temp_dir / f"baseline_lyric_{responsion_id}.xml"
+            responsion_key = f"{responsion_id}_000"
+            song_stat = compatibility_ratios_to_stats(compatibility_canticum(str(outfile), responsion_key))
+            song_stats.append(song_stat)
+
+        T_song_lyric = mean(song_stats) if song_stats else Fraction(0, 1)
+        T_pos_lyric = compatibility_ratios_to_stats(compatibility_corpus(str(temp_dir))) if temp_dir.exists() else Fraction(0, 1)
+    finally:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+
+    return T_pos_lyric, T_song_lyric
 
 ##########################
 ### MAKE ALL (TO DISK) ###
@@ -349,7 +485,7 @@ def make_prose_baseline(xml_file: str, responsion_id: str, debug: bool = False, 
 
 def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = "data/compiled/triads", 
                            outfolder: str = "data/compiled/baselines/triads/lyric", 
-                           cache_file: str = LYRIC_CACHE_PATH, randomizations=10_000, debug: bool = False):
+                           cache_file: str = LYRIC_CACHE_PATH, randomizations=10_000, debug: bool = False, seed_base: int = 1453):
     """
     Fast version of make_lyric_baseline using cached preprocessed corpus.
     
@@ -410,7 +546,7 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
     strophe_samples_dict = {}
     
     for i in range(randomizations):
-        seed = 1453 + i  # Different seed for each sample
+        seed = seed_base + i  # Different seed for each sample
         responsion_key = f"{responsion_id}_{i:03d}"  # e.g., "is01_000", "is01_001", etc.
         
         # Track used metrical positions across ALL line positions for this sample to ensure independence
