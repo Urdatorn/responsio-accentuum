@@ -311,6 +311,9 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True) -> list:
         min_ratio = F((n // 2) + (n % 2), n)
 
         span = F(1, 1) - min_ratio
+        if span == 0:
+            # Indicates only one strophe found for this responsion; caller should fix the data
+            raise ValueError(f"Cannot normalize compatibility ratios: responsion {canticum_ID} has only one strophe in {xml_file_path}")
         normalized = []
         for score in line_scores:
             score_f = score if isinstance(score, F) else F(score)
@@ -339,14 +342,15 @@ def compatibility_play(xml_file_path, fractional=True):
     return list_of_lists_of_compatibility_per_position_lists
 
 
-def compatibility_corpus(dir_path, fractional=True):
+def compatibility_corpus(dir_path, fractional=True, progress=True):
     corpus_compatibility_lists = []
     
     # Get all XML files in directory
     xml_files = [f for f in os.listdir(dir_path) if f.endswith('.xml')]
     
     # Process each XML file
-    for xml_file in tqdm(xml_files, initial=1):
+    iterator = tqdm(xml_files, initial=1) if progress else xml_files
+    for xml_file in iterator:
         file_path = os.path.join(dir_path, xml_file)
         try:
             play_results = compatibility_play(file_path, fractional=fractional)

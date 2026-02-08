@@ -59,6 +59,8 @@ PERFORMANCE OPTIMIZATION:
 '''
 
 from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor
+import math
 import shutil
 from fractions import Fraction
 from lxml import etree
@@ -82,6 +84,7 @@ from stats_comp import compatibility_canticum, compatibility_corpus, compatibili
 ROOT = Path(__file__).resolve().parent.parent
 PROSE_CACHE_PATH = ROOT / "data/cache/cached_prose_corpus.pkl"
 LYRIC_CACHE_PATH = ROOT / "data/cache/cached_lyric_corpus.pkl"
+TEST_STATS_CACHE_DIR = ROOT / "data/cache/test_statistics_chunks"
 
 def resolve_path(path_like):
     """Resolve relative paths against the repository root."""
@@ -104,38 +107,232 @@ EXTERNAL_MAX_PADDING = 4        # Max syllables to add to external corpus lines
 
 punctuation_except_period = r'[\u0387\u037e\u00b7,!?;:\"()\[\]{}<>«»\-—…|⏑⏓†×]'
 
-######################
-### TEST STATISTIC ###
-######################
 
-def test_statistics(randomizations=10_000) -> tuple[list[Fraction], list[Fraction], list[Fraction], list[Fraction]]:
-    '''
-    Generates randomizations of prose and lyric baselines and collects test statistics without persisting to disk.
+def _empty_lyric_stats_summary():
+    return {
+        'total_lines': 0,
+        'pindar_lines': 0,
+        'external_lines': 0,
+        'unaltered_lines': 0,
+        'trimmed_lines': 0,
+        'padded_lines': 0,
+        'paired_fallbacks': 0,
+    }
 
-    For each pass we call
-        one_t_prose
-        one_t_lyric
-    yielding four lists.
 
-    Return: (T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list)
-    where each is a list of Fractions corresponding to the test statistics calculated in one_t_prose and one_t_lyric respectively.
-    '''
+def _merge_lyric_stats_summary(dest: dict, src: dict):
+    for key in dest.keys():
+        dest[key] += src.get(key, 0)
+
+
+def _run_test_statistics_chunk(start: int, end: int, worker_id: int, collect_lyric_stats: bool = False) -> tuple[list[Fraction], list[Fraction], list[Fraction], list[Fraction], dict | None]:
+    """Run a slice of test statistics in an isolated temp workspace (used for multiprocessing)."""
+
     T_pos_prose_list: list[Fraction] = []
     T_song_prose_list: list[Fraction] = []
     T_pos_lyric_list: list[Fraction] = []
     T_song_lyric_list: list[Fraction] = []
+    lyric_stats_summary = _empty_lyric_stats_summary() if collect_lyric_stats else None
 
-    for i in tqdm(range(randomizations), desc="Test statistics"):
-        T_pos_prose, T_song_prose = one_t_prose(seed_offset=i)
-        T_pos_lyric, T_song_lyric = one_t_lyric(seed_offset=i)
+    base_dir = ROOT / "tmp_stats" / f"worker_{worker_id}"
+    prose_dir = base_dir / "prose"
+    lyric_dir = base_dir / "lyric"
+
+    for seed_offset in range(start, end):
+        T_pos_prose, T_song_prose = one_t_prose(seed_offset=seed_offset, temp_dir=prose_dir)
+
+        if collect_lyric_stats:
+            T_pos_lyric, T_song_lyric, stats_summary = one_t_lyric(seed_offset=seed_offset, temp_dir=lyric_dir, collect_stats=True)
+            _merge_lyric_stats_summary(lyric_stats_summary, stats_summary)
+        else:
+            T_pos_lyric, T_song_lyric = one_t_lyric(seed_offset=seed_offset, temp_dir=lyric_dir)
+
         T_pos_prose_list.append(T_pos_prose)
         T_song_prose_list.append(T_song_prose)
         T_pos_lyric_list.append(T_pos_lyric)
         T_song_lyric_list.append(T_song_lyric)
 
-    return T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list
+    shutil.rmtree(base_dir, ignore_errors=True)
 
-def one_t_prose(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
+    return T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list, lyric_stats_summary
+
+######################
+### TEST STATISTIC ###
+######################
+
+def clear_test_statistics_cache():
+    """
+    Remove all cached test statistics chunks.
+    Call this if you want to recompute from scratch.
+    """
+    if TEST_STATS_CACHE_DIR.exists():
+        shutil.rmtree(TEST_STATS_CACHE_DIR)
+        print(f"Cleared test statistics cache: {TEST_STATS_CACHE_DIR}")
+    else:
+        print(f"No cache to clear at {TEST_STATS_CACHE_DIR}")
+
+def test_statistics(randomizations=10_000, workers: int = 1, chunk_size: int | None = None, include_lyric_stats: bool = False, use_cache: bool = True) -> tuple[list[Fraction], list[Fraction], list[Fraction], list[Fraction], dict | None]:
+    '''
+    Generates randomizations of prose and lyric baselines and collects test statistics.
+    Results are cached per chunk to allow recovery from crashes.
+
+    Args:
+        randomizations: total number of random draws
+        workers: number of parallel worker processes (1 for sequential)
+        chunk_size: optional chunk size per worker; defaults to ceil(randomizations / workers)
+        include_lyric_stats: whether to collect lyric baseline composition statistics
+        use_cache: whether to use cached chunk results and save new chunks (default True)
+
+    Return: (T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list, lyric_stats_summary)
+    where each list contains Fractions corresponding to the test statistics calculated in one_t_prose and one_t_lyric respectively.
+    lyric_stats_summary is a dict aggregating lyric baseline composition stats if include_lyric_stats is True, else None.
+    
+    CACHING BEHAVIOR:
+    - Each chunk is saved to data/cache/test_statistics_chunks/chunk_{start}_{end}.pkl after completion
+    - On restart, existing chunks are loaded from cache and skipped
+    - This allows recovery from crashes without recomputing all randomizations
+    - To start fresh, call clear_test_statistics_cache() or set use_cache=False
+    - Cache files can be safely deleted manually if needed
+    
+    EXAMPLE USAGE:
+        # Run with crash recovery enabled (default)
+        results = test_statistics(randomizations=10_000, workers=8, chunk_size=1_000)
+        
+        # If it crashes, simply run again—completed chunks will be loaded from cache
+        results = test_statistics(randomizations=10_000, workers=8, chunk_size=1_000)
+        
+        # To start completely fresh
+        clear_test_statistics_cache()
+        results = test_statistics(randomizations=10_000, workers=8, chunk_size=1_000)
+    '''
+    # Setup cache directory
+    if use_cache:
+        TEST_STATS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    
+    if workers <= 1:
+        # For sequential execution, treat the entire run as one chunk
+        chunk_id = f"0_{randomizations}"
+        chunk_file = TEST_STATS_CACHE_DIR / f"chunk_{chunk_id}.pkl" if use_cache else None
+        
+        # Check if cached result exists
+        if use_cache and chunk_file and chunk_file.exists():
+            print(f"Loading cached results from {chunk_file}")
+            with open(chunk_file, 'rb') as f:
+                cached_result = pickle.load(f)
+            return cached_result
+        
+        T_pos_prose_list: list[Fraction] = []
+        T_song_prose_list: list[Fraction] = []
+        T_pos_lyric_list: list[Fraction] = []
+        T_song_lyric_list: list[Fraction] = []
+        lyric_stats_summary = _empty_lyric_stats_summary() if include_lyric_stats else None
+
+        for i in tqdm(range(randomizations), desc="Test statistics"):
+            T_pos_prose, T_song_prose = one_t_prose(seed_offset=i)
+            if include_lyric_stats:
+                T_pos_lyric, T_song_lyric, stats_summary = one_t_lyric(seed_offset=i, collect_stats=True)
+                _merge_lyric_stats_summary(lyric_stats_summary, stats_summary)
+            else:
+                T_pos_lyric, T_song_lyric = one_t_lyric(seed_offset=i)
+            T_pos_prose_list.append(T_pos_prose)
+            T_song_prose_list.append(T_song_prose)
+            T_pos_lyric_list.append(T_pos_lyric)
+            T_song_lyric_list.append(T_song_lyric)
+
+        result = (T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list, lyric_stats_summary)
+        
+        # Save result to cache
+        if use_cache and chunk_file:
+            with open(chunk_file, 'wb') as f:
+                pickle.dump(result, f)
+            print(f"Saved results to {chunk_file}")
+        
+        return result
+
+    # Parallel execution
+    workers = max(1, workers)
+    if chunk_size is None:
+        chunk_size = math.ceil(randomizations / workers)
+    chunk_size = max(1, chunk_size)
+
+    chunks = []
+    start = 0
+    while start < randomizations:
+        end = min(start + chunk_size, randomizations)
+        chunks.append((start, end))
+        start = end
+
+    # Ensure we do not spawn more workers than chunks
+    max_workers = min(workers, len(chunks))
+
+    # Check for cached chunks and prepare futures only for missing chunks
+    futures = []
+    cached_results = {}
+    chunks_to_compute = []
+    
+    for worker_id, (start, end) in enumerate(chunks):
+        chunk_id = f"{start}_{end}"
+        chunk_file = TEST_STATS_CACHE_DIR / f"chunk_{chunk_id}.pkl" if use_cache else None
+        
+        if use_cache and chunk_file and chunk_file.exists():
+            # Load cached chunk
+            with open(chunk_file, 'rb') as f:
+                cached_results[(start, end)] = pickle.load(f)
+            print(f"Loaded cached chunk {chunk_id} ({end - start} iterations)")
+        else:
+            chunks_to_compute.append((worker_id, start, end, chunk_id))
+    
+    results: list[tuple[list[Fraction], list[Fraction], list[Fraction], list[Fraction], dict | None]] = []
+
+    # Compute missing chunks
+    if chunks_to_compute:
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            for worker_id, start, end, chunk_id in chunks_to_compute:
+                futures.append((start, end, chunk_id, executor.submit(_run_test_statistics_chunk, start, end, worker_id, include_lyric_stats)))
+
+            with tqdm(total=sum(end - start for _, start, end, _ in chunks_to_compute), desc="Test statistics (computing)", leave=True) as pbar:
+                for start, end, chunk_id, future in sorted(futures, key=lambda x: x[0]):
+                    result = future.result()
+                    cached_results[(start, end)] = result
+                    
+                    # Save chunk to disk
+                    if use_cache:
+                        chunk_file = TEST_STATS_CACHE_DIR / f"chunk_{chunk_id}.pkl"
+                        with open(chunk_file, 'wb') as f:
+                            pickle.dump(result, f)
+                        print(f"\nSaved chunk {chunk_id} to {chunk_file}")
+                    
+                    pbar.update(end - start)
+    
+    # Combine results from all chunks in order
+    for start, end in sorted(cached_results.keys()):
+        results.append(cached_results[(start, end)])
+    
+    # Print summary
+    total_chunks = len(chunks)
+    cached_chunks = total_chunks - len(chunks_to_compute)
+    computed_chunks = len(chunks_to_compute)
+    if use_cache and total_chunks > 1:
+        print(f"\nCompleted: {cached_chunks} chunks from cache, {computed_chunks} chunks computed ({randomizations} total iterations)")
+
+    T_pos_prose_list: list[Fraction] = []
+    T_song_prose_list: list[Fraction] = []
+    T_pos_lyric_list: list[Fraction] = []
+    T_song_lyric_list: list[Fraction] = []
+    lyric_stats_summary = _empty_lyric_stats_summary() if include_lyric_stats else None
+
+    for chunk_result in results:
+        prose_pos, prose_song, lyric_pos, lyric_song, stats_summary = chunk_result
+        T_pos_prose_list.extend(prose_pos)
+        T_song_prose_list.extend(prose_song)
+        T_pos_lyric_list.extend(lyric_pos)
+        T_song_lyric_list.extend(lyric_song)
+        if include_lyric_stats and stats_summary is not None:
+            _merge_lyric_stats_summary(lyric_stats_summary, stats_summary)
+
+    return T_pos_prose_list, T_song_prose_list, T_pos_lyric_list, T_song_lyric_list, lyric_stats_summary
+
+def one_t_prose(seed_offset: int = 0, temp_dir: str | Path | None = None) -> tuple[Fraction, Fraction]:
     r'''
     Creates exactly one baseline for each of the odes, storing the xmls in a tmp folder.
 
@@ -151,7 +348,7 @@ def one_t_prose(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
 
     Return: (T_pos_prose, T_song_prose)
     '''
-    temp_dir = ROOT / "tmp_stats" / "prose"
+    temp_dir = Path(temp_dir) if temp_dir is not None else ROOT / "tmp_stats" / "prose"
     scan_dir = temp_dir / "scan"
     compiled_dir = temp_dir / "compiled"
     if temp_dir.exists():
@@ -228,15 +425,15 @@ def one_t_prose(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
             song_stats.append(song_stat)
 
         T_song_prose = mean(song_stats) if song_stats else Fraction(0, 1)
-        T_pos_prose = compatibility_ratios_to_stats(compatibility_corpus(str(compiled_dir))) if compiled_dir.exists() else Fraction(0, 1)
+        T_pos_prose = compatibility_ratios_to_stats(compatibility_corpus(str(compiled_dir), progress=False)) if compiled_dir.exists() else Fraction(0, 1)
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
     return T_pos_prose, T_song_prose
 
-def one_t_lyric(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
+def one_t_lyric(seed_offset: int = 0, temp_dir: str | Path | None = None, collect_stats: bool = False) -> tuple[Fraction, Fraction] | tuple[Fraction, Fraction, dict]:
     "Mutatis mutandis to one_t_prose, but for lyric baselines instead of prose baselines."
-    temp_dir = ROOT / "tmp_stats" / "lyric"
+    temp_dir = Path(temp_dir) if temp_dir is not None else ROOT / "tmp_stats" / "lyric"
     if temp_dir.exists():
         shutil.rmtree(temp_dir)
     temp_dir.mkdir(parents=True, exist_ok=True)
@@ -249,6 +446,7 @@ def one_t_lyric(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
     }
 
     song_stats = []
+    summary_stats = _empty_lyric_stats_summary() if collect_stats else None
 
     try:
         for responsion_id in sorted(victory_odes):
@@ -259,7 +457,7 @@ def one_t_lyric(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
             if not canticum_with_at_least_two_strophes(xml_file, responsion_id):
                 continue
 
-            make_lyric_baseline(
+            stats = make_lyric_baseline(
                 xml_file,
                 responsion_id,
                 corpus_folder=resolve_path("data/compiled/triads"),
@@ -270,16 +468,21 @@ def one_t_lyric(seed_offset: int = 0) -> tuple[Fraction, Fraction]:
                 seed_base=1453 + seed_offset * 1000,
             )
 
+            if collect_stats and isinstance(stats, dict):
+                _merge_lyric_stats_summary(summary_stats, stats)
+
             outfile = temp_dir / f"baseline_lyric_{responsion_id}.xml"
             responsion_key = f"{responsion_id}_000"
             song_stat = compatibility_ratios_to_stats(compatibility_canticum(str(outfile), responsion_key))
             song_stats.append(song_stat)
 
         T_song_lyric = mean(song_stats) if song_stats else Fraction(0, 1)
-        T_pos_lyric = compatibility_ratios_to_stats(compatibility_corpus(str(temp_dir))) if temp_dir.exists() else Fraction(0, 1)
+        T_pos_lyric = compatibility_ratios_to_stats(compatibility_corpus(str(temp_dir), progress=False)) if temp_dir.exists() else Fraction(0, 1)
     finally:
         shutil.rmtree(temp_dir, ignore_errors=True)
 
+    if collect_stats:
+        return T_pos_lyric, T_song_lyric, summary_stats
     return T_pos_lyric, T_song_lyric
 
 ##########################
@@ -671,6 +874,10 @@ def make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str = 
                         new_line.set('source', source_info)
                         for syll in combined_sylls:
                             new_line.append(syll)
+
+                        # Ensure canonical syllable count still matches target after pairing/trimming
+                        if len(canonical_sylls(new_line)) != target_len:
+                            continue
 
                         # Update independence trackers
                         sample_used_metrical_positions.add(pos1)

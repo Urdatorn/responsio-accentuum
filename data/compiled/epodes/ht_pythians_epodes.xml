@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <TEI>
   <teiHeader>
     <fileDesc>
@@ -329,17 +330,6 @@
           <l n="124" metre=""><syll weight="heavy">εὔ</syll><syll weight="light" anceps="True">χο</syll><syll weight="heavy">μαί </syll><syll weight="light">νιν </syll><syll weight="light">Ὀ</syll><syll weight="heavy">λυμ</syll><syll weight="light">πί</syll><syll weight="heavy">ᾳ </syll><syll weight="heavy">τοῦ</syll><syll weight="light">το </syll><syll weight="light">δό</syll><syll weight="heavy">μεν </syll><syll weight="light">γέ</syll><syll weight="light" resolution="True">ρας </syll><syll weight="light" resolution="True">ἔ</syll><syll weight="light">πι </syll><syll weight="heavy">Βάτ</syll><syll weight="heavy">του </syll><syll weight="light">γέ</syll><syll weight="heavy">νει.</syll></l>
         </strophe>
       </canticum>
-      <canticum/>
-      <canticum>
-        <strophe type="strophe" responsion="py07">
-          <l n="17" metre=""><syll weight="heavy">ὦ </syll><syll weight="light">Με</syll><syll weight="heavy">γά</syll><syll weight="light">κλε</syll><syll weight="light">ες, </syll><syll weight="heavy">ὑ</syll><syll weight="heavy">μαί </syll><syll weight="light">τε </syll><syll weight="heavy">καὶ </syll><syll weight="light">προ</syll><syll weight="light">γό</syll><syll weight="heavy">νων.</syll></l>
-          <l n="18" metre=""><syll weight="light">νέ</syll><syll weight="heavy">α </syll><syll weight="heavy">δ᾽εὐ</syll><syll weight="light">πρα</syll><syll weight="light">γί</syll><syll weight="heavy">ᾳ </syll><syll weight="heavy">χαί</syll><syll weight="heavy">ρω </syll><syll weight="light">τι· </syll><syll weight="light">τὸ </syll><syll weight="heavy">δ᾽ἄχ</syll><syll weight="light">νυ</syll><syll weight="heavy">μαι,</syll></l>
-          <l n="19" metre=""><syll weight="light">φθό</syll><syll weight="light">νον </syll><syll weight="light">ἀ</syll><syll weight="heavy">μει</syll><syll weight="light">βό</syll><syll weight="light">με</syll><syll weight="heavy">νον </syll><syll weight="light">τὰ </syll><syll weight="light">κα</syll><syll weight="light">λὰ </syll><syll weight="heavy">ἔρ</syll><syll weight="light" brevis_in_longo="True">γα.</syll></l>
-          <l n="20" metre=""><syll weight="heavy">φαν</syll><syll weight="light">τί </syll><syll weight="light">γε </syll><syll weight="heavy">μὰν </syll><syll weight="heavy">οὕ</syll><syll weight="heavy">τω </syll><syll weight="light">κεν </syll><syll weight="heavy">ἀν</syll><syll weight="light">δρὶ </syll><syll weight="heavy">παρ</syll><syll weight="light">μο</syll><syll weight="light">νί</syll><syll weight="heavy">μαν</syll></l>
-          <l n="21" metre=""><syll weight="heavy">θάλ</syll><syll weight="heavy">λοι</syll><syll weight="light">σαν </syll><syll weight="heavy">εὐ</syll><syll weight="heavy">δαι</syll><syll weight="light">μο</syll><syll weight="light">νί</syll><syll weight="heavy">αν</syll></l>
-          <l n="22" metre=""><syll weight="light">τὰ </syll><syll weight="heavy">καὶ </syll><syll weight="light">τὰ </syll><syll weight="light">φέ</syll><syll weight="heavy">ρε</syll><syll weight="heavy">σθαι.</syll></l>
-        </strophe>
-      </canticum>
       <canticum>
         <strophe type="strophe" responsion="py08">
           <l n="15" metre=""><syll weight="light">βί</syll><syll weight="heavy">α </syll><syll weight="light">δὲ </syll><syll weight="heavy">καὶ </syll><syll weight="light">με</syll><syll weight="light">γά</syll><syll weight="heavy">λαυ</syll><syll weight="light" anceps="True">χον </syll><syll weight="heavy">ἔ</syll><syll weight="heavy">σφα</syll><syll weight="light" anceps="True">λεν </syll><syll weight="heavy">ἐν </syll><syll weight="light">χρό</syll><syll weight="heavy">νῳ.</syll></l>
@@ -507,7 +497,6 @@
           <l n="64" metre=""><syll weight="light" anceps="True">τὸ </syll><syll weight="heavy">δ᾽οἰ</syll><syll weight="light">κέ</syll><syll weight="heavy">ον</syll><syll weight="light" anceps="True">τας </syll><syll weight="heavy">ἔν</syll><syll weight="light">δον </syll><syll weight="light">Ὀ</syll><syll weight="heavy">λύμ</syll><syll weight="heavy">που.</syll></l>
         </strophe>
       </canticum>
-      <canticum/>
-    </body>
+      </body>
   </text>
 </TEI>
