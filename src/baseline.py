@@ -190,6 +190,7 @@ def test_statistics(randomizations=10_000, workers: int = 1, chunk_size: int | N
     CACHING BEHAVIOR:
     - Each chunk is saved to data/cache/test_statistics_chunks/chunk_{start}_{end}.pkl after completion
     - On restart, existing chunks are loaded from cache and skipped
+    - Cached chunks are reused even if a new run uses a different chunk_size; only missing ranges are recomputed
     - This allows recovery from crashes without recomputing all randomizations
     - To start fresh, call clear_test_statistics_cache() or set use_cache=False
     - Cache files can be safely deleted manually if needed
@@ -255,65 +256,98 @@ def test_statistics(randomizations=10_000, workers: int = 1, chunk_size: int | N
         chunk_size = math.ceil(randomizations / workers)
     chunk_size = max(1, chunk_size)
 
-    chunks = []
-    start = 0
-    while start < randomizations:
-        end = min(start + chunk_size, randomizations)
-        chunks.append((start, end))
-        start = end
+    def _load_cached_chunks_within_range(max_randomizations: int):
+        """Load cached chunks regardless of chunk size, skipping overlaps and invalid data."""
+        if not use_cache or not TEST_STATS_CACHE_DIR.exists():
+            return {}
 
-    # Ensure we do not spawn more workers than chunks
-    max_workers = min(workers, len(chunks))
+        pattern = re.compile(r"chunk_(\d+)_(\d+)\.pkl$")
+        discovered: list[tuple[int, int, Path]] = []
+        for path in TEST_STATS_CACHE_DIR.glob("chunk_*_*.pkl"):
+            match = pattern.match(path.name)
+            if not match:
+                continue
+            start, end = map(int, match.groups())
+            if start < 0 or end <= start or end > max_randomizations:
+                continue
+            discovered.append((start, end, path))
 
-    # Check for cached chunks and prepare futures only for missing chunks
+        discovered.sort(key=lambda x: x[0])
+        cached: dict[tuple[int, int], tuple[list[Fraction], list[Fraction], list[Fraction], list[Fraction], dict | None]] = {}
+        for start, end, path in discovered:
+            if any(not (end <= s or start >= e) for s, e in cached.keys()):
+                continue  # Skip overlapping cached ranges
+            try:
+                with open(path, 'rb') as f:
+                    result = pickle.load(f)
+            except Exception as exc:  # pragma: no cover - defensive against corrupt cache
+                print(f"Skipping cached chunk {path} (read failed: {exc})")
+                continue
+
+            expected_len = end - start
+            if not (isinstance(result, (list, tuple)) and len(result) >= 4):
+                print(f"Skipping cached chunk {path} (unexpected format)")
+                continue
+            if not (len(result[0]) == len(result[1]) == len(result[2]) == len(result[3]) == expected_len):
+                print(f"Skipping cached chunk {path} (length mismatch)")
+                continue
+
+            cached[(start, end)] = result
+            print(f"Loaded cached chunk {start}_{end} ({expected_len} iterations)")
+
+        return cached
+
+    cached_results = _load_cached_chunks_within_range(randomizations)
+    cached_chunks_loaded = len(cached_results)
+
+    # Identify missing ranges after accounting for any cached coverage
+    missing_ranges: list[tuple[int, int]] = []
+    cursor = 0
+    for start, end in sorted(cached_results.keys()):
+        if cursor < start:
+            missing_ranges.append((cursor, start))
+        cursor = max(cursor, end)
+    if cursor < randomizations:
+        missing_ranges.append((cursor, randomizations))
+
+    chunks_to_compute: list[tuple[int, int]] = []
+    for missing_start, missing_end in missing_ranges:
+        current = missing_start
+        while current < missing_end:
+            end = min(current + chunk_size, missing_end)
+            chunks_to_compute.append((current, end))
+            current = end
+
+    max_workers = min(workers, len(chunks_to_compute)) if chunks_to_compute else 0
+
     futures = []
-    cached_results = {}
-    chunks_to_compute = []
-    
-    for worker_id, (start, end) in enumerate(chunks):
-        chunk_id = f"{start}_{end}"
-        chunk_file = TEST_STATS_CACHE_DIR / f"chunk_{chunk_id}.pkl" if use_cache else None
-        
-        if use_cache and chunk_file and chunk_file.exists():
-            # Load cached chunk
-            with open(chunk_file, 'rb') as f:
-                cached_results[(start, end)] = pickle.load(f)
-            print(f"Loaded cached chunk {chunk_id} ({end - start} iterations)")
-        else:
-            chunks_to_compute.append((worker_id, start, end, chunk_id))
-    
     results: list[tuple[list[Fraction], list[Fraction], list[Fraction], list[Fraction], dict | None]] = []
 
-    # Compute missing chunks
     if chunks_to_compute:
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
-            for worker_id, start, end, chunk_id in chunks_to_compute:
+            for worker_id, (start, end) in enumerate(chunks_to_compute):
+                chunk_id = f"{start}_{end}"
                 futures.append((start, end, chunk_id, executor.submit(_run_test_statistics_chunk, start, end, worker_id, include_lyric_stats)))
 
-            with tqdm(total=sum(end - start for _, start, end, _ in chunks_to_compute), desc="Test statistics (computing)", leave=True) as pbar:
+            with tqdm(total=sum(end - start for start, end in chunks_to_compute), desc="Test statistics (computing)", leave=True) as pbar:
                 for start, end, chunk_id, future in sorted(futures, key=lambda x: x[0]):
                     result = future.result()
                     cached_results[(start, end)] = result
-                    
-                    # Save chunk to disk
+
                     if use_cache:
                         chunk_file = TEST_STATS_CACHE_DIR / f"chunk_{chunk_id}.pkl"
                         with open(chunk_file, 'wb') as f:
                             pickle.dump(result, f)
                         print(f"\nSaved chunk {chunk_id} to {chunk_file}")
-                    
+
                     pbar.update(end - start)
-    
-    # Combine results from all chunks in order
+
     for start, end in sorted(cached_results.keys()):
         results.append(cached_results[(start, end)])
-    
-    # Print summary
-    total_chunks = len(chunks)
-    cached_chunks = total_chunks - len(chunks_to_compute)
-    computed_chunks = len(chunks_to_compute)
+
+    total_chunks = cached_chunks_loaded + len(chunks_to_compute)
     if use_cache and total_chunks > 1:
-        print(f"\nCompleted: {cached_chunks} chunks from cache, {computed_chunks} chunks computed ({randomizations} total iterations)")
+        print(f"\nCompleted: {cached_chunks_loaded} chunks from cache, {len(chunks_to_compute)} chunks computed ({randomizations} total iterations)")
 
     T_pos_prose_list: list[Fraction] = []
     T_song_prose_list: list[Fraction] = []

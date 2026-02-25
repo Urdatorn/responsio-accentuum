@@ -1,36 +1,34 @@
+# os and ide stuff
 .DS_Store
 .vscode/
+
+# cython
 */__pycache__/
 **/__pycache__/
 
+# behind-the-scenes
 data/source/
 diagnostics/
 scripts/
-
-bench_clean.py
-
-logs/
-
 data/macronized/*
 data/raw/*
-
-data/compiled/test/*
-
-*test*.py
-
+bench_clean.py
 create-badge.cjs
-
 TODO.md
+
+# tests
+*test*.py
+data/compiled/test/*
 
 # single-use scripts
 extract_isthmian_epodes.py
 remove_single_strophe_cantica.py
 
 # temp
+logs/
 tmp_stats/
 
 # website
-
 _layouts/
 .github/
 assets/*
