@@ -21,3 +21,20 @@ data/compiled/test/*
 create-badge.cjs
 
 TODO.md
+
+# single-use scripts
+extract_isthmian_epodes.py
+remove_single_strophe_cantica.py
+
+# temp
+tmp_stats/
+
+# website
+
+_layouts/
+.github/
+assets/*
+_config.yml
+Gemfile
+index.html
+
