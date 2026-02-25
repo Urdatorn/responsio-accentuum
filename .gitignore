@@ -8,10 +8,11 @@
 
 # behind-the-scenes
 data/source/
+data/raw/
+data/macronized/
+
 diagnostics/
 scripts/
-data/macronized/*
-data/raw/*
 bench_clean.py
 create-badge.cjs
 TODO.md
@@ -27,6 +28,9 @@ remove_single_strophe_cantica.py
 # temp
 logs/
 tmp_stats/
+
+# old
+*_old.*
 
 # website
 _layouts/
