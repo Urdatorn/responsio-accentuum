@@ -1,6 +1,7 @@
 # os and ide stuff
 .DS_Store
 .vscode/
+build/
 
 # cython
 */__pycache__/
@@ -31,6 +32,10 @@ tmp_stats/
 
 # old
 *_old.*
+
+# barys
+src/responsio_accentuum/stats_barys_float.py
+src/responsio_accentuum/stats_barys.py
 
 # website
 _layouts/
