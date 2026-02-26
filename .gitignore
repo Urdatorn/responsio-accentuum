@@ -2,6 +2,7 @@
 .DS_Store
 .vscode/
 build/
+src/responsio_accentuum.egg-info
 
 # cython
 */__pycache__/
