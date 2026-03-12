@@ -30,6 +30,7 @@ remove_single_strophe_cantica.py
 # temp
 logs/
 tmp_stats/
+data/compiled/baselines/baseline_aristophanes/temp_permutations/
 
 # old
 *_old.*
