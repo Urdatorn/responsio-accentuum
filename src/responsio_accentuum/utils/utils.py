@@ -11,32 +11,42 @@ I include here some functionality generally useful for the inference scripts and
 from collections import Counter
 from lxml import etree
 import numpy as np
+from pathlib import Path
 import re
-from scipy.stats import chisquare
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from grc_utils import vowel
 
-_ROOT = Path(__file__).resolve().parents[2]
+###################
+### Robust PATH ###
+###################
 
+def find_project_root(start: Path, markers=("pyproject.toml", ".git")):
+    for p in [start] + list(start.parents):
+        if any((p / m).exists() for m in markers):
+            return p
+    raise RuntimeError("Project root not found")
+
+ROOT = find_project_root(Path.cwd())
 
 def _resolve_path(path_like: str | Path) -> Path:
     path = Path(path_like)
-    return path if path.is_absolute() else _ROOT / path
+    return path if path.is_absolute() else ROOT / path
 
 #################################
 ### General utility functions ###
 #################################
 
 victory_odes = sorted([
-    'is01', 'is02', 'is03', 'is04', 'is05', 'is06', 'is07', 'is08',
+    'is01', 'is02', 'is03', 'is04', 'is05', 'is06', 'is07', 'is08', # is09 is fragmentary with no responsion
     'ne01', 'ne02', 'ne03', 'ne04', 'ne05', 'ne06', 'ne07', 'ne08', 'ne09', 'ne10', 'ne11',
     'ol01', 'ol02', 'ol03', 'ol04', 'ol05', 'ol06', 'ol07', 'ol08', 'ol09', 'ol10', 'ol11', 'ol12', 'ol13', 'ol14',
     'py01', 'py02', 'py03', 'py04', 'py05', 'py06', 'py07', 'py08', 'py09', 'py10', 'py11', 'py12',
 ])
 
-victory_odes_not_triadic = sorted([
+# Odes with only one strophe, but with strophe and antistrophe subdivisions 
+victory_odes_monostrophic = sorted([
     'is03', 'ol04', 'ol11', 'ol12', 'py07'
 ])
 
@@ -64,7 +74,6 @@ def clean_text(text: str) -> str:
 def get_canticum_ids(file_path: str) -> list[str]:
     all_ids = []
 
-    file_path = _resolve_path(file_path)
     tree = etree.parse(file_path)
     root = tree.getroot()
     strophe_elements = root.xpath("//strophe")
@@ -95,11 +104,12 @@ def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
 
     return len(strophes) >= 2
 
-def get_strophicity(abbreviations):
+def get_strophicity():
     responsion_counts = Counter()
 
+    abbreviations = ["isthmians", "pythians", "nemeans", "olympians"]
     for abbreviation in abbreviations:
-        file_path = _resolve_path(f"data/compiled/responsion_{abbreviation}_compiled.xml")
+        file_path = ROOT / f"data/compiled/triads/ht_{abbreviation}_triads.xml"
         tree = etree.parse(file_path)
         root = tree.getroot()
 
@@ -109,10 +119,9 @@ def get_strophicity(abbreviations):
             if rid:
                 responsion_counts[rid] += 1
 
-    more_than_two = [rid for rid, count in responsion_counts.items() if count > 2]
-    exactly_two = [rid for rid, count in responsion_counts.items() if count == 2]
+    return responsion_counts
 
-    return more_than_two, exactly_two
+responsion_counts = get_strophicity()
 
 def get_text_matrix(xml_filepath: str, responsion_attribute: str, representative_strophe: int):
     '''
@@ -209,62 +218,6 @@ def cowsay(text, print_output=True):
         print(ascii)
 
     return ascii
-
-#################################
-### Stats utility functions   ###
-#################################
-
-def make_chisquare_test(list_comp_scores, list_comp_baseline_scores):
-    '''
-    list_comp_scores and list_comp_baseline_scores: Handle any nestedness, from compatibility_corpus to compatibility_canticum
-    '''
-
-    count_dict = count_nested_values(list_comp_scores)
-    count_dict_baselines = count_nested_values(list_comp_baseline_scores)
-
-    # ------------------------------ #
-    # Synchronize dictionaries       #
-    # ------------------------------ #
-
-    # Get union of all keys from both dictionaries
-    all_keys = set(count_dict.keys()) | set(count_dict_baselines.keys())
-
-    # Create aligned dictionaries with zeros for missing keys
-    aligned_count_dict = {key: count_dict.get(key, 0) for key in all_keys}
-    aligned_count_dict_baselines = {key: count_dict_baselines.get(key, 0) for key in all_keys}
-
-    # Convert to lists with consistent ordering
-    sorted_keys = sorted(all_keys)
-    count_list = [aligned_count_dict[key] for key in sorted_keys]
-    count_list_baselines = [aligned_count_dict_baselines[key] for key in sorted_keys]
-
-    # ------------------------------ #
-    # Calculate expected counts      #
-    # ------------------------------ #
-
-    # 1) Observed counts
-    obs_counts = np.array(count_list)
-    obs_total = obs_counts.sum()
-
-    # 2) Null counts
-    null_counts = np.array(count_list_baselines)
-    null_total = null_counts.sum()
-
-    # 3) Null probabilities
-    null_probs = null_counts / null_total
-
-    # Expected counts
-    exp_counts = null_probs * obs_total
-
-    # ------------------------------ #
-    # Chi-square test                #
-    # ------------------------------ #
-
-    chi2_stat, p_value = chisquare(f_obs=obs_counts, f_exp=exp_counts)
-
-    degrees_of_freedom = len(obs_counts) - 1
-
-    return chi2_stat, degrees_of_freedom, p_value, sorted_keys, obs_counts, obs_total, exp_counts
 
 ######################
 ### Word utilities ###
