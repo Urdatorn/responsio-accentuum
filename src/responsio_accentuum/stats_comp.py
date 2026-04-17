@@ -41,7 +41,7 @@ from .stats import accents, metrically_responding_lines_polystrophic
 from .utils.utils import space_after, space_before
 
 
-def get_contours_line(l_element, print_contours=False) -> list[str]:
+def get_contours_line(l_element) -> list[str]:
         """
         Adapted from a method in class_stanza
         Iterates through an <l> of <syll> elements and creates a list of melodic contours.
@@ -107,12 +107,10 @@ def get_contours_line(l_element, print_contours=False) -> list[str]:
 
             contours.append(contour)
 
-        if print_contours:
-            print(f"{contours}")
         return contours
 
 
-def all_contours_line(*xml_lines, print_contours=False) -> list[list[str]]:
+def all_contours_line(*xml_lines) -> list[list[str]]:
     """
     Intermediary between get_contours(l_element) and position-based compatibility stats of set of responding lines.
 
@@ -138,7 +136,7 @@ def all_contours_line(*xml_lines, print_contours=False) -> list[list[str]]:
             print(text, "\n")
         raise ValueError(f"all_contours_line: Lines {[line.get('n', 'unknown') for line in xml_lines]} do not metrically respond.")
 
-    contours_per_line = [get_contours_line(line, print_contours=print_contours) for line in xml_lines]
+    contours_per_line = [get_contours_line(line) for line in xml_lines]
 
     merged_syllables_per_line = []
     for line in xml_lines:
@@ -170,11 +168,11 @@ def all_contours_line(*xml_lines, print_contours=False) -> list[list[str]]:
 
     # Transpose the lists: group contours by syllable position
     grouped_contours = list(map(list, zip(*contours_per_line)))
-
+    
     return grouped_contours
 
 
-def _compatibility_line(*xml_lines, fractional=True, print_compatibility=False) -> list[F | float]:
+def _compatibility_line(*xml_lines, fractional=True, print_compatibility=False, return_debug=False) -> list[F | float]:
     '''
     Computes the contour of a line from a set of responding strophes,
     evaluates matches and repetitions, 
@@ -194,8 +192,9 @@ def _compatibility_line(*xml_lines, fractional=True, print_compatibility=False) 
     '''
 
     compatibility_ratios = []
+    debug_positions = []
 
-    position_lists = all_contours_line(*xml_lines, print_contours=print_compatibility)
+    position_lists = all_contours_line(*xml_lines)
     for position in position_lists: # position K = [contourK_line1, contourK_line2, ..., contourK_lineN], where N is number of resp. strophes
         
         all_resolved = True
@@ -214,9 +213,12 @@ def _compatibility_line(*xml_lines, fractional=True, print_compatibility=False) 
                 if all_resolved == True: # proceed as normal if all strophes resolve
                     print('\033[31mComparing resolved positions...\033[0m')
                     for resolved_syll in strophe:
-                        if resolved_syll in ['UP', 'UP-G', 'N']:
+                        if resolved_syll == 'N':
                             up.append(resolved_syll)
-                        elif resolved_syll in ['DN', 'DN-A', 'N']:
+                            down.append(resolved_syll)
+                        elif resolved_syll in ['UP', 'UP-G']:
+                            up.append(resolved_syll)
+                        elif resolved_syll in ['DN', 'DN-A']:
                             down.append(resolved_syll)
                         else:
                             raise ValueError(f"Unknown contour {resolved_syll} in _compatibility_line.")
@@ -255,21 +257,27 @@ def _compatibility_line(*xml_lines, fractional=True, print_compatibility=False) 
                     else: # CASE 4 - the problematic case of mixed contours => skip whole position in analysis (at least I find this safest for now)
                         continue # goes back to "for strophe in position" loop
 
-            elif strophe in ['UP', 'UP-G', 'N']:
+            elif strophe == 'N':
                 up.append(strophe)
-
-            elif strophe in ['DN', 'DN-A', 'N']:
-
+                down.append(strophe)
+            elif strophe in ['UP', 'UP-G']:
+                up.append(strophe)
+            elif strophe in ['DN', 'DN-A']:
                 down.append(strophe)
             else:
                 raise ValueError(f"Unknown contour {strophe} in _compatibility_line.")
 
+        if print_compatibility:
+            debug_positions.append((list(position), list(up), list(down)))
         max_len = max(len(up), len(down)) # for even N, N/2 <= max_len <= N, otherwise N/2 < max_len < N
         if fractional:
             position_compatibility_ratio = F(max_len, len(position))
         else:
             position_compatibility_ratio = max_len / len(position)
         compatibility_ratios.append(position_compatibility_ratio)
+
+    if return_debug:
+        return compatibility_ratios, debug_positions
 
     return compatibility_ratios
 
@@ -297,6 +305,7 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True, print_co
     num_lines = len([el for el in strophes[0] if el.tag == 'l']) # same for all, since they respond
     
     canticum_list_of_line_compatibility_ratio_lists = []
+    canticum_list_of_line_debug_positions = []
     
     for line_pos in range(num_lines):
         responding_lines = []
@@ -306,8 +315,18 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True, print_co
                 responding_lines.append(lines[line_pos])
         
         # Get compatibility ratios for this set of responding lines
-        compatibility_ratios = _compatibility_line(*responding_lines, fractional=fractional, print_compatibility=print_contours)
-        canticum_list_of_line_compatibility_ratio_lists.append(compatibility_ratios)
+        if print_contours:
+            compatibility_ratios, debug_positions = _compatibility_line(
+                *responding_lines,
+                fractional=fractional,
+                print_compatibility=True,
+                return_debug=True,
+            )
+            canticum_list_of_line_compatibility_ratio_lists.append(compatibility_ratios)
+            canticum_list_of_line_debug_positions.append(debug_positions)
+        else:
+            compatibility_ratios = _compatibility_line(*responding_lines, fractional=fractional, print_compatibility=False)
+            canticum_list_of_line_compatibility_ratio_lists.append(compatibility_ratios)
     
     def normalize(line_scores):
         # Minimum possible ratio is the smallest majority share: ceil(n/2) / n
@@ -325,6 +344,28 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True, print_co
         return normalized
 
     normalized_canticum = [normalize(line) for line in canticum_list_of_line_compatibility_ratio_lists]
+
+    if print_contours:
+        print(
+            f"{'Line/Position and contours':<40} => {'Competing direction sets':<40} => {'Raw ratio':<14} => {'Normalized':<14} => {'Float'}"
+        )
+        for line_idx, (line_debug, line_scores, line_norm) in enumerate(
+            zip(
+                canticum_list_of_line_debug_positions,
+                canticum_list_of_line_compatibility_ratio_lists,
+                normalized_canticum,
+            ),
+            start=1,
+        ):
+            print(f"Line {line_idx}:")
+            for pos_idx, (position, up, down) in enumerate(line_debug, start=1):
+                ratio = line_scores[pos_idx - 1]
+                norm_ratio = line_norm[pos_idx - 1]
+                position_field = f"Position {pos_idx}: {position}"
+                sets_field = f"'up': {up}, 'down': {down}"
+                print(
+                    f"{position_field:<40} => {sets_field:<40} => {str(ratio):<14} => {str(norm_ratio):<14} => {float(norm_ratio):.6f}"
+                )
 
     return normalized_canticum
 
