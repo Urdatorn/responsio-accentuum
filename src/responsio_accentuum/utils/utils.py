@@ -110,15 +110,18 @@ def get_strophicity():
     abbreviations = ["isthmians", "pythians", "nemeans", "olympians"]
     for abbreviation in abbreviations:
         file_path = ROOT / f"data/compiled/triads/ht_{abbreviation}_triads.xml"
-        tree = etree.parse(file_path)
-        root = tree.getroot()
+        if file_path.exists():
+            tree = etree.parse(file_path)
+            root = tree.getroot()
 
-        elements = root.xpath("//strophe[@responsion]") + root.xpath("//antistrophe[@responsion]")
-        for el in elements:
-            rid = el.get("responsion")
-            if rid:
-                responsion_counts[rid] += 1
-
+            elements = root.xpath("//strophe[@responsion]") + root.xpath("//antistrophe[@responsion]")
+            for el in elements:
+                rid = el.get("responsion")
+                if rid:
+                    responsion_counts[rid] += 1
+        else:
+            return None
+            
     return responsion_counts
 
 responsion_counts = get_strophicity()
