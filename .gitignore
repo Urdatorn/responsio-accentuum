@@ -20,7 +20,6 @@ create-badge.cjs
 TODO.md
 
 # tests
-*test*.py
 data/compiled/test/*
 
 # single-use scripts
