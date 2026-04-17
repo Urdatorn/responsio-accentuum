@@ -41,7 +41,7 @@ from .stats import accents, metrically_responding_lines_polystrophic
 from .utils.utils import space_after, space_before
 
 
-def get_contours_line(l_element) -> list[str]:
+def get_contours_line(l_element, print_contours=False) -> list[str]:
         """
         Adapted from a method in class_stanza
         Iterates through an <l> of <syll> elements and creates a list of melodic contours.
@@ -107,10 +107,12 @@ def get_contours_line(l_element) -> list[str]:
 
             contours.append(contour)
 
+        if print_contours:
+            print(f"{contours}")
         return contours
 
 
-def all_contours_line(*xml_lines) -> list[list[str]]:
+def all_contours_line(*xml_lines, print_contours=False) -> list[list[str]]:
     """
     Intermediary between get_contours(l_element) and position-based compatibility stats of set of responding lines.
 
@@ -136,7 +138,7 @@ def all_contours_line(*xml_lines) -> list[list[str]]:
             print(text, "\n")
         raise ValueError(f"all_contours_line: Lines {[line.get('n', 'unknown') for line in xml_lines]} do not metrically respond.")
 
-    contours_per_line = [get_contours_line(line) for line in xml_lines]
+    contours_per_line = [get_contours_line(line, print_contours=print_contours) for line in xml_lines]
 
     merged_syllables_per_line = []
     for line in xml_lines:
@@ -172,7 +174,7 @@ def all_contours_line(*xml_lines) -> list[list[str]]:
     return grouped_contours
 
 
-def _compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
+def _compatibility_line(*xml_lines, fractional=True, print_compatibility=False) -> list[F | float]:
     '''
     Computes the contour of a line from a set of responding strophes,
     evaluates matches and repetitions, 
@@ -193,7 +195,7 @@ def _compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
 
     compatibility_ratios = []
 
-    position_lists = all_contours_line(*xml_lines)
+    position_lists = all_contours_line(*xml_lines, print_contours=print_compatibility)
     for position in position_lists: # position K = [contourK_line1, contourK_line2, ..., contourK_lineN], where N is number of resp. strophes
         
         all_resolved = True
@@ -272,7 +274,7 @@ def _compatibility_line(*xml_lines, fractional=True) -> list[F | float]:
     return compatibility_ratios
 
 
-def compatibility_canticum(xml_file_path, canticum_ID, fractional=True) -> list:
+def compatibility_canticum(xml_file_path, canticum_ID, fractional=True, print_contours=False) -> list:
     """
     Compute compatibility ratios for each line position across all strophes in a canticum.
     
@@ -280,7 +282,8 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True) -> list:
         xml_file_path: Path to XML file
         canticum_ID: ID to match against strophe[@responsion]
         fractional: If True, return Fractions; otherwise return floats
-    
+        print_contours: If True, print the contours for each line
+
     Returns:
         List of lists, where each inner list contains compatibility ratios for one line
     """
@@ -303,7 +306,7 @@ def compatibility_canticum(xml_file_path, canticum_ID, fractional=True) -> list:
                 responding_lines.append(lines[line_pos])
         
         # Get compatibility ratios for this set of responding lines
-        compatibility_ratios = _compatibility_line(*responding_lines, fractional=fractional)
+        compatibility_ratios = _compatibility_line(*responding_lines, fractional=fractional, print_compatibility=print_contours)
         canticum_list_of_line_compatibility_ratio_lists.append(compatibility_ratios)
     
     def normalize(line_scores):
