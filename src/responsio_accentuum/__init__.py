@@ -7,8 +7,9 @@ from .generalize_scansion import *
 from .heatmaps import *
 from .scan_ht import *
 from .scan import *
-from .stats_comp import *
 from .stats import *
+from .stats_barys import *
+from .stats_comp import *
 
 from .plot.plot import *
 from .utils.utils import *

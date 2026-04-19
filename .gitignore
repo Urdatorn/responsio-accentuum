@@ -37,7 +37,7 @@ data/compiled/baselines/baseline_aristophanes/temp_permutations/*
 
 # barys
 src/responsio_accentuum/stats_barys_float.py
-src/responsio_accentuum/stats_barys.py
+#src/responsio_accentuum/stats_barys.py
 
 # website
 _layouts/

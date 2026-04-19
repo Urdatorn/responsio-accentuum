@@ -403,12 +403,11 @@ def do_double_vs_double(u1, u2, accent_lists):
     """
     Special resolution vs resolution logic (both are 'double').
     
-    The user wants them to match (and only for acutes) if:
+    The resolution pairs should match (and only for acutes) if:
       - EITHER both pairs have the acute on their first sub-syllable,
       - OR both pairs have the acute on their second sub-syllable.
 
-    We assume “both sub-syllables cannot have accent at once,” 
-    so no need to check the corner case. 
+    We assume both sub-syllables cannot have accent at once.
     """
     s1 = u1['syll1']
     s2 = u1['syll2']
