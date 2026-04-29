@@ -6,7 +6,6 @@
 # See the LICENSE file in the project root for full details.
 
 from collections import defaultdict
-import logging
 import os
 from lxml import etree
 from pathlib import Path
@@ -16,22 +15,6 @@ from grc_utils import (
     UPPER_SMOOTH_ACUTE, UPPER_ROUGH_ACUTE, LOWER_ACUTE, LOWER_SMOOTH_ACUTE, LOWER_ROUGH_ACUTE, LOWER_DIAERESIS_ACUTE,
     UPPER_SMOOTH_GRAVE, UPPER_ROUGH_GRAVE, LOWER_GRAVE, LOWER_SMOOTH_GRAVE, LOWER_ROUGH_GRAVE, LOWER_DIAERESIS_GRAVE,
     UPPER_SMOOTH_CIRCUMFLEX, UPPER_ROUGH_CIRCUMFLEX, LOWER_CIRCUMFLEX, LOWER_SMOOTH_CIRCUMFLEX, LOWER_ROUGH_CIRCUMFLEX, LOWER_DIAERESIS_CIRCUMFLEX
-)
-
-_ROOT = Path(__file__).resolve().parents[2]
-
-
-def _resolve_path(path_like: str | Path) -> Path:
-    path = Path(path_like)
-    return path if path.is_absolute() else _ROOT / path
-_LOG_DIR = _ROOT / "logs"
-_LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-logging.basicConfig(
-    filename=_LOG_DIR / 'debug.log',      # Save logs here
-    level=logging.DEBUG,            # Log all messages from DEBUG and up
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filemode='w'                    # Overwrite each run; use 'a' to append
 )
 
 ###############################################################################
@@ -128,7 +111,7 @@ def count_all_accents_line(l):
     return counts
 
 
-def count_all_accents_canticum(tree, responsion):
+def count_all_accents_canticum(tree, responsion, debug=False):
     """
     Counts all occurrences of acute, grave, and circumflex accents across
     all strophes and antistrophes in the XML tree for a specific canticum.
@@ -145,6 +128,10 @@ def count_all_accents_canticum(tree, responsion):
         for accent_type, accent_chars in accents.items():
             if any(char in norm_text for char in accent_chars):
                 counts[accent_type] += 1
+                if debug:
+                    if accent_type != "grave":
+                        print(f"{accent_type} in syll '{text}' in '{responsion}'.")
+                
 
     return counts
 
@@ -176,9 +163,7 @@ def count_all_accents_corpus(folder, exclude_substr=None, include_substr=None):
     """
     master_counts = {'acute': 0, 'grave': 0, 'circumflex': 0}
 
-    folder_path = _resolve_path(folder)
-
-    for filename in os.listdir(folder_path):
+    for filename in os.listdir(folder):
         if not filename.endswith('.xml'):
             continue
         if exclude_substr and exclude_substr in filename:
@@ -186,7 +171,7 @@ def count_all_accents_corpus(folder, exclude_substr=None, include_substr=None):
         if include_substr and include_substr not in filename:
             continue
 
-        filepath = folder_path / filename
+        filepath = os.path.join(folder, filename)
         try:
             tree = etree.parse(filepath)
             file_counts = count_all_accents(tree)
@@ -262,7 +247,7 @@ def metrically_responding_lines(strophe_line, antistrophe_line):
     c2 = canonical_sylls(antistrophe_line)
 
     if len(c1) != len(c2):
-        logging.debug(f"metrically_responding_lines: Line {strophe_line.get('n')} and {antistrophe_line.get('n')} have different syllable counts.")
+        print(f"metrically_responding_lines: Line {strophe_line.get('n')} and {antistrophe_line.get('n')} have different syllable counts.")
         return False
 
     for s1, s2 in zip(c1, c2):
@@ -403,11 +388,12 @@ def do_double_vs_double(u1, u2, accent_lists):
     """
     Special resolution vs resolution logic (both are 'double').
     
-    The resolution pairs should match (and only for acutes) if:
+    The resolved pairs match (and only for acutes) if:
       - EITHER both pairs have the acute on their first sub-syllable,
       - OR both pairs have the acute on their second sub-syllable.
 
-    We assume both sub-syllables cannot have accent at once.
+    We assume “both sub-syllables cannot have accent at once,” 
+    so no need to check the corner case. 
     """
     s1 = u1['syll1']
     s2 = u1['syll2']
@@ -434,7 +420,7 @@ def do_double_vs_double(u1, u2, accent_lists):
         })
 
 
-def do_double_vs_double_polystrophic(units, accent_lists):
+def do_double_vs_double_polystrophic(units, accent_lists, debug=False):
     """
     Check for accentual matches among double syllables across multiple strophes.
     Matches for acute accents if:
@@ -446,14 +432,16 @@ def do_double_vs_double_polystrophic(units, accent_lists):
 
     # Case (a): All first sub-syllables have acute
     if first_acutes:
-        logging.debug(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
+        if debug:
+            print(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
         accent_lists[0].append({
             (u['line_n'], u['unit_ord']): u['syll1'].text or "" for u in units
         })
 
     # Case (b): All second sub-syllables have acute
     if second_acutes:
-        logging.debug(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
+        if debug:
+            print(f"DOUBLE RESPONSION: {units[0]['unit_ord']}.")
         accent_lists[0].append({
             (u['line_n'], u['unit_ord']): u['syll2'].text or "" for u in units
         })
@@ -484,7 +472,7 @@ def do_double_vs_single(u_double, u_single, accent_lists):
         })
 
 
-def do_mixed_single_double_polystrophic(units, accent_lists):
+def do_mixed_single_double_polystrophic(units, accent_lists, debug=False):
     """
     Handle accentual matches when some units are 'single' and others are 'double'.
     Rule: Respond if:
@@ -504,7 +492,8 @@ def do_mixed_single_double_polystrophic(units, accent_lists):
         return
 
     # If conditions are satisfied, record matches
-    logging.debug(f"MIXED RESPONSION: {units[0]['unit_ord']}.") 
+    if debug:
+        print(f"MIXED RESPONSION: {units[0]['unit_ord']}.")
     for u in single_units:
         for d in double_units:
             accent_lists[0].append({
@@ -530,7 +519,7 @@ def accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line
     strophe_id = strophe_line.get('responsion')
     
     if not metrically_responding_lines(strophe_line, antistrophe_line):
-        logging.debug(f"accentually_responding_syllables_of_line_pair: Lines {strophe_line.get('n')} and {antistrophe_line.get('n')} in {strophe_id} do not metrically respond.")
+        print(f"accentually_responding_syllables_of_line_pair: Lines {strophe_line.get('n')} and {antistrophe_line.get('n')} in {strophe_id} do not metrically respond.")
         return False
 
     units1 = build_units_for_accent(strophe_line)
@@ -566,7 +555,7 @@ def accentually_responding_syllables_of_line_pair(strophe_line, antistrophe_line
     return accent_lists
 
 
-def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines):
+def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines, debug=False):
     """
     Returns a triple-list [ [dict, ...], [dict, ...], [dict, ...] ]
     for [acute_matches, grave_matches, circumflex_matches], 
@@ -585,7 +574,7 @@ def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines):
 
     # Check for metric responsion
     if not metrically_responding_lines_polystrophic(*strophe_lines):
-        logging.debug(
+        print(
             f"accentually_responding_syllables_of_lines_polystrophic: "
             f"Lines {line_numbers} in {strophe_ids} do not metrically respond."
         )
@@ -620,15 +609,17 @@ def accentually_responding_syllables_of_lines_polystrophic(*strophe_lines):
         elif all(t == 'double' for t in types):
             # All lines have double syllables at this index
             do_double_vs_double_polystrophic(units, accent_lists)
-            logging.debug(
-                f"\naccentually_responding_syllables_of_lines_polystrophic:"
-                f"\n\tAll double types at ordinal {units[0]['unit_ord']} in lines {line_numbers}."
-            )
+            if debug:
+                print(
+                    f"\naccentually_responding_syllables_of_lines_polystrophic:"
+                    f"\n\tAll double types at ordinal {units[0]['unit_ord']} in lines {line_numbers}."
+                )
 
         else:
             # Mixed single/double cases
-            do_mixed_single_double_polystrophic(units, accent_lists)
-            logging.debug(
+            do_mixed_single_double_polystrophic(units, accent_lists, debug=debug)
+            if debug:
+                print(
                 f"\naccentually_responding_syllables_of_lines_polystrophic: "
                 f"\n\tMixed types at ordinal {units[0]['unit_ord']} in lines {line_numbers}."
             )
@@ -823,7 +814,6 @@ def accentual_responsion_metric_play(xml_file) -> dict:
         'acute_circumflex': 0.0,
     }
 
-    xml_file = _resolve_path(xml_file)
     tree = etree.parse(xml_file)
     strophes = tree.xpath('//strophe | //antistrophe') # union is more readable XPath than [self::foo or self::bar] predicates
 
@@ -880,14 +870,13 @@ def accentual_responsion_metric_corpus(folder="data/compiled/", exclude_substr="
         'circumflex': 0.0,
     }
 
-    folder_path = _resolve_path(folder)
-
-    for xml_file in os.listdir(folder_path):
+    for xml_file in os.listdir(folder):
         if not xml_file.endswith('.xml'):
             continue
         if exclude_substr and exclude_substr in xml_file:
             continue
         
+        folder_path = Path(folder)
         filepath = folder_path / xml_file
         tree = etree.parse(filepath)
         strophes = tree.xpath('//strophe | //antistrophe')
@@ -908,7 +897,7 @@ def accentual_responsion_metric_corpus(folder="data/compiled/", exclude_substr="
 
     # Count total accents in the corpus
 
-    total_accent_sums = count_all_accents_corpus(folder_path, exclude_substr=exclude_substr)
+    total_accent_sums = count_all_accents_corpus(folder, exclude_substr=exclude_substr)
     acute_total = total_accent_sums['acute']
     grave_total = total_accent_sums['grave']
     circumflex_total = total_accent_sums['circumflex']

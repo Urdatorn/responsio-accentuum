@@ -3,6 +3,7 @@
 .vscode/
 build/
 src/responsio_accentuum.egg-info
+agents.md
 
 # cython
 */__pycache__/
@@ -12,6 +13,7 @@ src/responsio_accentuum.egg-info
 data/source/
 data/raw/
 data/macronized/
+tests/ach01.tsv
 
 diagnostics/
 scripts/

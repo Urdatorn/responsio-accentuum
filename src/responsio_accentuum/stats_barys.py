@@ -25,9 +25,7 @@ Sections:
 
 """
 
-import argparse
 from collections import defaultdict
-from itertools import combinations
 from lxml import etree
 import os
 from pathlib import Path
@@ -35,7 +33,6 @@ from pathlib import Path
 from grc_utils import normalize_word
 
 from .stats import (
-    polystrophic,
     metrically_responding_lines_polystrophic,
     build_units_for_accent,
     is_heavy,
@@ -43,12 +40,15 @@ from .stats import (
     accents
 )
 
-_ROOT = Path(__file__).resolve().parents[2]
+
+def find_project_root(start: Path, markers=("pyproject.toml", ".git")):
+    for p in [start] + list(start.parents):
+        if any((p / m).exists() for m in markers):
+            return p
+    raise RuntimeError("Project root not found")
 
 
-def _resolve_path(path_like: str | Path) -> Path:
-    path = Path(path_like)
-    return path if path.is_absolute() else _ROOT / path
+ROOT = find_project_root(Path(__file__))
 
 # ------------------------------------------------------------------------
 # BARYS AND OXYS ACCENT DEFINITIONS
@@ -276,16 +276,6 @@ def barys_accentually_responding_syllables_of_lines(*lines):
 
     Returns:
     list: [barys_list, oxys_list], or False if mismatch.
-
-    where barys_list contains one dict (of length = number of strophes) per barys match, 
-    with the key being a tuple of n attribute of the l element, 
-    and the ordinal (counting from 1) of the second (or only) syll of the barys accent that is the value.
-
-    E.g [{('2', 5): 'ίππου ', ('25', 5): 'νάντω', ('48', 5): 'κείνα^ν '}] is interpreted as
-    Match #1 (out of 1):
-     (line 2, 5th syll) => "ίππου "
-     (line 25, 5th syll) => "νάντω"
-     (line 48, 5th syll) => "κείνα^ν "
     """
     if not metrically_responding_lines_polystrophic(*lines):
         print(f"Lines {[line.get('n') for line in lines]} do not metrically respond.")
@@ -344,6 +334,7 @@ def barys_accentually_responding_syllables_of_lines(*lines):
             })
 
     return [barys_list, oxys_list]
+
 
 # ------------------------------------------------------------------------
 # PER-STROPHE RESPONSION
@@ -405,11 +396,9 @@ def barys_oxys_metric_canticum(responsion, baseline=False) -> dict:
     infix = responsion[:-2]
 
     if baseline:
-        input_file = f"data/compiled/baseline/responsion_{infix}_compiled.xml"
+        input_file = ROOT / f"data/compiled/baseline/responsion_{infix}_compiled.xml"
     else:
-        input_file = f"data/compiled/responsion_{infix}_compiled.xml"
-
-    input_file = _resolve_path(input_file)
+        input_file = ROOT / f"data/compiled/responsion_{infix}_compiled.xml"
     tree = etree.parse(input_file)
             
     all_barys_oxys_canticum_dict = count_all_barys_oxys_canticum(tree, responsion)
@@ -441,18 +430,16 @@ def barys_oxys_metric_canticum(responsion, baseline=False) -> dict:
     }
     return results
 
-def barys_oxys_metric_play(responsion, debug=False, baseline=False) -> dict:
+def barys_oxys_metric_play(responsion, xml_file=None, debug=False, baseline=False) -> dict:
     """
     Takes an XML file and returns a dict with the barys and oxys metrics.
     """
     results = {}
 
-    if baseline:
-        input_file = f"data/compiled/baseline/responsion_{responsion}_compiled.xml"
+    if baseline and xml_file:
+        input_file = xml_file
     else:
-        input_file = f"data/compiled/responsion_{responsion}_compiled.xml"
-
-    input_file = _resolve_path(input_file)
+        input_file = ROOT / f"data/compiled/responsion_{responsion}_compiled.xml"
     tree = etree.parse(input_file)
     
     all_barys_oxys_dict = count_all_barys_oxys(tree)
@@ -495,7 +482,7 @@ def barys_oxys_metric_play(responsion, debug=False, baseline=False) -> dict:
     }
     return results
 
-def barys_oxys_metric_corpus(folder="data/compiled/", exclude_substr="baseline") -> dict:
+def barys_oxys_metric_corpus(folder=ROOT / "data/compiled/", exclude_substr="baseline") -> dict:
     """
     Takes a folder of XML files and returns a dict with the barys, oxys and barys_oxys metrics.
     """
@@ -508,14 +495,13 @@ def barys_oxys_metric_corpus(folder="data/compiled/", exclude_substr="baseline")
     barys_matches = 0
     oxys_matches = 0
 
-    folder_path = _resolve_path(folder)
-
-    for xml_file in os.listdir(folder_path):
+    for xml_file in os.listdir(folder):
         if not xml_file.endswith('.xml'):
             continue
         if exclude_substr and exclude_substr in xml_file:
             continue
         
+        folder_path = Path(folder)
         filepath = folder_path / xml_file
         
         tree = etree.parse(filepath)
@@ -548,8 +534,6 @@ def barys_oxys_metric_corpus(folder="data/compiled/", exclude_substr="baseline")
     barys_metric = barys_matches / sum_barys if sum_barys > 0 else 0
     oxys_metric = oxys_matches / sum_oxys if sum_oxys > 0 else 0
     barys_oxys_metric = (barys_matches + oxys_matches) / sum_barys_oxys if sum_barys_oxys > 0 else 0
-
-    print(f"Total barys match groups in corpus: {len(barys_list)}")
 
     results = {
         'barys_metric': barys_metric,

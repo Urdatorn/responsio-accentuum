@@ -81,15 +81,26 @@ from .scan import rule_scansion
 from .stats import canonical_sylls
 from .stats_comp import compatibility_canticum, compatibility_corpus, compatibility_ratios_to_stats
 
-ROOT = Path(__file__).resolve().parents[2]
+
+def find_project_root(start: Path, markers=("pyproject.toml", ".git")):
+    for p in [start] + list(start.parents):
+        if any((p / m).exists() for m in markers):
+            return p
+    raise RuntimeError("Project root not found")
+
+
+ROOT = find_project_root(Path(__file__))
+
 PROSE_CACHE_PATH = ROOT / "data/cache/cached_prose_corpus.pkl"
 LYRIC_CACHE_PATH = ROOT / "data/cache/cached_lyric_corpus.pkl"
 TEST_STATS_CACHE_DIR = ROOT / "data/cache/test_statistics_chunks"
+
 
 def resolve_path(path_like):
     """Resolve relative paths against the repository root."""
     path = Path(path_like)
     return path if path.is_absolute() else ROOT / path
+
 
 # =============================================================================
 # CONFIGURATION VARIABLES - Adjust these to control fallback system behavior
