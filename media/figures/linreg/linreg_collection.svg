@@ -1,0 +1,2300 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="334.488189pt" height="167.244094pt" viewBox="0 0 334.488189 167.244094" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-05-01T17:09:12.594039</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 167.244094 
+L 334.488189 167.244094 
+L 334.488189 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 42.205905 130.952219 
+L 324.768189 130.952219 
+L 324.768189 9.72 
+L 42.205905 9.72 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="m80c5d01ad7" d="M 0 2 
+C 0.530406 2 1.03916 1.789267 1.414214 1.414214 
+C 1.789267 1.03916 2 0.530406 2 0 
+C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214 
+C 1.03916 -1.789267 0.530406 -2 0 -2 
+C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214 
+C -1.789267 -1.03916 -2 -0.530406 -2 0 
+C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214 
+C -1.03916 1.789267 -0.530406 2 0 2 
+z
+" style="stroke: #000000"/>
+    </defs>
+    <g clip-path="url(#p297bd7bbff)">
+     <use xlink:href="#m80c5d01ad7" x="188.243988" y="96.997915" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="164.459284" y="78.815509" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="169.216225" y="115.581369" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="226.299514" y="103.130121" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="226.299514" y="63.13084" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="93.105172" y="72.377685" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="302.410567" y="101.875372" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="169.216225" y="119.964447" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="55.049645" y="72.844472" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="169.216225" y="60.852857" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="93.105172" y="67.724981" style="stroke: #000000"/>
+     <use xlink:href="#m80c5d01ad7" x="112.132935" y="22.058101" style="stroke: #000000"/>
+    </g>
+   </g>
+   <g id="PathCollection_2">
+    <defs>
+     <path id="m3da8cd26a8" d="M -2 2 
+L 2 2 
+L 2 -2 
+L -2 -2 
+z
+" style="stroke: #404040"/>
+    </defs>
+    <g clip-path="url(#p297bd7bbff)">
+     <use xlink:href="#m3da8cd26a8" x="159.702343" y="67.748719" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="159.702343" y="104.389557" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="159.702343" y="91.926993" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="235.813396" y="94.519033" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="197.757869" y="104.123876" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="216.785633" y="108.149571" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="235.813396" y="67.959614" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="207.271751" y="76.619501" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="169.216225" y="125.456496" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="216.785633" y="120.719104" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="102.619053" y="32.782221" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="254.841159" y="41.476419" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="159.702343" y="15.542032" style="fill: #404040; stroke: #404040"/>
+     <use xlink:href="#m3da8cd26a8" x="207.271751" y="36.696525" style="fill: #404040; stroke: #404040"/>
+    </g>
+   </g>
+   <g id="PathCollection_3">
+    <defs>
+     <path id="m1b35d31b1a" d="M 0 -2 
+L -2 2 
+L 2 2 
+z
+" style="stroke: #000000"/>
+    </defs>
+    <g clip-path="url(#p297bd7bbff)">
+     <use xlink:href="#m1b35d31b1a" x="159.702343" y="69.316007" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="116.889876" y="105.706241" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="164.459284" y="58.45563" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="173.973165" y="92.267923" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="126.403757" y="124.012956" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="212.028692" y="122.175304" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="116.889876" y="111.9933" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="240.570337" y="92.422261" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="169.216225" y="115.863515" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="311.924449" y="115.549202" style="fill: #666666; stroke: #000000"/>
+     <use xlink:href="#m1b35d31b1a" x="302.410567" y="122.708635" style="fill: #666666; stroke: #000000"/>
+    </g>
+   </g>
+   <g id="PathCollection_4">
+    <defs>
+     <path id="me5b0d78711" d="M -0 2.828427 
+L 2.828427 0 
+L 0 -2.828427 
+L -2.828427 -0 
+z
+" style="stroke: #000000"/>
+    </defs>
+    <g clip-path="url(#p297bd7bbff)">
+     <use xlink:href="#me5b0d78711" x="245.327278" y="73.05786" style="fill: #8c8c8c; stroke: #000000"/>
+     <use xlink:href="#me5b0d78711" x="188.243988" y="98.401352" style="fill: #8c8c8c; stroke: #000000"/>
+     <use xlink:href="#me5b0d78711" x="169.216225" y="100.340134" style="fill: #8c8c8c; stroke: #000000"/>
+     <use xlink:href="#me5b0d78711" x="150.188461" y="115.767692" style="fill: #8c8c8c; stroke: #000000"/>
+     <use xlink:href="#me5b0d78711" x="140.67458" y="91.404332" style="fill: #8c8c8c; stroke: #000000"/>
+     <use xlink:href="#me5b0d78711" x="264.355041" y="88.248426" style="fill: #8c8c8c; stroke: #000000"/>
+     <use xlink:href="#me5b0d78711" x="150.188461" y="108.861607" style="fill: #8c8c8c; stroke: #000000"/>
+    </g>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 283.382804 130.952219 
+L 283.382804 9.72 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2">
+      <defs>
+       <path id="m4812ddacdf" d="M 0 0 
+L 0 3.5 
+" style="stroke: #000000; stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#m4812ddacdf" x="283.382804" y="130.952219" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <!-- $\mathdefault{450}$ -->
+      <g transform="translate(277.822804 143.272219) scale(0.08 -0.08)">
+       <defs>
+        <path id="Brill-Roman-34" d="M 1728 147 
+L 230 147 
+Q 218 147 192 208 
+Q 166 269 147 336 
+Q 128 403 128 429 
+Q 128 461 166 512 
+Q 518 1024 918 1539 
+Q 1318 2054 1715 2534 
+Q 1747 2573 1766 2585 
+Q 1786 2598 1824 2605 
+Q 1978 2637 2077 2665 
+Q 2176 2694 2195 2694 
+Q 2266 2694 2266 2618 
+Q 2266 2579 2250 2160 
+Q 2234 1741 2234 1043 
+L 2234 486 
+L 2829 486 
+Q 2861 486 2861 416 
+L 2861 256 
+Q 2861 192 2854 169 
+Q 2848 147 2829 147 
+L 2234 147 
+L 2234 -915 
+Q 2234 -954 2189 -954 
+Q 2086 -960 1955 -963 
+Q 1824 -966 1792 -966 
+Q 1728 -966 1728 -928 
+L 1728 147 
+z
+M 1722 2182 
+Q 1395 1798 1072 1369 
+Q 749 941 448 506 
+L 454 486 
+L 1728 486 
+Q 1728 986 1734 1405 
+Q 1741 1824 1754 2176 
+L 1722 2182 
+z
+" transform="scale(0.015625)"/>
+        <path id="Brill-Roman-35" d="M 525 717 
+Q 499 717 425 755 
+Q 352 794 352 813 
+Q 397 1043 425 1315 
+Q 454 1587 467 1849 
+Q 480 2112 486 2297 
+Q 493 2483 493 2541 
+Q 493 2547 502 2569 
+Q 512 2592 544 2592 
+Q 557 2592 803 2576 
+Q 1050 2560 1357 2560 
+Q 1658 2560 1811 2582 
+Q 1965 2605 2067 2643 
+Q 2195 2694 2230 2752 
+Q 2266 2810 2278 2810 
+Q 2304 2810 2352 2787 
+Q 2400 2765 2400 2752 
+Q 2400 2746 2374 2662 
+Q 2349 2579 2288 2470 
+Q 2227 2362 2118 2272 
+Q 1978 2157 1770 2112 
+Q 1562 2067 1286 2067 
+Q 1018 2067 717 2106 
+Q 710 1850 684 1590 
+Q 659 1331 608 1030 
+L 627 1024 
+Q 813 1133 1014 1193 
+Q 1216 1254 1446 1254 
+Q 1747 1254 1996 1145 
+Q 2246 1037 2396 793 
+Q 2547 550 2547 147 
+Q 2547 -256 2377 -550 
+Q 2208 -845 1910 -1001 
+Q 1613 -1158 1235 -1158 
+Q 954 -1158 707 -1075 
+Q 461 -992 313 -841 
+Q 166 -691 166 -493 
+Q 166 -320 265 -246 
+Q 365 -173 499 -173 
+Q 570 -173 646 -192 
+Q 653 -506 784 -733 
+Q 915 -960 1274 -960 
+Q 1984 -960 1984 32 
+Q 1984 1018 1242 1018 
+Q 1069 1018 889 950 
+Q 710 883 525 717 
+z
+" transform="scale(0.015625)"/>
+        <path id="Brill-Roman-30" d="M 2906 1350 
+Q 2906 947 2730 620 
+Q 2554 294 2246 102 
+Q 1939 -90 1542 -90 
+Q 1210 -90 915 64 
+Q 621 218 438 522 
+Q 256 826 256 1267 
+Q 256 1715 438 2035 
+Q 621 2355 925 2524 
+Q 1229 2694 1587 2694 
+Q 1933 2694 2233 2534 
+Q 2534 2374 2720 2076 
+Q 2906 1779 2906 1350 
+z
+M 2381 1306 
+Q 2381 1709 2256 1968 
+Q 2131 2227 1929 2348 
+Q 1728 2470 1498 2470 
+Q 1248 2470 1017 2329 
+Q 787 2189 643 1923 
+Q 499 1658 499 1280 
+Q 499 928 633 665 
+Q 768 403 989 262 
+Q 1210 122 1472 122 
+Q 1709 122 1913 250 
+Q 2118 378 2249 640 
+Q 2381 902 2381 1306 
+z
+" transform="scale(0.015625)"/>
+       </defs>
+       <use xlink:href="#Brill-Roman-34" transform="translate(0 0.09375)"/>
+       <use xlink:href="#Brill-Roman-35" transform="translate(45.699997 0.09375)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(88.699982 0.09375)"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 235.813396 130.952219 
+L 235.813396 9.72 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m4812ddacdf" x="235.813396" y="130.952219" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <!-- $\mathdefault{460}$ -->
+      <g transform="translate(230.093396 143.272219) scale(0.08 -0.08)">
+       <defs>
+        <path id="Brill-Roman-36" d="M 2240 3187 
+Q 2208 3475 2083 3593 
+Q 1958 3712 1747 3712 
+Q 1472 3712 1293 3542 
+Q 1114 3373 1011 3104 
+Q 909 2835 867 2531 
+Q 826 2227 819 1952 
+L 845 1946 
+Q 1011 2157 1235 2249 
+Q 1459 2342 1696 2342 
+Q 1997 2342 2243 2211 
+Q 2490 2080 2637 1827 
+Q 2784 1574 2784 1216 
+Q 2784 845 2621 547 
+Q 2458 250 2182 80 
+Q 1907 -90 1555 -90 
+Q 1114 -90 826 137 
+Q 538 365 400 771 
+Q 262 1178 262 1715 
+Q 262 2349 448 2845 
+Q 634 3341 979 3625 
+Q 1325 3910 1798 3910 
+Q 2157 3910 2384 3763 
+Q 2611 3616 2611 3424 
+Q 2611 3302 2534 3235 
+Q 2458 3168 2349 3168 
+Q 2298 3168 2240 3187 
+z
+M 1562 2112 
+Q 1312 2112 1149 2003 
+Q 986 1894 909 1731 
+Q 832 1568 832 1402 
+Q 832 838 1021 476 
+Q 1210 115 1581 115 
+Q 1824 115 1968 256 
+Q 2112 397 2176 627 
+Q 2240 858 2240 1114 
+Q 2240 1542 2064 1827 
+Q 1888 2112 1562 2112 
+z
+" transform="scale(0.015625)"/>
+       </defs>
+       <use xlink:href="#Brill-Roman-34" transform="translate(0 0.90625)"/>
+       <use xlink:href="#Brill-Roman-36" transform="translate(45.699997 0.90625)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(92.999985 0.90625)"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_5">
+      <path d="M 188.243988 130.952219 
+L 188.243988 9.72 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_6">
+      <g>
+       <use xlink:href="#m4812ddacdf" x="188.243988" y="130.952219" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_3">
+      <!-- $\mathdefault{470}$ -->
+      <g transform="translate(182.683988 143.272219) scale(0.08 -0.08)">
+       <defs>
+        <path id="Brill-Roman-37" d="M 454 2605 
+Q 544 2605 819 2595 
+Q 1094 2586 1485 2586 
+Q 1696 2586 1904 2592 
+Q 2112 2598 2269 2604 
+Q 2426 2611 2483 2611 
+Q 2496 2611 2515 2563 
+Q 2534 2515 2534 2496 
+Q 2470 2317 2326 2032 
+Q 2182 1747 2006 1395 
+Q 1830 1043 1664 662 
+Q 1498 282 1389 -92 
+Q 1280 -467 1280 -800 
+Q 1280 -902 1286 -969 
+Q 1293 -1037 1299 -1094 
+Q 1171 -1158 1050 -1158 
+Q 934 -1158 844 -1091 
+Q 755 -1024 755 -858 
+Q 755 -698 857 -429 
+Q 960 -160 1123 169 
+Q 1286 499 1475 851 
+Q 1664 1203 1840 1539 
+Q 2016 1875 2138 2150 
+L 2131 2170 
+Q 1978 2157 1802 2147 
+Q 1626 2138 1453 2138 
+Q 1312 2138 1171 2141 
+Q 1030 2144 883 2144 
+Q 698 2144 614 2118 
+Q 531 2093 496 1974 
+Q 461 1856 410 1568 
+Q 403 1510 314 1510 
+Q 256 1510 233 1523 
+Q 211 1536 211 1581 
+Q 211 1632 214 1798 
+Q 218 1965 224 2141 
+Q 230 2317 237 2406 
+Q 250 2515 298 2560 
+Q 346 2605 454 2605 
+z
+" transform="scale(0.015625)"/>
+       </defs>
+       <use xlink:href="#Brill-Roman-34" transform="translate(0 0.90625)"/>
+       <use xlink:href="#Brill-Roman-37" transform="translate(45.699997 0.90625)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(88.699982 0.90625)"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_7">
+      <path d="M 140.67458 130.952219 
+L 140.67458 9.72 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_8">
+      <g>
+       <use xlink:href="#m4812ddacdf" x="140.67458" y="130.952219" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_4">
+      <!-- $\mathdefault{480}$ -->
+      <g transform="translate(135.03458 143.272219) scale(0.08 -0.08)">
+       <defs>
+        <path id="Brill-Roman-38" d="M 1933 2054 
+L 1933 2042 
+Q 2118 1946 2291 1814 
+Q 2464 1683 2579 1491 
+Q 2694 1299 2694 1018 
+Q 2694 710 2534 460 
+Q 2374 211 2089 60 
+Q 1805 -90 1421 -90 
+Q 909 -90 573 176 
+Q 237 442 237 902 
+Q 237 1210 416 1469 
+Q 595 1728 979 1939 
+L 979 1965 
+Q 723 2099 534 2320 
+Q 346 2541 346 2906 
+Q 346 3219 502 3443 
+Q 659 3667 924 3788 
+Q 1190 3910 1517 3910 
+Q 2016 3910 2297 3648 
+Q 2579 3386 2579 3021 
+Q 2579 2458 1933 2054 
+z
+M 1178 1843 
+Q 928 1702 803 1472 
+Q 678 1242 678 973 
+Q 678 621 883 368 
+Q 1088 115 1472 115 
+Q 1818 115 2022 313 
+Q 2227 512 2227 806 
+Q 2227 1050 2086 1222 
+Q 1946 1395 1709 1542 
+Q 1472 1690 1178 1843 
+z
+M 1722 2150 
+Q 1933 2298 2057 2502 
+Q 2182 2707 2182 2963 
+Q 2182 3283 1996 3497 
+Q 1811 3712 1485 3712 
+Q 1222 3712 1008 3552 
+Q 794 3392 794 3078 
+Q 794 2771 1024 2582 
+Q 1254 2394 1722 2150 
+z
+" transform="scale(0.015625)"/>
+       </defs>
+       <use xlink:href="#Brill-Roman-34" transform="translate(0 0.90625)"/>
+       <use xlink:href="#Brill-Roman-38" transform="translate(45.699997 0.90625)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(91.399994 0.90625)"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_9">
+      <path d="M 93.105172 130.952219 
+L 93.105172 9.72 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_10">
+      <g>
+       <use xlink:href="#m4812ddacdf" x="93.105172" y="130.952219" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_5">
+      <!-- $\mathdefault{490}$ -->
+      <g transform="translate(87.425172 143.272219) scale(0.08 -0.08)">
+       <defs>
+        <path id="Brill-Roman-39" d="M 730 -371 
+Q 749 -704 912 -832 
+Q 1075 -960 1306 -960 
+Q 1574 -960 1740 -809 
+Q 1907 -659 1996 -416 
+Q 2086 -173 2121 115 
+Q 2157 403 2163 672 
+L 2138 678 
+Q 1965 480 1747 393 
+Q 1530 307 1299 307 
+Q 1005 307 765 435 
+Q 525 563 384 812 
+Q 243 1062 243 1414 
+Q 243 1798 400 2086 
+Q 557 2374 829 2534 
+Q 1101 2694 1446 2694 
+Q 1901 2694 2176 2464 
+Q 2451 2234 2579 1853 
+Q 2707 1472 2707 1005 
+Q 2707 384 2540 -105 
+Q 2374 -595 2054 -876 
+Q 1734 -1158 1267 -1158 
+Q 928 -1158 720 -1068 
+Q 512 -979 416 -851 
+Q 320 -723 320 -608 
+Q 320 -493 400 -419 
+Q 480 -346 595 -346 
+Q 672 -346 730 -371 
+z
+M 1440 538 
+Q 1683 538 1840 637 
+Q 1997 736 2073 886 
+Q 2150 1037 2150 1178 
+Q 2150 1747 1968 2118 
+Q 1786 2490 1427 2490 
+Q 1190 2490 1049 2352 
+Q 909 2214 848 1990 
+Q 787 1766 787 1510 
+Q 787 1101 953 819 
+Q 1120 538 1440 538 
+z
+" transform="scale(0.015625)"/>
+       </defs>
+       <use xlink:href="#Brill-Roman-34" transform="translate(0 0.90625)"/>
+       <use xlink:href="#Brill-Roman-39" transform="translate(45.699997 0.90625)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(92.099991 0.90625)"/>
+      </g>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_11">
+      <path d="M 45.535764 130.952219 
+L 45.535764 9.72 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_12">
+      <g>
+       <use xlink:href="#m4812ddacdf" x="45.535764" y="130.952219" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_6">
+      <!-- $\mathdefault{500}$ -->
+      <g transform="translate(39.855764 143.272219) scale(0.08 -0.08)">
+       <use xlink:href="#Brill-Roman-35" transform="translate(0 0.09375)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(42.999985 0.09375)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(92.399979 0.09375)"/>
+      </g>
+     </g>
+    </g>
+    <g id="text_7">
+     <!-- Year (BC) -->
+     <g transform="translate(166.924235 155.196438) scale(0.09 -0.09)">
+      <defs>
+       <path id="Brill-Roman-59" d="M 992 3597 
+Q 992 3558 1024 3481 
+Q 1056 3405 1133 3264 
+L 1805 2042 
+L 1818 2042 
+L 2438 3142 
+Q 2547 3334 2595 3430 
+Q 2643 3526 2643 3590 
+Q 2643 3674 2560 3699 
+Q 2477 3725 2272 3744 
+Q 2253 3744 2246 3766 
+Q 2240 3789 2240 3814 
+Q 2240 3846 2246 3875 
+Q 2253 3904 2272 3904 
+Q 2362 3904 2528 3894 
+Q 2694 3885 2835 3885 
+Q 2906 3885 3027 3888 
+Q 3149 3891 3267 3897 
+Q 3386 3904 3437 3904 
+Q 3469 3904 3469 3827 
+Q 3469 3744 3443 3744 
+Q 3264 3731 3155 3683 
+Q 3046 3635 2944 3504 
+Q 2842 3373 2669 3091 
+Q 2502 2816 2323 2493 
+Q 2144 2170 1984 1882 
+Q 1952 1824 1945 1773 
+Q 1939 1722 1939 1658 
+L 1939 800 
+Q 1939 499 1964 364 
+Q 1990 230 2089 192 
+Q 2189 154 2419 141 
+Q 2438 141 2441 118 
+Q 2445 96 2445 70 
+Q 2445 45 2441 13 
+Q 2438 -19 2413 -19 
+Q 2362 -19 2211 -12 
+Q 2061 -6 1897 -3 
+Q 1734 0 1645 0 
+Q 1536 0 1379 -3 
+Q 1222 -6 1084 -12 
+Q 947 -19 890 -19 
+Q 858 -19 858 58 
+Q 858 83 864 112 
+Q 870 141 890 141 
+Q 1120 154 1222 192 
+Q 1325 230 1350 364 
+Q 1376 499 1376 800 
+L 1376 1581 
+Q 1376 1651 1369 1702 
+Q 1363 1754 1331 1811 
+Q 1165 2125 979 2451 
+Q 794 2778 614 3078 
+Q 480 3309 397 3440 
+Q 314 3571 243 3632 
+Q 173 3693 86 3712 
+Q 0 3731 -147 3744 
+Q -160 3744 -166 3766 
+Q -173 3789 -173 3814 
+Q -173 3846 -166 3875 
+Q -160 3904 -141 3904 
+Q -83 3904 67 3897 
+Q 218 3891 374 3888 
+Q 531 3885 608 3885 
+Q 723 3885 864 3888 
+Q 1005 3891 1133 3897 
+Q 1261 3904 1325 3904 
+Q 1357 3904 1357 3827 
+Q 1357 3802 1350 3776 
+Q 1344 3750 1325 3744 
+Q 1146 3725 1069 3702 
+Q 992 3680 992 3597 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-65" d="M 2470 1389 
+L 806 1389 
+Q 806 1178 841 963 
+Q 877 749 963 569 
+Q 1050 390 1210 281 
+Q 1370 173 1626 173 
+Q 1811 173 1996 259 
+Q 2182 346 2342 563 
+Q 2368 595 2381 595 
+Q 2413 595 2473 547 
+Q 2534 499 2534 467 
+Q 2534 454 2509 410 
+Q 2458 339 2330 217 
+Q 2202 96 1994 3 
+Q 1786 -90 1485 -90 
+Q 909 -90 579 272 
+Q 250 634 250 1254 
+Q 250 1709 413 2032 
+Q 576 2355 864 2524 
+Q 1152 2694 1523 2694 
+Q 1690 2694 1866 2649 
+Q 2042 2605 2198 2477 
+Q 2355 2349 2451 2109 
+Q 2547 1869 2547 1485 
+Q 2547 1440 2534 1414 
+Q 2522 1389 2470 1389 
+z
+M 1466 2509 
+Q 1229 2509 1091 2371 
+Q 954 2234 893 2022 
+Q 832 1811 813 1594 
+L 2016 1594 
+Q 2010 1722 1990 1878 
+Q 1971 2035 1916 2179 
+Q 1862 2323 1756 2416 
+Q 1651 2509 1466 2509 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-61" d="M 1792 1472 
+Q 1798 1562 1798 1667 
+Q 1798 1773 1798 1869 
+Q 1798 2022 1763 2166 
+Q 1728 2310 1629 2403 
+Q 1530 2496 1325 2496 
+Q 1088 2496 976 2393 
+Q 864 2291 864 2125 
+Q 864 2074 873 2010 
+Q 883 1946 909 1882 
+Q 800 1760 640 1760 
+Q 538 1760 461 1824 
+Q 384 1888 384 2022 
+Q 384 2176 518 2333 
+Q 653 2490 886 2592 
+Q 1120 2694 1427 2694 
+Q 1837 2694 2073 2512 
+Q 2310 2330 2310 1888 
+Q 2310 1677 2304 1401 
+Q 2298 1126 2298 800 
+Q 2298 499 2317 364 
+Q 2336 230 2422 192 
+Q 2509 154 2694 141 
+Q 2714 141 2720 112 
+Q 2726 83 2726 58 
+Q 2726 32 2720 6 
+Q 2714 -19 2694 -19 
+Q 2688 -19 2592 -22 
+Q 2496 -26 2368 -29 
+Q 2240 -32 2131 -35 
+Q 2022 -38 1984 -38 
+Q 1914 -38 1875 -12 
+Q 1837 13 1830 83 
+L 1811 346 
+L 1779 352 
+Q 1619 166 1424 38 
+Q 1229 -90 941 -90 
+Q 646 -90 425 76 
+Q 205 243 205 576 
+Q 205 864 345 1037 
+Q 486 1210 720 1302 
+Q 954 1395 1235 1430 
+Q 1517 1466 1792 1472 
+z
+M 1786 813 
+Q 1786 845 1786 877 
+Q 1786 909 1789 1001 
+Q 1792 1094 1792 1293 
+Q 1555 1293 1315 1248 
+Q 1075 1203 912 1062 
+Q 749 922 749 640 
+Q 749 442 848 310 
+Q 947 179 1152 179 
+Q 1357 179 1504 288 
+Q 1651 397 1728 512 
+Q 1766 563 1776 624 
+Q 1786 685 1786 813 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-72" d="M 1062 2029 
+L 1094 2022 
+Q 1261 2336 1453 2515 
+Q 1645 2694 1850 2694 
+Q 1997 2694 2070 2608 
+Q 2144 2522 2144 2406 
+Q 2144 2317 2093 2224 
+Q 2042 2131 1952 2080 
+Q 1837 2214 1658 2214 
+Q 1453 2214 1328 2096 
+Q 1203 1978 1148 1789 
+Q 1094 1600 1094 1389 
+L 1094 794 
+Q 1094 486 1113 352 
+Q 1133 218 1222 186 
+Q 1312 154 1510 141 
+Q 1523 141 1529 118 
+Q 1536 96 1536 70 
+Q 1536 45 1529 13 
+Q 1523 -19 1504 -19 
+Q 1440 -19 1302 -12 
+Q 1165 -6 1030 -3 
+Q 896 0 832 0 
+Q 723 0 588 -3 
+Q 454 -6 342 -12 
+Q 230 -19 192 -19 
+Q 166 -19 166 58 
+Q 166 83 169 112 
+Q 173 141 192 141 
+Q 371 154 451 189 
+Q 531 224 556 358 
+Q 582 493 582 787 
+L 582 2016 
+Q 582 2221 550 2313 
+Q 518 2406 432 2432 
+Q 346 2458 186 2458 
+Q 160 2458 160 2522 
+Q 160 2547 166 2572 
+Q 173 2598 186 2598 
+Q 282 2611 438 2620 
+Q 595 2630 742 2636 
+Q 890 2643 947 2643 
+Q 1075 2643 1075 2547 
+Q 1075 2496 1072 2349 
+Q 1069 2202 1062 2029 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-20" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-28" d="M 1562 4275 
+Q 1587 4275 1651 4230 
+Q 1715 4186 1715 4154 
+Q 1715 4147 1664 4077 
+Q 1222 3482 995 2771 
+Q 768 2061 768 1338 
+Q 768 634 992 -76 
+Q 1216 -787 1664 -1402 
+Q 1715 -1472 1715 -1478 
+Q 1715 -1504 1651 -1552 
+Q 1587 -1600 1562 -1600 
+Q 1549 -1600 1536 -1590 
+Q 1523 -1581 1491 -1542 
+Q 1133 -1126 886 -640 
+Q 640 -154 512 358 
+Q 384 870 384 1344 
+Q 384 1811 509 2310 
+Q 634 2810 880 3299 
+Q 1126 3789 1491 4218 
+Q 1523 4256 1536 4265 
+Q 1549 4275 1562 4275 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-42" d="M 672 3078 
+Q 672 3386 649 3517 
+Q 627 3648 531 3686 
+Q 435 3725 211 3738 
+Q 186 3738 186 3814 
+Q 186 3840 192 3869 
+Q 198 3898 218 3898 
+Q 365 3898 579 3891 
+Q 794 3885 947 3885 
+Q 1037 3885 1184 3888 
+Q 1331 3891 1478 3897 
+Q 1626 3904 1702 3904 
+Q 1920 3904 2153 3881 
+Q 2387 3859 2585 3779 
+Q 2784 3699 2909 3532 
+Q 3034 3366 3034 3078 
+Q 3034 2714 2803 2454 
+Q 2573 2195 2157 2067 
+L 2157 2035 
+Q 2528 1997 2758 1856 
+Q 2989 1715 3094 1513 
+Q 3200 1312 3200 1088 
+Q 3200 896 3133 701 
+Q 3066 506 2896 342 
+Q 2726 179 2435 80 
+Q 2144 -19 1690 -19 
+Q 1587 -19 1433 -12 
+Q 1280 -6 1136 -3 
+Q 992 0 915 0 
+Q 774 0 569 -9 
+Q 365 -19 224 -19 
+Q 192 -19 192 58 
+Q 192 83 198 112 
+Q 205 141 224 141 
+Q 435 154 531 189 
+Q 627 224 649 361 
+Q 672 499 672 800 
+L 672 3078 
+z
+M 1235 1894 
+L 1235 544 
+Q 1235 378 1273 301 
+Q 1312 224 1411 205 
+Q 1510 186 1702 186 
+Q 2573 186 2573 1018 
+Q 2573 1370 2419 1558 
+Q 2266 1747 2006 1820 
+Q 1747 1894 1427 1894 
+L 1235 1894 
+z
+M 1453 2093 
+Q 1715 2093 1939 2153 
+Q 2163 2214 2300 2403 
+Q 2438 2592 2438 2970 
+Q 2438 3315 2249 3513 
+Q 2061 3712 1658 3712 
+Q 1376 3712 1305 3661 
+Q 1235 3610 1235 3475 
+L 1235 2093 
+L 1453 2093 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-43" d="M 3392 3667 
+Q 3392 3450 3389 3267 
+Q 3386 3085 3373 2899 
+Q 3366 2854 3353 2841 
+Q 3341 2829 3270 2829 
+Q 3226 2829 3194 2835 
+Q 3162 2842 3155 2886 
+Q 3117 3187 3053 3382 
+Q 2989 3578 2835 3670 
+Q 2682 3763 2362 3763 
+Q 1958 3763 1680 3616 
+Q 1402 3469 1238 3213 
+Q 1075 2957 1001 2627 
+Q 928 2298 928 1933 
+Q 928 1626 995 1309 
+Q 1062 992 1216 723 
+Q 1370 454 1635 288 
+Q 1901 122 2298 122 
+Q 2592 122 2761 202 
+Q 2931 282 3024 470 
+Q 3117 659 3168 986 
+Q 3174 1030 3206 1036 
+Q 3238 1043 3283 1043 
+Q 3354 1043 3370 1033 
+Q 3386 1024 3386 986 
+Q 3386 813 3379 598 
+Q 3373 384 3360 237 
+Q 3354 134 3306 92 
+Q 3258 51 3142 19 
+Q 2918 -32 2704 -61 
+Q 2490 -90 2240 -90 
+Q 1312 -90 800 419 
+Q 288 928 288 1856 
+Q 288 2490 531 2966 
+Q 774 3443 1251 3708 
+Q 1728 3974 2413 3974 
+Q 2637 3974 2845 3948 
+Q 3053 3923 3264 3859 
+Q 3354 3834 3373 3786 
+Q 3392 3738 3392 3667 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-29" d="M 538 4275 
+Q 550 4275 563 4265 
+Q 576 4256 608 4218 
+Q 979 3789 1222 3299 
+Q 1466 2810 1590 2310 
+Q 1715 1811 1715 1344 
+Q 1715 870 1587 358 
+Q 1459 -154 1212 -640 
+Q 966 -1126 608 -1542 
+Q 576 -1581 563 -1590 
+Q 550 -1600 538 -1600 
+Q 512 -1600 448 -1552 
+Q 384 -1504 384 -1478 
+Q 384 -1472 435 -1402 
+Q 890 -787 1110 -76 
+Q 1331 634 1331 1338 
+Q 1331 2061 1104 2771 
+Q 877 3482 435 4077 
+Q 384 4147 384 4154 
+Q 384 4186 448 4230 
+Q 512 4275 538 4275 
+z
+" transform="scale(0.015625)"/>
+      </defs>
+      <use xlink:href="#Brill-Roman-59"/>
+      <use xlink:href="#Brill-Roman-65" transform="translate(51.299988 0)"/>
+      <use xlink:href="#Brill-Roman-61" transform="translate(94.899979 0)"/>
+      <use xlink:href="#Brill-Roman-72" transform="translate(138.699966 0)"/>
+      <use xlink:href="#Brill-Roman-20" transform="translate(171.799957 0)"/>
+      <use xlink:href="#Brill-Roman-28" transform="translate(191.599945 0)"/>
+      <use xlink:href="#Brill-Roman-42" transform="translate(224.399933 0)"/>
+      <use xlink:href="#Brill-Roman-43" transform="translate(277.699921 0)"/>
+      <use xlink:href="#Brill-Roman-29" transform="translate(335.299911 0)"/>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_13">
+      <path d="M 42.205905 123.481471 
+L 324.768189 123.481471 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_14">
+      <defs>
+       <path id="md7b25af8c6" d="M 0 0 
+L -3.5 0 
+" style="stroke: #000000; stroke-width: 0.6"/>
+      </defs>
+      <g>
+       <use xlink:href="#md7b25af8c6" x="42.205905" y="123.481471" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_8">
+      <!-- $\mathdefault{0.45}$ -->
+      <g transform="translate(22.485905 126.141471) scale(0.08 -0.08)">
+       <defs>
+        <path id="Brill-Roman-2e" d="M 634 672 
+Q 794 672 886 582 
+Q 979 493 979 326 
+Q 979 179 899 48 
+Q 819 -83 614 -83 
+Q 461 -83 358 6 
+Q 256 96 256 275 
+Q 256 422 342 547 
+Q 429 672 634 672 
+z
+" transform="scale(0.015625)"/>
+       </defs>
+       <use xlink:href="#Brill-Roman-30" transform="translate(0 0.09375)"/>
+       <use xlink:href="#Brill-Roman-2e" transform="translate(49.399994 0.09375)"/>
+       <use xlink:href="#Brill-Roman-34" transform="translate(69.399979 0.09375)"/>
+       <use xlink:href="#Brill-Roman-35" transform="translate(115.099976 0.09375)"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_15">
+      <path d="M 42.205905 105.706241 
+L 324.768189 105.706241 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_16">
+      <g>
+       <use xlink:href="#md7b25af8c6" x="42.205905" y="105.706241" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <!-- $\mathdefault{0.50}$ -->
+      <g transform="translate(22.245905 108.366241) scale(0.08 -0.08)">
+       <use xlink:href="#Brill-Roman-30" transform="translate(0 0.09375)"/>
+       <use xlink:href="#Brill-Roman-2e" transform="translate(49.399994 0.09375)"/>
+       <use xlink:href="#Brill-Roman-35" transform="translate(69.399979 0.09375)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(112.399963 0.09375)"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_17">
+      <path d="M 42.205905 87.931011 
+L 324.768189 87.931011 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_18">
+      <g>
+       <use xlink:href="#md7b25af8c6" x="42.205905" y="87.931011" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <!-- $\mathdefault{0.55}$ -->
+      <g transform="translate(22.725905 90.591011) scale(0.08 -0.08)">
+       <use xlink:href="#Brill-Roman-30" transform="translate(0 0.09375)"/>
+       <use xlink:href="#Brill-Roman-2e" transform="translate(49.399994 0.09375)"/>
+       <use xlink:href="#Brill-Roman-35" transform="translate(69.399979 0.09375)"/>
+       <use xlink:href="#Brill-Roman-35" transform="translate(112.399963 0.09375)"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_19">
+      <path d="M 42.205905 70.155781 
+L 324.768189 70.155781 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_20">
+      <g>
+       <use xlink:href="#md7b25af8c6" x="42.205905" y="70.155781" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_11">
+      <!-- $\mathdefault{0.60}$ -->
+      <g transform="translate(21.845905 72.815781) scale(0.08 -0.08)">
+       <use xlink:href="#Brill-Roman-30" transform="translate(0 0.90625)"/>
+       <use xlink:href="#Brill-Roman-2e" transform="translate(49.399994 0.90625)"/>
+       <use xlink:href="#Brill-Roman-36" transform="translate(69.399979 0.90625)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(116.699966 0.90625)"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_21">
+      <path d="M 42.205905 52.380552 
+L 324.768189 52.380552 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_22">
+      <g>
+       <use xlink:href="#md7b25af8c6" x="42.205905" y="52.380552" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_12">
+      <!-- $\mathdefault{0.65}$ -->
+      <g transform="translate(22.405905 55.040552) scale(0.08 -0.08)">
+       <use xlink:href="#Brill-Roman-30" transform="translate(0 0.90625)"/>
+       <use xlink:href="#Brill-Roman-2e" transform="translate(49.399994 0.90625)"/>
+       <use xlink:href="#Brill-Roman-36" transform="translate(69.399979 0.90625)"/>
+       <use xlink:href="#Brill-Roman-35" transform="translate(116.699966 0.90625)"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_23">
+      <path d="M 42.205905 34.605322 
+L 324.768189 34.605322 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_24">
+      <g>
+       <use xlink:href="#md7b25af8c6" x="42.205905" y="34.605322" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <!-- $\mathdefault{0.70}$ -->
+      <g transform="translate(22.245905 37.265322) scale(0.08 -0.08)">
+       <use xlink:href="#Brill-Roman-30" transform="translate(0 0.90625)"/>
+       <use xlink:href="#Brill-Roman-2e" transform="translate(49.399994 0.90625)"/>
+       <use xlink:href="#Brill-Roman-37" transform="translate(69.399979 0.90625)"/>
+       <use xlink:href="#Brill-Roman-30" transform="translate(112.399963 0.90625)"/>
+      </g>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_25">
+      <path d="M 42.205905 16.830092 
+L 324.768189 16.830092 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke: #d9d9d9; stroke-width: 0.5; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_26">
+      <g>
+       <use xlink:href="#md7b25af8c6" x="42.205905" y="16.830092" style="stroke: #000000; stroke-width: 0.6"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <!-- $\mathdefault{0.75}$ -->
+      <g transform="translate(22.725905 19.490092) scale(0.08 -0.08)">
+       <use xlink:href="#Brill-Roman-30" transform="translate(0 0.09375)"/>
+       <use xlink:href="#Brill-Roman-2e" transform="translate(49.399994 0.09375)"/>
+       <use xlink:href="#Brill-Roman-37" transform="translate(69.399979 0.09375)"/>
+       <use xlink:href="#Brill-Roman-35" transform="translate(112.399963 0.09375)"/>
+      </g>
+     </g>
+    </g>
+    <g id="text_15">
+     <!-- Score -->
+     <g transform="translate(15.694343 79.807907) rotate(-90) scale(0.09 -0.09)">
+      <defs>
+       <path id="Brill-Roman-53" d="M 493 1050 
+Q 531 621 688 377 
+Q 845 134 1254 134 
+Q 2035 134 2035 864 
+Q 2035 1082 1923 1232 
+Q 1811 1382 1635 1494 
+Q 1459 1606 1254 1702 
+Q 1024 1818 793 1958 
+Q 563 2099 409 2320 
+Q 256 2541 256 2874 
+Q 256 3405 621 3689 
+Q 986 3974 1549 3974 
+Q 1946 3974 2272 3885 
+Q 2355 3859 2374 3808 
+Q 2394 3757 2394 3686 
+Q 2394 3514 2390 3325 
+Q 2387 3136 2381 2995 
+Q 2381 2950 2365 2937 
+Q 2349 2925 2278 2925 
+Q 2234 2925 2205 2931 
+Q 2176 2938 2170 2982 
+Q 2125 3322 1990 3542 
+Q 1856 3763 1491 3763 
+Q 1190 3763 960 3600 
+Q 730 3437 730 3117 
+Q 730 2886 851 2726 
+Q 973 2566 1165 2448 
+Q 1357 2330 1574 2221 
+Q 1818 2099 2042 1955 
+Q 2266 1811 2413 1603 
+Q 2560 1395 2560 1069 
+Q 2560 666 2387 410 
+Q 2214 154 1910 32 
+Q 1606 -90 1222 -90 
+Q 1024 -90 813 -64 
+Q 602 -38 403 6 
+Q 307 32 288 80 
+Q 269 128 269 237 
+Q 269 474 272 656 
+Q 275 838 282 1050 
+Q 282 1107 378 1107 
+Q 429 1107 457 1100 
+Q 486 1094 493 1050 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-63" d="M 2010 1856 
+Q 2022 1920 2022 1955 
+Q 2022 1990 2022 2035 
+Q 2022 2234 1926 2365 
+Q 1830 2496 1568 2496 
+Q 1293 2496 1126 2326 
+Q 960 2157 886 1894 
+Q 813 1632 813 1357 
+Q 813 1082 883 810 
+Q 954 538 1133 358 
+Q 1312 179 1632 179 
+Q 1856 179 2019 284 
+Q 2182 390 2317 595 
+Q 2342 634 2362 634 
+Q 2387 634 2448 595 
+Q 2509 557 2509 525 
+Q 2509 506 2490 467 
+Q 2445 390 2333 259 
+Q 2221 128 2013 19 
+Q 1805 -90 1478 -90 
+Q 1107 -90 828 76 
+Q 550 243 396 540 
+Q 243 838 243 1222 
+Q 243 1683 425 2012 
+Q 608 2342 921 2518 
+Q 1235 2694 1626 2694 
+Q 1926 2694 2115 2604 
+Q 2304 2515 2393 2384 
+Q 2483 2253 2483 2125 
+Q 2483 1978 2393 1904 
+Q 2304 1830 2176 1830 
+Q 2086 1830 2010 1856 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-6f" d="M 1606 2694 
+Q 2144 2694 2486 2377 
+Q 2829 2061 2829 1402 
+Q 2829 1126 2758 860 
+Q 2688 595 2531 380 
+Q 2374 166 2121 38 
+Q 1869 -90 1498 -90 
+Q 954 -90 605 259 
+Q 256 608 256 1274 
+Q 256 1626 387 1952 
+Q 518 2278 816 2486 
+Q 1114 2694 1606 2694 
+z
+M 1523 2509 
+Q 1306 2509 1168 2400 
+Q 1030 2291 956 2118 
+Q 883 1946 854 1757 
+Q 826 1568 826 1408 
+Q 826 1171 854 940 
+Q 883 710 963 521 
+Q 1043 333 1190 217 
+Q 1338 102 1574 102 
+Q 1798 102 1932 217 
+Q 2067 333 2137 512 
+Q 2208 691 2233 889 
+Q 2259 1088 2259 1254 
+Q 2259 1568 2204 1856 
+Q 2150 2144 1993 2326 
+Q 1837 2509 1523 2509 
+z
+" transform="scale(0.015625)"/>
+      </defs>
+      <use xlink:href="#Brill-Roman-53"/>
+      <use xlink:href="#Brill-Roman-63" transform="translate(43.999985 0)"/>
+      <use xlink:href="#Brill-Roman-6f" transform="translate(85.599976 0)"/>
+      <use xlink:href="#Brill-Roman-72" transform="translate(133.799973 0)"/>
+      <use xlink:href="#Brill-Roman-65" transform="translate(166.899963 0)"/>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_27">
+    <path d="M 311.924449 101.373018 
+L 55.049645 74.626841 
+L 55.049645 74.626841 
+" clip-path="url(#p297bd7bbff)" style="fill: none; stroke-dasharray: 4.8,2.4; stroke-dashoffset: 0; stroke: #000000; stroke-width: 1.2"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 42.205905 130.952219 
+L 42.205905 9.72 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 324.768189 130.952219 
+L 324.768189 9.72 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 42.205905 130.952219 
+L 324.768189 130.952219 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_6">
+    <path d="M 42.205905 9.72 
+L 324.768189 9.72 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="legend_1">
+    <g id="patch_7">
+     <path d="M 221.674439 73.8975 
+L 319.168189 73.8975 
+Q 320.768189 73.8975 320.768189 72.2975 
+L 320.768189 15.32 
+Q 320.768189 13.72 319.168189 13.72 
+L 221.674439 13.72 
+Q 220.074439 13.72 220.074439 15.32 
+L 220.074439 72.2975 
+Q 220.074439 73.8975 221.674439 73.8975 
+z
+" style="fill: #ffffff; stroke: #000000; stroke-linejoin: miter"/>
+    </g>
+    <g id="PathCollection_5">
+     <g>
+      <use xlink:href="#m80c5d01ad7" x="231.274439" y="20.42" style="stroke: #000000"/>
+     </g>
+    </g>
+    <g id="text_16">
+     <!-- Pythian -->
+     <g transform="translate(245.674439 22.52) scale(0.08 -0.08)">
+      <defs>
+       <path id="Brill-Roman-50" d="M 678 3078 
+Q 678 3386 656 3517 
+Q 634 3648 544 3686 
+Q 454 3725 250 3738 
+Q 224 3738 224 3814 
+Q 224 3840 230 3869 
+Q 237 3898 256 3898 
+Q 314 3898 438 3894 
+Q 563 3891 704 3888 
+Q 845 3885 954 3885 
+Q 1062 3885 1216 3888 
+Q 1370 3891 1517 3897 
+Q 1664 3904 1754 3904 
+Q 2125 3904 2425 3821 
+Q 2726 3738 2908 3520 
+Q 3091 3302 3091 2906 
+Q 3091 2464 2876 2195 
+Q 2662 1926 2307 1808 
+Q 1952 1690 1517 1690 
+Q 1466 1690 1392 1690 
+Q 1318 1690 1242 1696 
+L 1242 800 
+Q 1242 480 1270 349 
+Q 1299 218 1408 186 
+Q 1517 154 1754 141 
+Q 1766 141 1772 118 
+Q 1779 96 1779 70 
+Q 1779 45 1772 13 
+Q 1766 -19 1747 -19 
+Q 1658 -19 1501 -12 
+Q 1344 -6 1190 -3 
+Q 1037 0 954 0 
+Q 838 0 691 -3 
+Q 544 -6 419 -12 
+Q 294 -19 230 -19 
+Q 198 -19 198 58 
+Q 198 83 204 112 
+Q 211 141 230 141 
+Q 442 154 538 189 
+Q 634 224 656 361 
+Q 678 499 678 800 
+L 678 3078 
+z
+M 1242 3462 
+L 1242 1894 
+Q 1299 1888 1353 1888 
+Q 1408 1888 1446 1888 
+Q 1978 1888 2237 2089 
+Q 2496 2291 2496 2842 
+Q 2496 3200 2294 3456 
+Q 2093 3712 1658 3712 
+Q 1382 3712 1312 3661 
+Q 1242 3610 1242 3462 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-79" d="M 1178 0 
+L 512 1792 
+Q 397 2099 329 2233 
+Q 262 2368 182 2406 
+Q 102 2445 -45 2458 
+Q -70 2458 -70 2522 
+Q -70 2554 -64 2582 
+Q -58 2611 -38 2611 
+Q 0 2611 118 2608 
+Q 237 2605 365 2601 
+Q 493 2598 570 2598 
+Q 666 2598 790 2601 
+Q 915 2605 1024 2608 
+Q 1133 2611 1165 2611 
+Q 1190 2611 1190 2534 
+Q 1190 2458 1165 2458 
+Q 1024 2451 963 2425 
+Q 902 2400 902 2304 
+Q 902 2253 931 2160 
+Q 960 2067 1005 1933 
+L 1504 557 
+L 1510 557 
+L 2029 1926 
+Q 2093 2086 2112 2169 
+Q 2131 2253 2131 2304 
+Q 2131 2400 2057 2425 
+Q 1984 2451 1805 2458 
+Q 1786 2458 1786 2522 
+Q 1786 2554 1789 2582 
+Q 1792 2611 1811 2611 
+Q 1843 2611 1939 2608 
+Q 2035 2605 2140 2601 
+Q 2246 2598 2298 2598 
+Q 2426 2598 2595 2604 
+Q 2765 2611 2810 2611 
+Q 2829 2611 2829 2534 
+Q 2829 2458 2810 2458 
+Q 2662 2451 2585 2409 
+Q 2509 2368 2441 2230 
+Q 2374 2093 2253 1792 
+Q 2093 1382 1977 1097 
+Q 1862 813 1772 598 
+Q 1683 384 1600 166 
+L 1325 -544 
+Q 1126 -1056 934 -1318 
+Q 742 -1581 461 -1581 
+Q 282 -1581 189 -1481 
+Q 96 -1382 96 -1254 
+Q 96 -1120 179 -1011 
+Q 262 -1056 345 -1085 
+Q 429 -1114 525 -1114 
+Q 691 -1114 806 -998 
+Q 922 -883 1034 -636 
+Q 1146 -390 1293 -13 
+L 1178 0 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-74" d="M 1050 2349 
+Q 1043 2042 1040 1734 
+Q 1037 1427 1033 1168 
+Q 1030 909 1030 742 
+Q 1030 429 1107 317 
+Q 1184 205 1376 205 
+Q 1517 205 1609 262 
+Q 1702 320 1753 377 
+Q 1805 435 1818 435 
+Q 1850 435 1894 393 
+Q 1939 352 1939 326 
+Q 1939 320 1865 214 
+Q 1792 109 1632 9 
+Q 1472 -90 1197 -90 
+Q 826 -90 669 92 
+Q 512 275 512 595 
+Q 512 819 518 1142 
+Q 525 1466 531 1792 
+Q 538 2118 544 2349 
+L 134 2349 
+Q 102 2349 102 2426 
+Q 102 2483 134 2496 
+Q 390 2605 537 2749 
+Q 685 2893 765 3062 
+Q 845 3232 909 3411 
+Q 915 3437 960 3437 
+Q 992 3437 1040 3430 
+Q 1088 3424 1088 3398 
+Q 1088 3386 1078 3245 
+Q 1069 3104 1059 2918 
+Q 1050 2733 1050 2586 
+L 1818 2586 
+Q 1843 2586 1843 2502 
+L 1843 2470 
+Q 1843 2349 1811 2349 
+L 1050 2349 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-68" d="M 3142 141 
+Q 3155 141 3161 118 
+Q 3168 96 3168 70 
+Q 3168 45 3161 13 
+Q 3155 -19 3136 -19 
+Q 3098 -19 2973 -12 
+Q 2848 -6 2713 -3 
+Q 2579 0 2502 0 
+Q 2413 0 2281 -3 
+Q 2150 -6 2038 -12 
+Q 1926 -19 1888 -19 
+Q 1856 -19 1856 58 
+Q 1856 83 1862 112 
+Q 1869 141 1888 141 
+Q 2067 154 2140 189 
+Q 2214 224 2230 355 
+Q 2246 486 2253 781 
+Q 2259 1018 2259 1267 
+Q 2259 1517 2259 1779 
+Q 2259 2061 2182 2221 
+Q 2106 2381 1805 2381 
+Q 1542 2381 1356 2237 
+Q 1171 2093 1082 1946 
+Q 1056 1894 1046 1846 
+Q 1037 1798 1037 1728 
+L 1037 787 
+Q 1037 493 1056 358 
+Q 1075 224 1152 189 
+Q 1229 154 1395 141 
+Q 1408 141 1414 118 
+Q 1421 96 1421 70 
+Q 1421 45 1414 13 
+Q 1408 -19 1389 -19 
+Q 1357 -19 1235 -12 
+Q 1114 -6 979 -3 
+Q 845 0 774 0 
+Q 678 0 544 -3 
+Q 410 -6 298 -12 
+Q 186 -19 141 -19 
+Q 109 -19 109 58 
+Q 109 83 115 112 
+Q 122 141 141 141 
+Q 314 154 394 189 
+Q 474 224 499 358 
+Q 525 493 525 787 
+L 525 3610 
+Q 525 3821 493 3913 
+Q 461 4006 368 4032 
+Q 275 4058 90 4058 
+Q 70 4058 70 4128 
+Q 70 4205 90 4205 
+Q 192 4218 368 4227 
+Q 544 4237 710 4246 
+Q 877 4256 941 4256 
+Q 1062 4256 1062 4128 
+Q 1062 4064 1056 3811 
+Q 1050 3558 1043 3180 
+Q 1037 2803 1037 2374 
+L 1037 2189 
+L 1062 2182 
+Q 1267 2438 1500 2566 
+Q 1734 2694 2010 2694 
+Q 2317 2694 2544 2524 
+Q 2771 2355 2771 1984 
+Q 2771 1677 2768 1337 
+Q 2765 998 2765 698 
+Q 2765 442 2790 330 
+Q 2816 218 2899 186 
+Q 2982 154 3142 141 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-69" d="M 1459 141 
+Q 1472 141 1478 118 
+Q 1485 96 1485 70 
+Q 1485 45 1478 13 
+Q 1472 -19 1453 -19 
+Q 1421 -19 1299 -12 
+Q 1178 -6 1043 -3 
+Q 909 0 832 0 
+Q 730 0 595 -3 
+Q 461 -6 349 -12 
+Q 237 -19 198 -19 
+Q 173 -19 173 58 
+Q 173 83 176 112 
+Q 179 141 198 141 
+Q 371 154 454 189 
+Q 538 224 560 358 
+Q 582 493 582 787 
+L 582 2016 
+Q 582 2221 553 2313 
+Q 525 2406 441 2432 
+Q 358 2458 205 2458 
+Q 173 2458 173 2522 
+Q 173 2547 179 2572 
+Q 186 2598 205 2598 
+Q 288 2611 454 2620 
+Q 621 2630 781 2636 
+Q 941 2643 1005 2643 
+Q 1114 2643 1114 2534 
+Q 1114 2451 1104 2169 
+Q 1094 1888 1094 1434 
+L 1094 787 
+Q 1094 493 1116 358 
+Q 1139 224 1216 189 
+Q 1293 154 1459 141 
+z
+M 845 3808 
+Q 986 3808 1066 3731 
+Q 1146 3654 1146 3507 
+Q 1146 3379 1078 3264 
+Q 1011 3149 826 3149 
+Q 698 3149 608 3229 
+Q 518 3309 518 3462 
+Q 518 3590 592 3699 
+Q 666 3808 845 3808 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-6e" d="M 3187 141 
+Q 3200 141 3206 118 
+Q 3213 96 3213 70 
+Q 3213 45 3206 13 
+Q 3200 -19 3181 -19 
+Q 3142 -19 3017 -12 
+Q 2893 -6 2758 -3 
+Q 2624 0 2547 0 
+Q 2458 0 2323 -3 
+Q 2189 -6 2077 -12 
+Q 1965 -19 1926 -19 
+Q 1901 -19 1901 58 
+Q 1901 83 1907 112 
+Q 1914 141 1926 141 
+Q 2106 154 2182 192 
+Q 2259 230 2275 364 
+Q 2291 499 2298 781 
+Q 2304 1011 2304 1267 
+Q 2304 1523 2304 1779 
+Q 2304 2061 2227 2221 
+Q 2150 2381 1850 2381 
+Q 1587 2381 1404 2233 
+Q 1222 2086 1133 1939 
+Q 1107 1894 1100 1843 
+Q 1094 1792 1094 1722 
+L 1094 787 
+Q 1094 493 1110 358 
+Q 1126 224 1203 189 
+Q 1280 154 1446 141 
+Q 1459 141 1462 118 
+Q 1466 96 1466 70 
+Q 1466 45 1459 13 
+Q 1453 -19 1440 -19 
+Q 1408 -19 1286 -12 
+Q 1165 -6 1033 -3 
+Q 902 0 832 0 
+Q 723 0 588 -3 
+Q 454 -6 342 -12 
+Q 230 -19 192 -19 
+Q 166 -19 166 58 
+Q 166 83 169 112 
+Q 173 141 192 141 
+Q 371 154 451 189 
+Q 531 224 556 358 
+Q 582 493 582 787 
+L 582 2016 
+Q 582 2221 550 2313 
+Q 518 2406 432 2432 
+Q 346 2458 186 2458 
+Q 160 2458 160 2522 
+Q 160 2547 166 2572 
+Q 173 2598 186 2598 
+Q 275 2611 438 2620 
+Q 602 2630 758 2636 
+Q 915 2643 973 2643 
+Q 1101 2643 1101 2547 
+Q 1101 2496 1094 2393 
+Q 1088 2291 1082 2182 
+L 1107 2176 
+Q 1306 2419 1533 2556 
+Q 1760 2694 2054 2694 
+Q 2362 2694 2589 2524 
+Q 2816 2355 2816 1984 
+Q 2816 1773 2816 1536 
+Q 2816 1299 2813 1078 
+Q 2810 858 2810 698 
+Q 2810 442 2838 330 
+Q 2867 218 2950 186 
+Q 3034 154 3187 141 
+z
+" transform="scale(0.015625)"/>
+      </defs>
+      <use xlink:href="#Brill-Roman-50"/>
+      <use xlink:href="#Brill-Roman-79" transform="translate(50.699997 0)"/>
+      <use xlink:href="#Brill-Roman-74" transform="translate(93.699982 0)"/>
+      <use xlink:href="#Brill-Roman-68" transform="translate(124.199966 0)"/>
+      <use xlink:href="#Brill-Roman-69" transform="translate(175.399963 0)"/>
+      <use xlink:href="#Brill-Roman-61" transform="translate(200.699951 0)"/>
+      <use xlink:href="#Brill-Roman-6e" transform="translate(244.499939 0)"/>
+     </g>
+    </g>
+    <g id="PathCollection_6">
+     <g>
+      <use xlink:href="#m3da8cd26a8" x="231.274439" y="31.99625" style="fill: #404040; stroke: #404040"/>
+     </g>
+    </g>
+    <g id="text_17">
+     <!-- Olympian -->
+     <g transform="translate(245.674439 34.09625) scale(0.08 -0.08)">
+      <defs>
+       <path id="Brill-Roman-4f" d="M 2163 3974 
+Q 2662 3974 3052 3766 
+Q 3443 3558 3667 3129 
+Q 3891 2701 3891 2035 
+Q 3891 1638 3788 1260 
+Q 3686 883 3465 576 
+Q 3245 269 2893 89 
+Q 2541 -90 2035 -90 
+Q 1530 -90 1133 137 
+Q 736 365 512 813 
+Q 288 1261 288 1920 
+Q 288 2310 393 2678 
+Q 499 3046 723 3337 
+Q 947 3629 1302 3801 
+Q 1658 3974 2163 3974 
+z
+M 2080 3770 
+Q 1734 3770 1510 3600 
+Q 1286 3430 1158 3164 
+Q 1030 2899 979 2604 
+Q 928 2310 928 2054 
+Q 928 1702 979 1356 
+Q 1030 1011 1155 729 
+Q 1280 448 1513 281 
+Q 1747 115 2112 115 
+Q 2470 115 2694 291 
+Q 2918 467 3040 742 
+Q 3162 1018 3206 1325 
+Q 3251 1632 3251 1888 
+Q 3251 2246 3203 2582 
+Q 3155 2918 3030 3187 
+Q 2906 3456 2675 3613 
+Q 2445 3770 2080 3770 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-6c" d="M 1434 141 
+Q 1446 141 1449 118 
+Q 1453 96 1453 70 
+Q 1453 45 1446 13 
+Q 1440 -19 1427 -19 
+Q 1389 -19 1261 -12 
+Q 1133 -6 992 -3 
+Q 851 0 774 0 
+Q 678 0 547 -3 
+Q 416 -6 304 -12 
+Q 192 -19 147 -19 
+Q 115 -19 115 58 
+Q 115 83 121 112 
+Q 128 141 147 141 
+Q 320 154 400 192 
+Q 480 230 502 368 
+Q 525 506 525 806 
+L 525 3610 
+Q 525 3821 493 3913 
+Q 461 4006 368 4032 
+Q 275 4058 90 4058 
+Q 70 4058 70 4128 
+Q 70 4205 90 4205 
+Q 192 4218 368 4227 
+Q 544 4237 713 4246 
+Q 883 4256 947 4256 
+Q 1062 4256 1062 4128 
+Q 1062 4064 1056 3824 
+Q 1050 3584 1043 3222 
+Q 1037 2861 1037 2432 
+L 1037 806 
+Q 1037 506 1062 368 
+Q 1088 230 1171 192 
+Q 1254 154 1434 141 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-6d" d="M 2765 2157 
+Q 3187 2694 3699 2694 
+Q 4000 2694 4221 2531 
+Q 4442 2368 4442 1984 
+Q 4442 1677 4438 1337 
+Q 4435 998 4435 698 
+Q 4435 442 4464 330 
+Q 4493 218 4573 186 
+Q 4653 154 4813 141 
+Q 4826 141 4832 118 
+Q 4838 96 4838 70 
+Q 4838 45 4832 13 
+Q 4826 -19 4806 -19 
+Q 4768 -19 4643 -12 
+Q 4518 -6 4387 -3 
+Q 4256 0 4186 0 
+Q 4096 0 3971 -3 
+Q 3846 -6 3740 -12 
+Q 3635 -19 3590 -19 
+Q 3558 -19 3558 58 
+Q 3558 83 3564 112 
+Q 3571 141 3590 141 
+Q 3750 154 3817 192 
+Q 3885 230 3901 364 
+Q 3917 499 3923 781 
+Q 3930 1011 3930 1267 
+Q 3930 1523 3930 1741 
+Q 3930 2061 3853 2221 
+Q 3776 2381 3494 2381 
+Q 3264 2381 3081 2246 
+Q 2899 2112 2810 1946 
+Q 2784 1894 2777 1846 
+Q 2771 1798 2771 1728 
+Q 2771 1510 2768 1228 
+Q 2765 947 2765 698 
+Q 2765 442 2787 330 
+Q 2810 218 2883 186 
+Q 2957 154 3117 141 
+Q 3130 141 3136 118 
+Q 3142 96 3142 70 
+Q 3142 45 3136 13 
+Q 3130 -19 3117 -19 
+Q 3078 -19 2960 -12 
+Q 2842 -6 2710 -3 
+Q 2579 0 2502 0 
+Q 2413 0 2288 -3 
+Q 2163 -6 2054 -12 
+Q 1946 -19 1914 -19 
+Q 1882 -19 1882 58 
+Q 1882 83 1888 112 
+Q 1894 141 1914 141 
+Q 2074 154 2141 192 
+Q 2208 230 2224 364 
+Q 2240 499 2246 781 
+Q 2253 1011 2253 1264 
+Q 2253 1517 2253 1734 
+Q 2253 2054 2179 2217 
+Q 2106 2381 1818 2381 
+Q 1600 2381 1417 2253 
+Q 1235 2125 1126 1939 
+Q 1101 1894 1097 1852 
+Q 1094 1811 1094 1741 
+L 1094 787 
+Q 1094 493 1110 358 
+Q 1126 224 1203 189 
+Q 1280 154 1446 141 
+Q 1459 141 1462 118 
+Q 1466 96 1466 70 
+Q 1466 45 1459 13 
+Q 1453 -19 1440 -19 
+Q 1408 -19 1286 -12 
+Q 1165 -6 1033 -3 
+Q 902 0 832 0 
+Q 723 0 588 -3 
+Q 454 -6 342 -12 
+Q 230 -19 192 -19 
+Q 166 -19 166 58 
+Q 166 83 169 112 
+Q 173 141 192 141 
+Q 371 154 451 189 
+Q 531 224 556 358 
+Q 582 493 582 787 
+L 582 2016 
+Q 582 2221 550 2313 
+Q 518 2406 432 2432 
+Q 346 2458 186 2458 
+Q 160 2458 160 2522 
+Q 160 2547 166 2572 
+Q 173 2598 186 2598 
+Q 275 2611 438 2620 
+Q 602 2630 758 2636 
+Q 915 2643 973 2643 
+Q 1101 2643 1101 2547 
+Q 1101 2496 1094 2393 
+Q 1088 2291 1082 2182 
+L 1107 2176 
+Q 1523 2694 2022 2694 
+Q 2278 2694 2480 2576 
+Q 2682 2458 2746 2163 
+L 2765 2157 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-70" d="M 1062 64 
+L 1062 -723 
+Q 1062 -1018 1078 -1149 
+Q 1094 -1280 1184 -1315 
+Q 1274 -1350 1478 -1370 
+Q 1491 -1370 1494 -1392 
+Q 1498 -1414 1498 -1440 
+Q 1498 -1466 1491 -1498 
+Q 1485 -1530 1472 -1530 
+Q 1434 -1530 1309 -1523 
+Q 1184 -1517 1053 -1513 
+Q 922 -1510 851 -1510 
+Q 749 -1510 608 -1513 
+Q 467 -1517 352 -1523 
+Q 237 -1530 192 -1530 
+Q 160 -1530 160 -1453 
+Q 160 -1427 166 -1398 
+Q 173 -1370 192 -1370 
+Q 346 -1357 422 -1321 
+Q 499 -1286 524 -1152 
+Q 550 -1018 550 -723 
+L 550 2016 
+Q 550 2221 518 2313 
+Q 486 2406 403 2432 
+Q 320 2458 160 2458 
+Q 128 2458 128 2522 
+Q 128 2547 134 2572 
+Q 141 2598 154 2598 
+Q 250 2611 416 2620 
+Q 582 2630 739 2636 
+Q 896 2643 954 2643 
+Q 1024 2643 1046 2617 
+Q 1069 2592 1069 2547 
+Q 1069 2522 1069 2470 
+Q 1069 2419 1062 2330 
+L 1088 2323 
+Q 1261 2490 1459 2592 
+Q 1658 2694 1933 2694 
+Q 2317 2694 2547 2518 
+Q 2778 2342 2880 2057 
+Q 2982 1773 2982 1434 
+Q 2982 1018 2832 669 
+Q 2682 320 2387 115 
+Q 2093 -90 1664 -90 
+Q 1338 -90 1075 70 
+L 1062 64 
+z
+M 1062 1894 
+L 1062 486 
+Q 1062 307 1219 208 
+Q 1376 109 1658 109 
+Q 1958 109 2121 294 
+Q 2285 480 2352 758 
+Q 2419 1037 2419 1312 
+Q 2419 1843 2236 2137 
+Q 2054 2432 1715 2432 
+Q 1434 2432 1248 2265 
+Q 1062 2099 1062 1894 
+z
+" transform="scale(0.015625)"/>
+      </defs>
+      <use xlink:href="#Brill-Roman-4f"/>
+      <use xlink:href="#Brill-Roman-6c" transform="translate(65.299988 0)"/>
+      <use xlink:href="#Brill-Roman-79" transform="translate(89.699982 0)"/>
+      <use xlink:href="#Brill-Roman-6d" transform="translate(132.699966 0)"/>
+      <use xlink:href="#Brill-Roman-70" transform="translate(209.999954 0)"/>
+      <use xlink:href="#Brill-Roman-69" transform="translate(260.599945 0)"/>
+      <use xlink:href="#Brill-Roman-61" transform="translate(285.899933 0)"/>
+      <use xlink:href="#Brill-Roman-6e" transform="translate(329.699921 0)"/>
+     </g>
+    </g>
+    <g id="PathCollection_7">
+     <g>
+      <use xlink:href="#m1b35d31b1a" x="231.274439" y="43.5725" style="fill: #666666; stroke: #000000"/>
+     </g>
+    </g>
+    <g id="text_18">
+     <!-- Nemean -->
+     <g transform="translate(245.674439 45.6725) scale(0.08 -0.08)">
+      <defs>
+       <path id="Brill-Roman-4e" d="M 915 3174 
+L 915 986 
+Q 915 621 956 445 
+Q 998 269 1110 211 
+Q 1222 154 1421 141 
+Q 1434 141 1440 118 
+Q 1446 96 1446 70 
+Q 1446 45 1440 13 
+Q 1434 -19 1414 -19 
+Q 1370 -19 1235 -12 
+Q 1101 -6 963 -3 
+Q 826 0 768 0 
+Q 710 0 579 -3 
+Q 448 -6 317 -12 
+Q 186 -19 128 -19 
+Q 102 -19 102 58 
+Q 102 83 105 112 
+Q 109 141 128 141 
+Q 339 154 448 214 
+Q 557 275 598 457 
+Q 640 640 640 1005 
+L 640 2963 
+Q 640 3302 601 3462 
+Q 563 3622 448 3676 
+Q 333 3731 102 3744 
+Q 83 3744 83 3821 
+Q 83 3846 89 3875 
+Q 96 3904 109 3904 
+Q 179 3904 310 3897 
+Q 442 3891 576 3888 
+Q 710 3885 787 3885 
+Q 858 3885 950 3888 
+Q 1043 3891 1120 3891 
+Q 1152 3891 1184 3846 
+Q 1274 3693 1443 3433 
+Q 1613 3174 1946 2675 
+L 3117 909 
+L 3136 909 
+L 3136 2899 
+Q 3136 3270 3097 3443 
+Q 3059 3616 2953 3673 
+Q 2848 3731 2650 3744 
+Q 2624 3744 2624 3821 
+Q 2624 3846 2627 3875 
+Q 2630 3904 2656 3904 
+Q 2701 3904 2832 3897 
+Q 2963 3891 3100 3888 
+Q 3238 3885 3296 3885 
+Q 3354 3885 3485 3888 
+Q 3616 3891 3747 3897 
+Q 3878 3904 3930 3904 
+Q 3955 3904 3955 3827 
+Q 3955 3802 3948 3773 
+Q 3942 3744 3930 3744 
+Q 3718 3731 3606 3670 
+Q 3494 3610 3452 3430 
+Q 3411 3251 3411 2880 
+L 3411 -6 
+Q 3411 -58 3379 -58 
+L 3117 -58 
+Q 3085 -58 3059 -13 
+Q 2989 109 2905 233 
+Q 2822 358 2710 528 
+Q 2598 698 2426 954 
+L 941 3174 
+L 915 3174 
+z
+" transform="scale(0.015625)"/>
+      </defs>
+      <use xlink:href="#Brill-Roman-4e"/>
+      <use xlink:href="#Brill-Roman-65" transform="translate(62.799988 0)"/>
+      <use xlink:href="#Brill-Roman-6d" transform="translate(106.399979 0)"/>
+      <use xlink:href="#Brill-Roman-65" transform="translate(183.699966 0)"/>
+      <use xlink:href="#Brill-Roman-61" transform="translate(227.299957 0)"/>
+      <use xlink:href="#Brill-Roman-6e" transform="translate(271.099945 0)"/>
+     </g>
+    </g>
+    <g id="PathCollection_8">
+     <g>
+      <use xlink:href="#me5b0d78711" x="231.274439" y="55.085" style="fill: #8c8c8c; stroke: #000000"/>
+     </g>
+    </g>
+    <g id="text_19">
+     <!-- Isthmian -->
+     <g transform="translate(245.674439 57.185) scale(0.08 -0.08)">
+      <defs>
+       <path id="Brill-Roman-49" d="M 1235 800 
+Q 1235 499 1260 364 
+Q 1286 230 1379 192 
+Q 1472 154 1677 141 
+Q 1690 141 1696 118 
+Q 1702 96 1702 70 
+Q 1702 45 1696 13 
+Q 1690 -19 1670 -19 
+Q 1613 -19 1469 -12 
+Q 1325 -6 1177 -3 
+Q 1030 0 947 0 
+Q 832 0 685 -3 
+Q 538 -6 413 -12 
+Q 288 -19 224 -19 
+Q 192 -19 192 58 
+Q 192 83 198 112 
+Q 205 141 224 141 
+Q 435 154 531 189 
+Q 627 224 649 361 
+Q 672 499 672 800 
+L 672 3085 
+Q 672 3392 649 3523 
+Q 627 3654 534 3692 
+Q 442 3731 237 3744 
+Q 211 3744 211 3821 
+Q 211 3846 217 3875 
+Q 224 3904 243 3904 
+Q 301 3904 438 3897 
+Q 576 3891 729 3888 
+Q 883 3885 973 3885 
+Q 1139 3885 1363 3894 
+Q 1587 3904 1690 3904 
+Q 1715 3904 1715 3827 
+Q 1715 3802 1708 3773 
+Q 1702 3744 1690 3744 
+Q 1478 3731 1382 3692 
+Q 1286 3654 1260 3523 
+Q 1235 3392 1235 3085 
+L 1235 800 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-73" d="M 1830 1856 
+Q 1773 1856 1757 1865 
+Q 1741 1875 1734 1920 
+Q 1715 2202 1606 2352 
+Q 1498 2502 1197 2502 
+Q 941 2502 797 2393 
+Q 653 2285 653 2080 
+Q 653 1933 745 1837 
+Q 838 1741 985 1673 
+Q 1133 1606 1299 1542 
+Q 1491 1472 1670 1376 
+Q 1850 1280 1965 1129 
+Q 2080 979 2080 736 
+Q 2080 422 1920 243 
+Q 1760 64 1523 -13 
+Q 1286 -90 1056 -90 
+Q 890 -90 714 -67 
+Q 538 -45 352 19 
+Q 288 45 269 73 
+Q 250 102 250 186 
+Q 250 314 253 451 
+Q 256 589 262 806 
+Q 262 858 281 867 
+Q 301 877 365 877 
+Q 429 877 445 867 
+Q 461 858 467 813 
+Q 499 461 624 288 
+Q 749 115 1094 115 
+Q 1350 115 1488 224 
+Q 1626 333 1626 531 
+Q 1626 710 1533 816 
+Q 1440 922 1293 992 
+Q 1146 1062 979 1126 
+Q 800 1197 633 1286 
+Q 467 1376 358 1523 
+Q 250 1670 250 1914 
+Q 250 2253 496 2473 
+Q 742 2694 1248 2694 
+Q 1395 2694 1548 2678 
+Q 1702 2662 1850 2630 
+Q 1920 2611 1936 2588 
+Q 1952 2566 1952 2477 
+Q 1952 2349 1949 2221 
+Q 1946 2093 1939 1926 
+Q 1939 1882 1916 1869 
+Q 1894 1856 1830 1856 
+z
+" transform="scale(0.015625)"/>
+      </defs>
+      <use xlink:href="#Brill-Roman-49"/>
+      <use xlink:href="#Brill-Roman-73" transform="translate(29.799988 0)"/>
+      <use xlink:href="#Brill-Roman-74" transform="translate(65.299973 0)"/>
+      <use xlink:href="#Brill-Roman-68" transform="translate(95.799957 0)"/>
+      <use xlink:href="#Brill-Roman-6d" transform="translate(146.999954 0)"/>
+      <use xlink:href="#Brill-Roman-69" transform="translate(224.299942 0)"/>
+      <use xlink:href="#Brill-Roman-61" transform="translate(249.59993 0)"/>
+      <use xlink:href="#Brill-Roman-6e" transform="translate(293.399918 0)"/>
+     </g>
+    </g>
+    <g id="line2d_28">
+     <path d="M 223.274439 65.8975 
+L 231.274439 65.8975 
+L 239.274439 65.8975 
+" style="fill: none; stroke-dasharray: 4.8,2.4; stroke-dashoffset: 0; stroke: #000000; stroke-width: 1.2"/>
+    </g>
+    <g id="text_20">
+     <!-- fit (r=-0.21, small effect) -->
+     <g transform="translate(245.674439 68.6975) scale(0.08 -0.08)">
+      <defs>
+       <path id="Brill-Roman-66" d="M 1101 2349 
+L 1101 806 
+Q 1101 499 1123 361 
+Q 1146 224 1238 189 
+Q 1331 154 1542 141 
+Q 1555 141 1558 118 
+Q 1562 96 1562 70 
+Q 1562 45 1555 13 
+Q 1549 -19 1536 -19 
+Q 1491 -19 1350 -12 
+Q 1210 -6 1059 -3 
+Q 909 0 826 0 
+Q 730 0 598 -3 
+Q 467 -6 358 -12 
+Q 250 -19 211 -19 
+Q 179 -19 179 58 
+Q 179 83 185 112 
+Q 192 141 211 141 
+Q 384 154 464 192 
+Q 544 230 566 368 
+Q 589 506 589 806 
+L 589 2349 
+L 218 2349 
+Q 186 2349 186 2432 
+L 186 2470 
+Q 186 2586 218 2586 
+L 589 2586 
+L 589 2886 
+Q 589 3546 838 3901 
+Q 1088 4256 1613 4256 
+Q 1952 4256 2115 4115 
+Q 2278 3974 2278 3827 
+Q 2278 3725 2214 3657 
+Q 2150 3590 2035 3590 
+Q 1997 3590 1955 3596 
+Q 1914 3603 1862 3622 
+Q 1843 3846 1747 3955 
+Q 1651 4064 1517 4064 
+Q 1312 4064 1222 3933 
+Q 1133 3802 1117 3587 
+Q 1101 3373 1101 3123 
+L 1101 2586 
+L 1715 2586 
+Q 1734 2586 1734 2502 
+L 1734 2470 
+Q 1734 2349 1709 2349 
+L 1101 2349 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-3d" d="M 2797 698 
+L 339 698 
+L 339 979 
+L 2797 979 
+L 2797 698 
+z
+M 2797 1722 
+L 339 1722 
+L 339 2003 
+L 2797 2003 
+L 2797 1722 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-2d" d="M 211 1229 
+Q 186 1229 186 1306 
+L 186 1466 
+Q 186 1581 218 1581 
+L 1594 1581 
+Q 1619 1581 1619 1504 
+L 1619 1344 
+Q 1619 1229 1587 1229 
+L 211 1229 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-32" d="M 1350 2694 
+Q 1850 2694 2083 2492 
+Q 2317 2291 2317 1984 
+Q 2317 1747 2192 1571 
+Q 2067 1395 1852 1232 
+Q 1638 1069 1366 880 
+Q 1094 691 806 422 
+L 813 403 
+Q 902 416 1036 419 
+Q 1171 422 1325 422 
+L 1837 422 
+Q 2035 422 2121 444 
+Q 2208 467 2249 576 
+Q 2291 685 2336 947 
+Q 2342 1005 2432 1005 
+Q 2490 1005 2512 995 
+Q 2534 986 2534 934 
+Q 2534 883 2524 742 
+Q 2515 602 2505 445 
+Q 2496 288 2483 179 
+Q 2477 77 2425 29 
+Q 2374 -19 2266 -19 
+Q 2157 -19 1920 -9 
+Q 1683 0 1306 0 
+Q 1101 0 867 -3 
+Q 634 -6 448 -12 
+Q 262 -19 198 -19 
+Q 186 -19 170 29 
+Q 154 77 154 102 
+Q 154 141 173 160 
+Q 461 454 742 675 
+Q 1024 896 1251 1091 
+Q 1478 1286 1616 1491 
+Q 1754 1696 1754 1952 
+Q 1754 2182 1645 2342 
+Q 1536 2502 1254 2502 
+Q 1056 2502 915 2409 
+Q 774 2317 774 2112 
+Q 774 1990 826 1856 
+Q 717 1734 550 1734 
+Q 448 1734 368 1801 
+Q 288 1869 288 2010 
+Q 288 2144 403 2304 
+Q 518 2464 755 2579 
+Q 992 2694 1350 2694 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-31" d="M 1229 1645 
+L 1229 864 
+Q 1229 608 1238 464 
+Q 1248 320 1299 253 
+Q 1350 186 1462 170 
+Q 1574 154 1773 141 
+Q 1786 141 1792 118 
+Q 1798 96 1798 70 
+Q 1798 45 1792 13 
+Q 1786 -19 1766 -19 
+Q 1664 -19 1517 -12 
+Q 1370 -6 1226 -3 
+Q 1082 0 986 0 
+Q 787 0 553 -9 
+Q 320 -19 160 -19 
+Q 128 -19 128 58 
+Q 128 83 134 112 
+Q 141 141 160 141 
+Q 365 147 480 166 
+Q 595 186 646 250 
+Q 698 314 707 461 
+Q 717 608 717 864 
+L 717 1862 
+Q 717 2157 665 2249 
+Q 614 2342 384 2342 
+Q 314 2342 246 2339 
+Q 179 2336 109 2330 
+Q 96 2330 86 2358 
+Q 77 2387 77 2419 
+Q 77 2445 83 2467 
+Q 90 2490 102 2490 
+Q 538 2547 838 2608 
+Q 1139 2669 1178 2669 
+Q 1248 2669 1248 2592 
+Q 1248 2566 1238 2313 
+Q 1229 2061 1229 1645 
+z
+" transform="scale(0.015625)"/>
+       <path id="Brill-Roman-2c" d="M 294 499 
+Q 333 646 419 707 
+Q 506 768 608 768 
+Q 749 768 864 649 
+Q 979 531 979 282 
+Q 979 70 886 -125 
+Q 794 -320 666 -480 
+Q 538 -640 442 -733 
+Q 346 -826 333 -826 
+Q 301 -826 249 -778 
+Q 198 -730 198 -710 
+Q 198 -698 218 -678 
+Q 346 -531 429 -384 
+Q 512 -237 512 -45 
+Q 512 141 451 259 
+Q 390 378 294 499 
+z
+" transform="scale(0.015625)"/>
+      </defs>
+      <use xlink:href="#Brill-Roman-66"/>
+      <use xlink:href="#Brill-Roman-69" transform="translate(26.999985 0)"/>
+      <use xlink:href="#Brill-Roman-74" transform="translate(52.299973 0)"/>
+      <use xlink:href="#Brill-Roman-20" transform="translate(82.799957 0)"/>
+      <use xlink:href="#Brill-Roman-28" transform="translate(102.599945 0)"/>
+      <use xlink:href="#Brill-Roman-72" transform="translate(135.399933 0)"/>
+      <use xlink:href="#Brill-Roman-3d" transform="translate(168.499924 0)"/>
+      <use xlink:href="#Brill-Roman-2d" transform="translate(217.499908 0)"/>
+      <use xlink:href="#Brill-Roman-30" transform="translate(245.699905 0)"/>
+      <use xlink:href="#Brill-Roman-2e" transform="translate(295.099899 0)"/>
+      <use xlink:href="#Brill-Roman-32" transform="translate(315.099884 0)"/>
+      <use xlink:href="#Brill-Roman-31" transform="translate(358.299881 0)"/>
+      <use xlink:href="#Brill-Roman-2c" transform="translate(387.599869 0)"/>
+      <use xlink:href="#Brill-Roman-20" transform="translate(407.599854 0)"/>
+      <use xlink:href="#Brill-Roman-73" transform="translate(427.399841 0)"/>
+      <use xlink:href="#Brill-Roman-6d" transform="translate(462.899826 0)"/>
+      <use xlink:href="#Brill-Roman-61" transform="translate(540.199814 0)"/>
+      <use xlink:href="#Brill-Roman-6c" transform="translate(583.999802 0)"/>
+      <use xlink:href="#Brill-Roman-6c" transform="translate(608.399796 0)"/>
+      <use xlink:href="#Brill-Roman-20" transform="translate(632.799789 0)"/>
+      <use xlink:href="#Brill-Roman-65" transform="translate(652.599777 0)"/>
+      <use xlink:href="#Brill-Roman-66" transform="translate(696.199768 0)"/>
+      <use xlink:href="#Brill-Roman-66" transform="translate(723.199753 0)"/>
+      <use xlink:href="#Brill-Roman-65" transform="translate(750.199738 0)"/>
+      <use xlink:href="#Brill-Roman-63" transform="translate(793.799728 0)"/>
+      <use xlink:href="#Brill-Roman-74" transform="translate(835.399719 0)"/>
+      <use xlink:href="#Brill-Roman-29" transform="translate(865.899704 0)"/>
+     </g>
+    </g>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="p297bd7bbff">
+   <rect x="42.205905" y="9.72" width="282.562284" height="121.232219"/>
+  </clipPath>
+ </defs>
+</svg>

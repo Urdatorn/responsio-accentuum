@@ -13,29 +13,25 @@ def find_project_root(start: Path, markers=("pyproject.toml", ".git")):
 
 ROOT = find_project_root(Path(__file__))
 
+
+# --- Font setup (Brill) ---
 font_path = ROOT / "media" / "fonts" / "Brill-Roman.ttf"
 font_manager.fontManager.addfont(font_path)
 prop = font_manager.FontProperties(fname=font_path)
 font_name = prop.get_name()
 
+
 # --- Grayscale palette (print-safe) ---
 GRAY_LEVELS = [
-    "0.0",   # black
+    "0.0",
     "0.25",
     "0.4",
     "0.55",
     "0.7",
 ]
 
-# --- Line styles (primary differentiation for lines) ---
-LINESTYLES = [
-    "-",
-    "--",
-    ":",
-    "-.",
-]
 
-# --- Markers (secondary differentiation) ---
+# --- Markers ---
 MARKERS = [
     "o",
     "s",
@@ -46,7 +42,8 @@ MARKERS = [
     "+",
 ]
 
-# --- Hatches (for histograms / bars) ---
+
+# --- Hatches ---
 HATCHES = [
     "",
     "/",
@@ -61,39 +58,44 @@ HATCHES = [
 ]
 
 
-def apply_bw_journal_style():
+def apply_bw_journal_style(shape="square"):
     """Apply black-and-white journal style (118 × 180 mm layout)."""
 
-    # Reset base style
     plt.style.use("default")
 
-    # --- Property cycle: grayscale + linestyle + marker ---
-    plt.rcParams["axes.prop_cycle"] = (
-        cycler(color=GRAY_LEVELS)
-        * cycler(linestyle=LINESTYLES)
-        * cycler(marker=MARKERS)
-    )
+    plt.rcParams["axes.prop_cycle"] = cycler(color=GRAY_LEVELS) # markers here lead to bugs
+
+    # --- NEW: enforce stable line defaults ---
+    plt.rcParams["lines.linestyle"] = "-"
+    plt.rcParams["lines.marker"] = ""
 
     # --- Resolution ---
     plt.rcParams["figure.dpi"] = 600
     plt.rcParams["savefig.dpi"] = 600
 
-    # --- Printable page size: 118 mm × 180 mm ---
-    plt.rcParams["figure.figsize"] = (11.8 / 2.54, 11.8 / 2.54) # square aspect ratio
+    # --- Figure size (typesetting area is 118 mm x 180 mm) ---
+    if shape == "square":
+        plt.rcParams["figure.figsize"] = (11.8 / 2.54, 11.8 / 2.54)
+        
+    elif shape == "landscape":
+        plt.rcParams["figure.figsize"] = (11.8 / 2.54, 11.8 / (2 * 2.54))
+        
+    else:
+        plt.rcParams["figure.figsize"] = (11.8 / 2.54, 18.0 / 2.54)
 
-    # --- Line robustness (important for print) ---
+    # --- Line robustness ---
     plt.rcParams["lines.linewidth"] = 1.2
     plt.rcParams["lines.markersize"] = 4
     plt.rcParams["lines.markeredgewidth"] = 0.5
 
-    # --- Axes styling ---
+    # --- Axes ---
     plt.rcParams["axes.linewidth"] = 0.8
 
     # --- Ticks ---
     plt.rcParams["xtick.major.width"] = 0.6
     plt.rcParams["ytick.major.width"] = 0.6
 
-    # --- Fonts (article scale) ---
+    # --- Fonts ---
     plt.rcParams["font.size"] = 9
     plt.rcParams["axes.titlesize"] = 10
     plt.rcParams["axes.labelsize"] = 9
@@ -101,7 +103,7 @@ def apply_bw_journal_style():
     plt.rcParams["ytick.labelsize"] = 8
     plt.rcParams["legend.fontsize"] = 8
 
-    # --- Brill custom font ---
+    # --- Brill font ---
     plt.rcParams["font.family"] = "serif"
     plt.rcParams["font.serif"] = [font_name]
 
@@ -112,40 +114,29 @@ def apply_bw_journal_style():
     plt.rcParams["mathtext.bf"] = "cmb10"
     plt.rcParams["axes.formatter.use_mathtext"] = True
 
-    # --- Grid (light, print-safe) ---
+    # --- Grid ---
     plt.rcParams["axes.grid"] = True
     plt.rcParams["grid.color"] = "0.85"
     plt.rcParams["grid.linewidth"] = 0.5
     plt.rcParams["grid.linestyle"] = "-"
 
-    # --- Font embedding (important for journals) ---
+    # --- Font embedding ---
     plt.rcParams["pdf.fonttype"] = 42
     plt.rcParams["ps.fonttype"] = 42
 
     return {
         "grays": GRAY_LEVELS,
-        "linestyles": LINESTYLES,
         "markers": MARKERS,
         "hatches": HATCHES,
     }
 
 
 def apply_histogram_style(ax, n_series):
-    """
-    Apply distinct hatching to histogram/bar containers on a given axis.
-
-    Parameters
-    ----------
-    ax : matplotlib.axes.Axes
-    n_series : int
-        Number of histogram series plotted
-    """
-
     for i, patch_container in enumerate(ax.containers):
         hatch = HATCHES[i % len(HATCHES)]
 
         for patch in patch_container:
             patch.set_hatch(hatch)
             patch.set_edgecolor("black")
-            patch.set_facecolor("none")  # or "0.85" if filled preferred
+            patch.set_facecolor("none")
             patch.set_linewidth(0.8)
