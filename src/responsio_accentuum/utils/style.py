@@ -59,7 +59,11 @@ HATCHES = [
 
 
 def apply_bw_journal_style(shape="square"):
-    """Apply black-and-white journal style (118 × 180 mm layout)."""
+    """
+    Apply black-and-white journal style (118 × 180 mm layout).
+    
+    Layouts: 'square' (118 × 118 mm), 'landscape' (118 × 59 mm), 'portrait' (118 × 180 mm)
+    """
 
     plt.style.use("default")
 
