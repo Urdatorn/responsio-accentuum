@@ -38,6 +38,41 @@ def _resolve_path(path_like: str | Path) -> Path:
 ### General utility functions ###
 #################################
 
+def sawilowsky_r_size_rules(r):
+    '''
+    r"Based on current research findings in the applied literature, it seems appropriate to revise the rules of thumb for effect sizes to now define 
+        d (.01) = very small, 
+        d (.2) = small, 
+        d (.5) = medium, 
+        d (.8) = large, 
+        d (1.2) = very large, and 
+        d (2.0) = huge. 
+    Hence, the list of conditions of an appropriate Monte Carlo study or simulation (Sawilowsky, 2003) should be expanded to incorporate these new minimum and maximum effect sizes, 
+    as well as appropriate values between the two end points." (p. 599)
+    (Sawilowsky, 2009, "New Effect Size Rules of Thumb", Journal of Modern Applied Statistical Methods, 8(2), 597-599. https://doi.org/10.22237/jmasm/1257035100)
+    
+    Conversion formula from d to Pearson's r: (https://en.wikipedia.org/wiki/Effect_size#Conversion_between_effect_sizes)
+        r = \frac{d}{\sqrt{d^2 + 4}}
+        
+    '''
+    
+    abs_r = abs(r)
+
+    if abs_r >= 0.71:
+        return "huge"
+    if abs_r >= 0.51:
+        return "very large"
+    if abs_r >= 0.37:
+        return "large"
+    if abs_r >= 0.24:
+        return "medium"
+    if abs_r >= 0.10:
+        return "small"
+    if abs_r >= 0.005:
+        return "very small"
+    return "negligible"
+
+
 victory_odes = sorted([
     'is01', 'is02', 'is03', 'is04', 'is05', 'is06', 'is07', 'is08', # is09 is fragmentary with no responsion
     'ne01', 'ne02', 'ne03', 'ne04', 'ne05', 'ne06', 'ne07', 'ne08', 'ne09', 'ne10', 'ne11',

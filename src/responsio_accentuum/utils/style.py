@@ -78,8 +78,8 @@ def apply_bw_journal_style():
     plt.rcParams["figure.dpi"] = 600
     plt.rcParams["savefig.dpi"] = 600
 
-    # --- Figure size: 118 mm × 180 mm ---
-    plt.rcParams["figure.figsize"] = (11.8 / 2.54, 18.0 / 2.54)
+    # --- Printable page size: 118 mm × 180 mm ---
+    plt.rcParams["figure.figsize"] = (11.8 / 2.54, 11.8 / 2.54) # square aspect ratio
 
     # --- Line robustness (important for print) ---
     plt.rcParams["lines.linewidth"] = 1.2

@@ -11,8 +11,6 @@ from .stats import *
 from .stats_barys import *
 from .stats_comp import *
 
-from .plot.plot import *
-from .plot.style import *
-
-from .utils.utils import *
 from .utils.prose import *
+from .utils.style import *
+from .utils.utils import *
