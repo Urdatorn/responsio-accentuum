@@ -39,8 +39,8 @@ def _resolve_path(path_like: str | Path) -> Path:
 #################################
 
 def sawilowsky_r_size_rules(r):
-    '''
-    r"Based on current research findings in the applied literature, it seems appropriate to revise the rules of thumb for effect sizes to now define 
+    r'''
+    "Based on current research findings in the applied literature, it seems appropriate to revise the rules of thumb for effect sizes to now define 
         d (.01) = very small, 
         d (.2) = small, 
         d (.5) = medium, 
@@ -116,19 +116,6 @@ def get_canticum_ids(file_path: str) -> list[str]:
 
     seen = set()
     return [x for x in all_ids if x not in seen and not seen.add(x)]
-
-# def get_syll_count(canticum_ids):
-#     syll_count = {}
-#     for abbreviation in abbreviations:
-#         file_path = f'data/compiled/responsion_{abbreviation}_compiled.xml'
-#         tree = etree.parse(file_path)
-#         root = tree.getroot()
-#         for strophe in root.xpath("//strophe"):
-#             responsion_id = strophe.get("responsion")
-#             if responsion_id in canticum_ids:
-#                 syllables = strophe.xpath(".//syll")
-#                 syll_count[responsion_id] = len(syllables)
-#     return syll_count
 
 def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
     xml_file = _resolve_path(xml_file)
