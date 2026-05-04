@@ -432,7 +432,7 @@ def one_t_prose(odes: set, seed_offset: int = 0, temp_dir: str | Path | None = N
     song_stats = []
 
     try:
-        for responsion_id in sorted(odes):
+        for responsion_id in tqdm(sorted(odes)):
             prefix = responsion_id[:2]
             if prefix not in prefix_to_xml:
                 raise RuntimeError(f"Unknown ode prefix for {responsion_id}, expected one of {list(prefix_to_xml.keys())}")
@@ -509,7 +509,7 @@ def one_t_lyric(odes: set, seed_offset: int = 0, temp_dir: str | Path | None = N
     summary_stats = _empty_lyric_stats_summary() if collect_stats else None
 
     try:
-        for responsion_id in sorted(odes):
+        for responsion_id in tqdm(sorted(odes)):
             prefix = responsion_id[:2]
             if prefix not in prefix_to_xml:
                 raise RuntimeError(f"Unknown ode prefix for {responsion_id}, expected one of {list(prefix_to_xml.keys())}")

@@ -1,5 +1,7 @@
 '''
-Calculate all test statistics with multiprocessing.
+This script prepares for the one-sided perm test in nb/results.ipynb.
+
+Calculate all test statistics (for one responsion type) with multiprocessing.
 
 The shape of each permuted baseline corpus is modelled after the 33 fully triadic odes, 
 so that the expected test statistics can be compared both with triadic-strophic and strophic-antistrophic observed corpora.
@@ -50,6 +52,7 @@ tri = results["triads"]
 stro = results["strophes"]
 
 fully_triadic_odes = (tri & stro)   # odes that are in both responsion type folders
+print(f"Found {len(fully_triadic_odes)} fully triadic odes for expected statistic calculation.")
 
 
 # ========================
@@ -57,7 +60,7 @@ fully_triadic_odes = (tri & stro)   # odes that are in both responsion type fold
 # ========================
 
 odes = fully_triadic_odes
-randomizations = 10000
+randomizations = 10_000
 workers = 12
 chunk_size = 100
 
