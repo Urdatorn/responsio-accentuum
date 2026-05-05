@@ -30,8 +30,9 @@ FALLBACK SEQUENCE:
 STATISTICAL INDEPENDENCE CONSTRAINTS:
 The system enforces three levels of statistical independence to ensure robust baselines:
 
-1. FILE CONTAMINATION PREVENTION:
-   - Lines from the target file (e.g., is01.xml) are excluded from baseline generation
+1. ODE CONTAMINATION PREVENTION:
+   - Lines from the target ode (e.g., is01) are excluded from baseline generation
+   - Lines from other odes in the same file are allowed, e.g. is02 can be used in a baseline for is01.
    - Prevents circular dependency where a text is compared against itself
 
 2. METRICAL POSITION INDEPENDENCE:
@@ -105,7 +106,6 @@ def resolve_path(path_like):
 
 PROSE_CACHE_PATH = ROOT / "data/cache/cached_prose_corpus.pkl"
 LYRIC_CACHE_PATH = ROOT / "data/cache/cached_lyric_corpus.pkl"
-TEST_STATS_CACHE_DIR = ROOT / "data/cache/test_statistics_chunks_strophic_antistrophic"
 
 # =============================================================================
 # CONFIGURATION VARIABLES - Adjust these to control fallback system behavior
@@ -128,6 +128,12 @@ LYRIC_POSITION_MAX_RETRIES = 10  # Max retries per line position for metrical re
 
 
 punctuation_except_period = r'[\u0387\u037e\u00b7,!?;:\"()\[\]{}<>«»\-—…|⏑⏓†×]'
+
+
+def get_test_statistics_cache_dir(responsion_type_folder: Path) -> Path:
+    """Return the chunk cache directory for a responsion-type corpus folder."""
+    responsion_type_folder = resolve_path(responsion_type_folder)
+    return ROOT / f"data/cache/test_statistics_chunks_{responsion_type_folder.name}"
 
 
 ###########################
@@ -154,7 +160,7 @@ def expected_statistics(odes: set, responsion_type_folder: Path = ROOT / "data" 
     lyric_stats_summary is a dict aggregating lyric baseline composition stats if include_lyric_stats is True, else None.
     
     CACHING BEHAVIOR:
-    - Each chunk is saved to data/cache/test_statistics_chunks/chunk_{start}_{end}.pkl after completion
+    - Each chunk is saved to data/cache/test_statistics_chunks_{responsion_type_folder.name}/chunk_{start}_{end}.pkl after completion
     - On restart, existing chunks are loaded from cache and skipped
     - Cached chunks are reused even if a new run uses a different chunk_size; only missing ranges are recomputed
     - This allows recovery from crashes without recomputing all randomizations
@@ -169,17 +175,20 @@ def expected_statistics(odes: set, responsion_type_folder: Path = ROOT / "data" 
         results = test_statistics(randomizations=10_000, workers=8, chunk_size=1_000)
         
         # To start completely fresh
-        clear_test_statistics_cache()
+        clear_test_statistics_cache(responsion_type_folder)
         results = test_statistics(randomizations=10_000, workers=8, chunk_size=1_000)
     '''
+    responsion_type_folder = resolve_path(responsion_type_folder)
+    cache_dir = get_test_statistics_cache_dir(responsion_type_folder)
+
     # Setup cache directory
     if use_cache:
-        TEST_STATS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+        cache_dir.mkdir(parents=True, exist_ok=True)
     
     if workers <= 1:
         # For sequential execution, treat the entire run as one chunk
         chunk_id = f"0_{randomizations}"
-        chunk_file = TEST_STATS_CACHE_DIR / f"chunk_{chunk_id}.pkl" if use_cache else None
+        chunk_file = cache_dir / f"chunk_{chunk_id}.pkl" if use_cache else None
         
         # Check if cached result exists
         if use_cache and chunk_file and chunk_file.exists():
@@ -226,12 +235,12 @@ def expected_statistics(odes: set, responsion_type_folder: Path = ROOT / "data" 
 
     def _load_cached_chunks_within_range(max_randomizations: int):
         """Load cached chunks regardless of chunk size, skipping overlaps and invalid data."""
-        if not use_cache or not TEST_STATS_CACHE_DIR.exists():
+        if not use_cache or not cache_dir.exists():
             return {}
 
         pattern = re.compile(r"chunk_(\d+)_(\d+)\.pkl$")
         discovered: list[tuple[int, int, Path]] = []
-        for path in TEST_STATS_CACHE_DIR.glob("chunk_*_*.pkl"):
+        for path in cache_dir.glob("chunk_*_*.pkl"):
             match = pattern.match(path.name)
             if not match:
                 continue
@@ -303,7 +312,7 @@ def expected_statistics(odes: set, responsion_type_folder: Path = ROOT / "data" 
                     cached_results[(start, end)] = result
 
                     if use_cache:
-                        chunk_file = TEST_STATS_CACHE_DIR / f"chunk_{chunk_id}.pkl"
+                        chunk_file = cache_dir / f"chunk_{chunk_id}.pkl"
                         with open(chunk_file, 'wb') as f:
                             pickle.dump(result, f)
                         print(f"\nSaved chunk {chunk_id} to {chunk_file}")
@@ -340,16 +349,17 @@ def expected_statistics(odes: set, responsion_type_folder: Path = ROOT / "data" 
 ######################################
 
 
-def clear_test_statistics_cache():
+def clear_test_statistics_cache(responsion_type_folder: Path = ROOT / "data" / "compiled" / "triads"):
     """
-    Remove all cached test statistics chunks.
+    Remove cached test statistics chunks for one responsion-type corpus folder.
     Call this if you want to recompute from scratch.
     """
-    if TEST_STATS_CACHE_DIR.exists():
-        shutil.rmtree(TEST_STATS_CACHE_DIR)
-        print(f"Cleared test statistics cache: {TEST_STATS_CACHE_DIR}")
+    cache_dir = get_test_statistics_cache_dir(responsion_type_folder)
+    if cache_dir.exists():
+        shutil.rmtree(cache_dir)
+        print(f"Cleared test statistics cache: {cache_dir}")
     else:
-        print(f"No cache to clear at {TEST_STATS_CACHE_DIR}")
+        print(f"No cache to clear at {cache_dir}")
 
 
 def _empty_lyric_stats_summary():
@@ -699,7 +709,9 @@ def _make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str,
     strophes = root.findall(f".//strophe[@responsion='{responsion_id}']")
     sample_size = len(strophes)
     
-    # Get the filename of the input XML to exclude from corpus sampling
+    # Get the filename of the input XML to exclude from external file-level sampling.
+    # Internal lyric contamination is responsion-based because corpus files contain
+    # multiple odes; an is01 baseline may use is02, but not is01.
     input_filename = os.path.basename(xml_file)
 
     def _apply_baseline_anceps(line_element):
@@ -799,7 +811,7 @@ def _make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str,
                         cached_corpus,
                         seed=line_seed,
                         debug=debug,
-                        exclude_file=input_filename,
+                        exclude_responsion_id=responsion_id,
                         used_metrical_positions=sample_used_metrical_positions,
                         used_responsions_this_position=used_responsions_per_position[line_idx],
                     )
@@ -833,7 +845,7 @@ def _make_lyric_baseline(xml_file: str, responsion_id: str, corpus_folder: str,
                         candidates = []
                         for length_key, lines_list in cached_corpus['lines_by_length'].items():
                             for item in lines_list:
-                                if input_filename and item['file'] == input_filename:
+                                if item['responsion_id'] == responsion_id:
                                     continue
                                 position_key = (item['file'], item['canticum_idx'], item['strophe_idx'], item['line_idx'])
                                 if position_key in sample_used_metrical_positions:
@@ -1180,6 +1192,7 @@ def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = LYRI
     # Group lines by canonical syllable count
     lines_by_length = defaultdict(list)
     syllables_by_file = {}  # Store all syllables by file for fallback cases
+    syllables_by_responsion = defaultdict(list)
     
     for xml_file in tqdm(xml_files, desc="Processing XML files"):
         file_path = Path(corpus_folder) / xml_file
@@ -1197,6 +1210,8 @@ def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = LYRI
             # Process all strophes within this canticum
             for strophe_idx, strophe in enumerate(canticum.findall(".//strophe")):
                 responsion_id = strophe.get('responsion', 'unknown')
+                for syll in strophe.xpath(".//syll[not(@resolution='True') and not(@anceps='True')]"):
+                    syllables_by_responsion[responsion_id].append(etree.tostring(syll, encoding='unicode', method='xml'))
                 
                 # Process all lines within this strophe
                 for line_idx, l in enumerate(strophe.findall("l")):
@@ -1225,7 +1240,8 @@ def preprocess_and_cache_lyric_corpus(corpus_folder: str, cache_file: str = LYRI
     cached_data = {
         'lines_by_length': dict(lines_by_length),
         'all_syllables': all_syllables,
-        'syllables_by_file': syllables_by_file
+        'syllables_by_file': syllables_by_file,
+        'syllables_by_responsion': dict(syllables_by_responsion),
     }
     
     # Save cache
@@ -1270,6 +1286,9 @@ def load_cached_lyric_corpus(cache_file: str, corpus_folder: str):
             # Check if new metadata fields exist
             if 'canticum_idx' not in sample_lines[0]:
                 print(f"Cache file {cache_file} is outdated (missing metadata). Regenerating...")
+                return preprocess_and_cache_lyric_corpus(corpus_folder, cache_file)
+            if 'syllables_by_responsion' not in cached_data:
+                print(f"Cache file {cache_file} is outdated (missing responsion syllable metadata). Regenerating...")
                 return preprocess_and_cache_lyric_corpus(corpus_folder, cache_file)
         else:
             print(f"Cache file {cache_file} has old format. Regenerating...")
@@ -1364,7 +1383,7 @@ def prose_end_sample_cached(cached_corpus: dict, n_sylls: int, sample_size: int,
     else:
         return None
 
-def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=False, exclude_file=None, used_metrical_positions=None, used_responsions_this_position=None):
+def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=False, exclude_file=None, exclude_responsion_id=None, used_metrical_positions=None, used_responsions_this_position=None):
     """
     Fast version of lyric_line_sample using cached preprocessed corpus.
     
@@ -1374,6 +1393,7 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
         seed: random seed for reproducibility
         debug: whether to print debug information
         exclude_file: filename to exclude from corpus sampling (to avoid contamination)
+        exclude_responsion_id: responsion ID to exclude from corpus sampling (to avoid contamination)
         used_metrical_positions: set of used (file, canticum_idx, strophe_idx, line_idx) tuples
         used_responsions_this_position: set of responsion_ids already used for this line position
         
@@ -1395,11 +1415,13 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
         print(f"Searching for lines of length {length}")
         if exclude_file:
             print(f"Excluding {exclude_file} from sampling")
+        if exclude_responsion_id:
+            print(f"Excluding responsion {exclude_responsion_id} from sampling")
         if used_responsions_this_position:
             print(f"Excluding responsions already used in this position: {used_responsions_this_position}")
     
     # Filter out lines from excluded file, ensure metrical independence, and responsion independence per position
-    def filter_lines_with_all_independence_checks(lines_data, exclude_file, used_positions, used_responsions, current_position_idx):
+    def filter_lines_with_all_independence_checks(lines_data, exclude_file, exclude_responsion_id, used_positions, used_responsions, current_position_idx):
         """
         Filter lines ensuring:
         1. Not from excluded file
@@ -1417,6 +1439,10 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
         for item in lines_data:
             # Skip excluded file
             if exclude_file and item['file'] == exclude_file:
+                continue
+
+            # Skip target responsion while allowing other odes in the same corpus file
+            if exclude_responsion_id and item['responsion_id'] == exclude_responsion_id:
                 continue
                 
             # Create position key for independence checking
@@ -1437,7 +1463,7 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
     # Try exact length first
     if length in lines_by_length:
         candidate_lines = filter_lines_with_all_independence_checks(
-            lines_by_length[length], exclude_file, used_metrical_positions, used_responsions_this_position, length
+            lines_by_length[length], exclude_file, exclude_responsion_id, used_metrical_positions, used_responsions_this_position, length
         )
         if candidate_lines:
             if debug:
@@ -1464,7 +1490,7 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
         target_length = length + extra_length
         if target_length in lines_by_length:
             candidate_lines = filter_lines_with_all_independence_checks(
-                lines_by_length[target_length], exclude_file, used_metrical_positions, used_responsions_this_position, length
+                lines_by_length[target_length], exclude_file, exclude_responsion_id, used_metrical_positions, used_responsions_this_position, length
             )
             if candidate_lines:
                 if debug:
@@ -1501,7 +1527,7 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
     if debug:
         print(f"\033[93mTrying external Aristophanes corpus for length {length}...\033[0m")
     
-    external_line = search_external_corpus_for_line(length, cached_corpus, all_syllables, exclude_file, used_metrical_positions, used_responsions_this_position, corpus_folder = "data/compiled/aristophanes/", debug=debug)
+    external_line = search_external_corpus_for_line(length, cached_corpus, all_syllables, exclude_file, exclude_responsion_id, used_metrical_positions, used_responsions_this_position, corpus_folder = "data/compiled/aristophanes/", debug=debug)
     if external_line is not None:
         if debug:
             print(f"\033[92mFound line of length {length} in external corpus.\033[0m")
@@ -1511,7 +1537,7 @@ def lyric_line_sample_cached(length: int, cached_corpus: dict, seed=1453, debug=
         print(f"Warning: No lines found with lengths {length}, {length+1}, {length-1}, {length-2}, or in external corpus.")
     return None
 
-def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllables: list, exclude_file: str, used_metrical_positions: set, used_responsions_this_position: set, corpus_folder: str = "data/compiled/aristophanes/", debug=False):
+def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllables: list, exclude_file: str, exclude_responsion_id: str, used_metrical_positions: set, used_responsions_this_position: set, corpus_folder: str = "data/compiled/aristophanes/", debug=False):
     """
     Search external corpus (Aristophanes' 11 plays) for lines of given length.
     This is a final fallback when the main Pindar corpus doesn't have enough lines.
@@ -1521,6 +1547,7 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
         cached_corpus: dict from load_cached_lyric_corpus() 
         all_syllables: list of all syllables from cached corpus
         exclude_file: filename to exclude
+        exclude_responsion_id: responsion ID to exclude from internal lyric sampling
         used_metrical_positions: set of used metrical positions
         used_responsions_this_position: set of responsion_ids already used for this line position
         corpus_folder: folder containing external XML files
@@ -1530,7 +1557,7 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
         XML element or None if not found
     """
     
-    def filter_lines_with_all_independence_checks(lines_data, exclude_file, used_positions, used_responsions, current_position_idx):
+    def filter_lines_with_all_independence_checks(lines_data, exclude_file, exclude_responsion_id, used_positions, used_responsions, current_position_idx):
         """
         Filter lines ensuring:
         1. Not from excluded file
@@ -1541,6 +1568,10 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
         for item in lines_data:
             # Skip excluded file
             if exclude_file and item['file'] == exclude_file:
+                continue
+
+            # Skip target responsion while allowing sibling odes in the same XML file
+            if exclude_responsion_id and item['responsion_id'] == exclude_responsion_id:
                 continue
                 
             # Create position key for independence checking
@@ -1563,7 +1594,7 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
         if not candidate_lines:
             return None
         filtered_lines = filter_lines_with_all_independence_checks(
-            candidate_lines, exclude_file, used_metrical_positions, used_responsions_this_position, target_length
+            candidate_lines, exclude_file, exclude_responsion_id, used_metrical_positions, used_responsions_this_position, target_length
         )
         if not filtered_lines:
             return None
@@ -1630,7 +1661,7 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
             target_length = length - padding_amount
             if target_length in lines_by_length:
                 candidate_lines = filter_lines_with_all_independence_checks(
-                    lines_by_length[target_length], exclude_file, used_metrical_positions, used_responsions_this_position, length
+                    lines_by_length[target_length], exclude_file, exclude_responsion_id, used_metrical_positions, used_responsions_this_position, length
                 )
                 if candidate_lines:
                     if debug:
@@ -1647,9 +1678,13 @@ def search_external_corpus_for_line(length: int, cached_corpus: dict, all_syllab
                     line = etree.fromstring(selected_xml)
                     sylls = line.xpath(".//syll")  # Use all syllables, not just non-anceps/non-resolution
                     
-                    # Filter syllables to exclude those from the excluded file
+                    # Filter syllables to exclude target responsion material while allowing sibling odes in the same file.
                     available_syllables = all_syllables
-                    if exclude_file:
+                    if exclude_responsion_id:
+                        syllables_by_responsion = cached_corpus.get('syllables_by_responsion', {})
+                        excluded_syllables = set(syllables_by_responsion.get(exclude_responsion_id, []))
+                        available_syllables = [s for s in all_syllables if s not in excluded_syllables]
+                    elif exclude_file:
                         syllables_by_file = cached_corpus['syllables_by_file']
                         excluded_syllables = set(syllables_by_file.get(exclude_file, []))
                         available_syllables = [s for s in all_syllables if s not in excluded_syllables]
