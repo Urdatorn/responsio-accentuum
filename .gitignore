@@ -16,7 +16,6 @@ data/macronized/
 tests/ach01.tsv
 
 diagnostics/
-scripts/
 bench_clean.py
 create-badge.cjs
 TODO.md
@@ -33,6 +32,7 @@ logs/
 tmp_stats/
 data/compiled/baselines/baseline_aristophanes/temp_permutations/
 data/compiled/baselines/baseline_aristophanes/temp_permutations/*
+data/cache/test_statistics_chunks_*
 
 # old
 *_old.*
