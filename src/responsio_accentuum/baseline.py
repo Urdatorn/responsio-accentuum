@@ -61,24 +61,24 @@ PERFORMANCE OPTIMIZATION:
 
 from collections import defaultdict
 from concurrent.futures import ProcessPoolExecutor
+from fractions import Fraction
 from functools import lru_cache
 import math
-import shutil
-from fractions import Fraction
-from lxml import etree
 import os
 from pathlib import Path
 import pickle
 import random
 import re
+import shutil
 from statistics import mean
-from tqdm import tqdm
 
 from grc_utils import lower_grc, syllabifier
+from lxml import etree
+from tqdm import tqdm
 
 from .compile import compile_scan, process_file
 from .utils.prose import anabasis
-from .utils.utils import canticum_with_at_least_two_strophes, victory_odes
+from .utils.utils import canticum_with_at_least_two_strophes
 from .scan import rule_scansion
 from .stats import canonical_sylls, metrically_responding_lines_polystrophic
 from .stats_comp import compatibility_canticum, compatibility_corpus, compatibility_ratios_to_stats

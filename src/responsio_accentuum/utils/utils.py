@@ -72,18 +72,19 @@ def sawilowsky_r_size_rules(r):
         return "very small"
     return "negligible"
 
+# I now prefer dynamic pulling of the canticum IDs from the XML files in each script/notebook for robustness
 
-victory_odes = sorted([
-    'is01', 'is02', 'is03', 'is04', 'is05', 'is06', 'is07', 'is08', # is09 is fragmentary with no responsion
-    'ne01', 'ne02', 'ne03', 'ne04', 'ne05', 'ne06', 'ne07', 'ne08', 'ne09', 'ne10', 'ne11',
-    'ol01', 'ol02', 'ol03', 'ol04', 'ol05', 'ol06', 'ol07', 'ol08', 'ol09', 'ol10', 'ol11', 'ol12', 'ol13', 'ol14',
-    'py01', 'py02', 'py03', 'py04', 'py05', 'py06', 'py07', 'py08', 'py09', 'py10', 'py11', 'py12',
-])
+# victory_odes = sorted([
+#     'is01', 'is02', 'is03', 'is04', 'is05', 'is06', 'is07', 'is08', # is09 is fragmentary with no responsion
+#     'ne01', 'ne02', 'ne03', 'ne04', 'ne05', 'ne06', 'ne07', 'ne08', 'ne09', 'ne10', 'ne11',
+#     'ol01', 'ol02', 'ol03', 'ol04', 'ol05', 'ol06', 'ol07', 'ol08', 'ol09', 'ol10', 'ol11', 'ol12', 'ol13', 'ol14',
+#     'py01', 'py02', 'py03', 'py04', 'py05', 'py06', 'py07', 'py08', 'py09', 'py10', 'py11', 'py12',
+# ])
 
-# Odes with only one strophe, but with strophe and antistrophe subdivisions 
-victory_odes_monostrophic = sorted([
-    'is03', 'ol04', 'ol11', 'ol12', 'py07'
-])
+# # Odes with only one strophe, but with strophe and antistrophe subdivisions 
+# victory_odes_monostrophic = sorted([
+#     'is03', 'ol04', 'ol11', 'ol12', 'py07'
+# ])
 
 def clean_tei_text(input_xml_file, output_xml_file):
     '''
