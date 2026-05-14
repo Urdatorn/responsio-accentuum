@@ -10,11 +10,8 @@ I include here some functionality generally useful for the inference scripts and
 ''' 
 from collections import Counter
 from lxml import etree
-import numpy as np
 from pathlib import Path
 import re
-import xml.etree.ElementTree as ET
-from pathlib import Path
 
 from grc_utils import vowel
 
@@ -127,27 +124,25 @@ def canticum_with_at_least_two_strophes(xml_file, responsion_attribute: str):
 
     return len(strophes) >= 2
 
-def get_strophicity():
+def get_strophicity(responsion_type="triadic-simple") -> Counter[str]:
     responsion_counts = Counter()
 
     abbreviations = ["isthmians", "pythians", "nemeans", "olympians"]
     for abbreviation in abbreviations:
-        file_path = ROOT / f"data/compiled/triads/ht_{abbreviation}_triads.xml"
-        if file_path.exists():
-            tree = etree.parse(file_path)
-            root = tree.getroot()
+        if responsion_type == "triadic-simple":
+            file_path = ROOT / f"data/compiled/triads/ht_{abbreviation}_triads.xml"
+        elif responsion_type == "strophic-antistrophic":
+            file_path = ROOT / f"data/compiled/strophes/ht_{abbreviation}_strophes.xml"
+        tree = etree.parse(file_path)
+        root = tree.getroot()
 
-            elements = root.xpath("//strophe[@responsion]") + root.xpath("//antistrophe[@responsion]")
-            for el in elements:
-                rid = el.get("responsion")
-                if rid:
-                    responsion_counts[rid] += 1
-        else:
-            return None
-            
+        elements = root.xpath("//strophe[@responsion]") + root.xpath("//antistrophe[@responsion]")
+        for el in elements:
+            rid = el.get("responsion")
+            if rid:
+                responsion_counts[rid] += 1
+
     return responsion_counts
-
-responsion_counts = get_strophicity()
 
 def get_text_matrix(xml_filepath: str, responsion_attribute: str, representative_strophe: int):
     '''
@@ -279,7 +274,7 @@ def get_words_xml(l_element):
     syllables = [child for child in l_element if child.tag == "syll"]
 
     for i, syll in enumerate(syllables):
-        syll_xml = ET.tostring(syll, encoding='unicode', method='xml')
+        syll_xml = etree.tostring(syll, encoding='unicode', method='xml')
         current_word.append(syll_xml)
         next_syll = syllables[i + 1] if i + 1 < len(syllables) else None
 
@@ -304,11 +299,11 @@ def get_words_xml(l_element):
 
     cleaned_words = []
     for word in words:
-        root = ET.fromstring(f"<wrapper>{word}</wrapper>")
+        root = etree.fromstring(f"<wrapper>{word}</wrapper>")
         for syll in root.iter("syll"):  
             syll.tail = None
 
-        cleaned_words.append("".join(ET.tostring(syll, encoding="unicode", method="xml") for syll in root))
+        cleaned_words.append("".join(etree.tostring(syll, encoding="unicode", method="xml") for syll in root))
     words = cleaned_words
 
     return words
