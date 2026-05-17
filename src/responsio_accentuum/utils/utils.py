@@ -83,6 +83,21 @@ def sawilowsky_r_size_rules(r):
 #     'is03', 'ol04', 'ol11', 'ol12', 'py07'
 # ])
 
+# Pax is not an abbreviation, so no period
+aristophanes_abbreviations_fancy = {
+    'ach': 'Ach.',
+    'eq': 'Eq.',
+    'nu': 'Nu.',
+    'v': 'V.',
+    'pax': 'Pax',
+    'av': 'Av.',
+    'lys': 'Lys.',
+    'th': 'Th.',
+    'ra': 'Ra.',
+    'ec': 'Ec.',
+    'pl': 'Pl.'
+}
+
 def clean_tei_text(input_xml_file, output_xml_file):
     '''
     Cleans all the line text in an uncompiled TEI XML file.

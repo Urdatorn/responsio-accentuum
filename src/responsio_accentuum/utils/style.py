@@ -84,7 +84,7 @@ def apply_bw_journal_style(shape="square"):
     elif shape == "landscape":
         plt.rcParams["figure.figsize"] = (11.8 / 2.54, 11.8 / (2 * 2.54))
         
-    else:
+    elif shape == "portrait":
         plt.rcParams["figure.figsize"] = (11.8 / 2.54, 18.0 / 2.54)
 
     # --- Line robustness ---
