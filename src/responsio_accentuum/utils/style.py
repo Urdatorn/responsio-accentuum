@@ -21,7 +21,7 @@ prop = font_manager.FontProperties(fname=font_path)
 font_name = prop.get_name()
 
 
-# --- Grayscale palette (print-safe) ---
+# --- Grayscale palette ---
 GRAY_LEVELS = [
     "0.0",
     "0.25",
