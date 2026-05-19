@@ -61,6 +61,7 @@ HATCHES = [
 def apply_bw_journal_style(shape="square"):
     """
     Apply black-and-white journal style (118 × 180 mm layout).
+    Optimized for EPS output with no transparency.
     
     Layouts: 'square' (118 × 118 mm), 'landscape' (118 × 59 mm), 'portrait' (118 × 180 mm)
     """
@@ -69,7 +70,7 @@ def apply_bw_journal_style(shape="square"):
 
     plt.rcParams["axes.prop_cycle"] = cycler(color=GRAY_LEVELS) # markers here lead to bugs
 
-    # --- NEW: enforce stable line defaults ---
+    # --- enforce stable line defaults ---
     plt.rcParams["lines.linestyle"] = "-"
     plt.rcParams["lines.marker"] = ""
 
@@ -98,6 +99,8 @@ def apply_bw_journal_style(shape="square"):
     # --- Ticks ---
     plt.rcParams["xtick.major.width"] = 0.6
     plt.rcParams["ytick.major.width"] = 0.6
+    plt.rcParams["xtick.direction"] = "in"
+    plt.rcParams["ytick.direction"] = "in"
 
     # --- Fonts ---
     plt.rcParams["font.size"] = 9
@@ -120,9 +123,19 @@ def apply_bw_journal_style(shape="square"):
 
     # --- Grid ---
     plt.rcParams["axes.grid"] = True
+    plt.rcParams["axes.axisbelow"] = True
+    plt.rcParams["grid.alpha"] = 1.0
     plt.rcParams["grid.color"] = "0.85"
     plt.rcParams["grid.linewidth"] = 0.5
     plt.rcParams["grid.linestyle"] = "-"
+
+    # --- Legend ---
+    plt.rcParams["legend.framealpha"] = 1.0
+    plt.rcParams["legend.edgecolor"] = "black"
+    plt.rcParams["legend.facecolor"] = "white"
+    plt.rcParams["legend.frameon"] = True
+    
+    
 
     # --- Font embedding ---
     plt.rcParams["pdf.fonttype"] = 42
