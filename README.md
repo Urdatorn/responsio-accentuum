@@ -1,7 +1,8 @@
 # Responsio Accentuum - Accentual Patterns in Archaic Lyric Song
 
 [![ORCID](media/orcid-badge.svg)](https://orcid.org/0009-0003-3731-4038)
-![](media/baseline_prose_py04.gif)
+[![DOI](https://zenodo.org/badge/1030414532.svg)](https://doi.org/10.5281/zenodo.20308875)
+![img](media/baseline_prose_py04.gif)
 
 ## What is it?
 
