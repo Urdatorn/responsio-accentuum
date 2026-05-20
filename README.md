@@ -41,7 +41,7 @@ To analyze a song, the refrains first need to be scanned and presented in the fo
 </TEI>
 ```
 
-The ``<canticum>`` element exists so that a file can contain more than one song. The responding refrains of a song are nested inside the ``<canticum>`` as ``<strophe>`` elements, which in their turns have their lines as ``<l>`` elements. To make the markup process less arduous, the syllable-level is first entered as human-readable pseudo-markup with square brackets enclosing long syllables and curly brackets enclosing short. Ancipitia have a hashtag (#) after the opening bracket and resolved pairs of shorts both have euro signs (€) after their opening brackets. Line-final short syllables automatically get the attribute ``brevis_in_longo="True"``. After compilation, the final xml lines will have proper ``<syll>`` elements with attributes stating anceps or resolution. The compilation code is found in `compile.py`.´
+The ``<canticum>`` element exists so that a file can contain more than one song. The responding refrains of a song are nested inside the ``<canticum>`` as ``<strophe>`` elements, which in their turns have their lines as ``<l>`` elements. To make the markup process less arduous, the syllable-level is first entered as human-readable pseudo-markup with square brackets enclosing long syllables and curly brackets enclosing short. Ancipitia have a hashtag (#) after the opening bracket and resolved pairs of shorts both have euro signs (€) after their opening brackets. Line-final short syllables automatically get the attribute ``brevis_in_longo="True"``. After compilation, the final xml lines will have proper ``<syll>`` elements with attributes stating anceps or resolution. The compilation code is found in `compile.py`.
 
 ## Copyright and citation
 
